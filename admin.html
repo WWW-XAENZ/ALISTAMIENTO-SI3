@@ -1,221 +1,258 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADMIN - TRAZABILIDAD</title>
-  <link rel="icon" type="image/png" href="Logo-Web-SI3.png">
-  <link rel="stylesheet" href="Estilo.css">
-  <style>
-    .admin-page {
-      max-width: 1200px;
-      margin: 24px auto;
-      padding: 0 24px;
-    }
-    .admin-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .admin-header h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-primary);
-    }
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-    }
-    .admin-empty {
-      text-align: center;
-      color: var(--text-tertiary);
-      padding: 60px 20px;
-      font-size: 1rem;
-    }
-    .admin-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .admin-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-2xl);
-    }
-    .admin-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px;
-      border-bottom: 1px solid var(--border-light);
-      background: var(--bg-secondary);
-    }
-    .admin-card-title {
-      font-weight: 700;
-      font-size: 0.9375rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-primary);
-    }
-    .admin-card-meta {
-      font-size: 0.8125rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-    .admin-card-body {
-      padding: 16px;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 240px;
-    }
-    .admin-card-img {
-      width: 100%;
-      height: 100%;
-      max-height: 320px;
-      object-fit: contain;
-      border-radius: var(--radius-lg);
-      cursor: pointer;
-      background: #ffffff;
-    }
-    .admin-card-empty {
-      color: var(--text-tertiary);
-      font-size: 0.875rem;
-    }
-    .btn-back {
-      padding: 10px 18px;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--border-default);
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-weight: 600;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      transition: all 0.2s ease;
-    }
-    .btn-back:hover {
-      background: var(--gray-50);
-      border-color: var(--border-dark);
-      color: var(--text-primary);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registro y trazabilidad de alistamiento de producción.">
+    <title>Alistamiento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="Estilo.css">
 </head>
+
 <body>
-  <div class="admin-page">
-    <div class="admin-header">
-      <h1>ADMIN - TRAZABILIDAD</h1>
-      <button class="btn-back" onclick="window.close()">CERRAR</button>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
+            <div class="logo-text">
+                <div class="logo-title">ALISTAMIENTO</div>
+                <div class="logo-subtitle">Sistema de Registro</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </div>
-    <div class="admin-toolbar">
-      <div class="admin-search">
-        <label for="adminSearch">BUSCAR</label>
-        <input type="text" id="adminSearch" placeholder="Referencia, responsable, CKD...">
-      </div>
-      <div class="admin-date">
-        <label for="adminDate">FECHA</label>
-        <input type="date" id="adminDate">
-        <button type="button" class="btn-today" id="btnHoy">HOY</button>
-      </div>
-      <button class="btn-clear-filters" id="btnClearFilters">LIMPIAR FILTROS</button>
+
+    <!-- MENU OVERLAY -->
+    <nav class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel">
+            <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+            <h3 class="menu-title">MENÚ</h3>
+            <ul class="menu-list">
+                <li><a href="#" id="menuInicio" class="menu-link">INICIO</a></li>
+                <li><a href="#" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- TABLERO -->
+    <div class="board-banner">
+        <div class="board-banner-header">
+            <h2 id="boardFecha">TABLERO</h2>
+            <div class="board-actions">
+                <input type="file" id="inputFotoBoard" accept="image/*" class="hidden-input" aria-label="Adjuntar foto desde archivos">
+                <input type="file" id="inputFotoCamara" accept="image/*" capture="environment" class="hidden-input" aria-label="Tomar foto con la cámara">
+                <button type="button" class="btn btn-primary" id="btnAdicionarFoto">ADICIONAR FOTO</button>
+                <button type="button" class="btn btn-outline" id="btnTomarFoto">TOMAR FOTO</button>
+            </div>
+        </div>
+        <div id="tableroGrid" class="tablero-banner-grid"></div>
     </div>
-    <div id="adminGrid" class="admin-grid"></div>
-  </div>
 
-  <style>
-    .admin-toolbar {
-      display: flex;
-      gap: 16px;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-    .admin-search,
-    .admin-date {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .admin-search label,
-    .admin-date label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-    }
-    .admin-search input,
-    .admin-date input {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border-default);
-      border-radius: var(--radius-lg);
-      font-size: 0.9375rem;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 44px;
-      box-shadow: var(--shadow-xs);
-    }
-    .btn-clear-filters {
-      padding: 10px 16px;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--border-default);
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      min-height: 44px;
-      transition: all 0.2s ease;
-    }
-    .btn-clear-filters:hover {
-      background: var(--gray-50);
-      border-color: var(--border-dark);
-      color: var(--text-primary);
-    }
-    .btn-today {
-      margin-top: 8px;
-      padding: 8px 14px;
-      border-radius: var(--radius-lg);
-      border: 1.5px solid var(--primary-200);
-      background: var(--primary-50);
-      color: var(--primary-700);
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      min-height: 36px;
-      transition: all 0.2s ease;
-    }
-    .btn-today:hover {
-      background: var(--primary-100);
-      border-color: var(--primary-300);
-    }
-    @media (max-width: 640px) {
-      .admin-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .admin-search input,
-      .admin-date input {
-        width: 100%;
-      }
-      .btn-clear-filters {
-        width: 100%;
-      }
-    }
-  </style>
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="container" id="inicio">
+        <h1>Registro de Alistamiento</h1>
 
-  <script src="admin.js"></script>
+        <form id="formAlistamiento">
+            <!-- PRIMERA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fecha">Fecha</label>
+                    <input type="date" id="fecha" name="fecha">
+                </div>
+
+                <div class="form-group">
+                    <label for="turno">Turno</label>
+                    <select id="turno" name="turno">
+                        <option value="">Seleccionar</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-group--relative">
+                    <label for="referencia">Referencia</label>
+                    <input type="text" id="referencia" name="referencia" placeholder="Escribe una referencia..." autocomplete="off">
+                    <div id="referenciaDropdown" class="referencia-dropdown hidden"></div>
+                </div>
+            </div>
+
+            <!-- SEGUNDA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="base">Base</label>
+                    <input type="text" id="base" name="base" placeholder="Base">
+                </div>
+
+                <div class="form-group">
+                    <label for="fomi">Fomi</label>
+                    <input type="text" id="fomi" name="fomi" placeholder="Fomi">
+                </div>
+
+                <div class="form-group">
+                    <label for="componentes">Componentes</label>
+                    <input type="text" id="componentes" name="componentes" placeholder="Componentes">
+                </div>
+
+                <div class="form-group">
+                    <label for="forro">Forro</label>
+                    <input type="text" id="forro" name="forro" placeholder="Forro">
+                </div>
+            </div>
+
+            <!-- TERCERA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Firma</label>
+                    <div class="firma-wrap" id="firmaWrap">
+                        <canvas id="firmaRecibe" width="260" height="80" class="firma-canvas" role="img" aria-label="Panel para dibujar la firma de quien recibe">
+                            Tu navegador no soporta el panel de firma. Actualízalo para poder firmar digitalmente.
+                        </canvas>
+                        <div class="firma-hint">Toca para ampliar</div>
+                        <div class="firma-actions">
+                            <button type="button" class="btn btn-limpiar-firma" id="btnLimpiarFirma">Limpiar</button>
+                            <button type="button" class="btn btn-confirmar-firma" id="btnConfirmarFirma">Confirmar firma</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="recibe" name="recibe">
+                </div>
+
+                <div class="form-group">
+                    <label for="contabilizado">Contabilizado</label>
+                    <input type="number" id="contabilizado" name="contabilizado" placeholder="Contabilizado" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="responsable">Responsable</label>
+                    <select id="responsable" name="responsable">
+                        <option value="">Seleccionar</option>
+                        <option value="JUAN JOSE SAENZ">JUAN JOSE SAENZ</option>
+                        <option value="DAVID VALENCIA">DAVID VALENCIA</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar Registro</button>
+                <button type="button" class="btn btn-secondary" id="btnCancelar" style="display:none;">Cancelar</button>
+                <button type="button" class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+            </div>
+        </form>
+
+        <!-- DATOS DE REFERENCIAS -->
+        <datalist id="listaReferencias"></datalist>
+
+        <!-- TABLA -->
+        <div class="table-container">
+            <h2>Registros Guardados</h2>
+            <div class="table-wrapper">
+                <table id="tablaRegistros">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Turno</th>
+                            <th>Referencia</th>
+                            <th>Base</th>
+                            <th>Fomi</th>
+                            <th>Componentes</th>
+                            <th>Forro</th>
+                            <th>Firma</th>
+                            <th>Contabilizado</th>
+                            <th>Responsable</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRAZABILIDAD -->
+    <section class="trazabilidad" id="seccionTrazabilidad" style="display:none;">
+        <div class="container">
+            <h2>TRAZABILIDAD</h2>
+            <form id="formTrazabilidad" class="trazabilidad-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tz_fecha">FECHA</label>
+                        <input type="date" id="tz_fecha" name="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_referencia">REFERENCIA</label>
+                        <input type="text" id="tz_referencia" name="referencia" placeholder="REFERENCIA">
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_ckd">CKD</label>
+                        <select id="tz_ckd" name="ckd">
+                            <option value="">SELECCIONAR</option>
+                            <option value="CARTAGENA">CARTAGENA</option>
+                            <option value="RIONEGRO">RIONEGRO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_responsable">RESPONSABLE</label>
+                        <select id="tz_responsable" name="responsable">
+                            <option value="">SELECCIONAR</option>
+                            <option value="JUAN JOSE SAENZ">JUAN JOSE SAENZ</option>
+                            <option value="DAVID VALENCIA">DAVID VALENCIA</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>FOTO / CAMARA</label>
+                        <input type="file" id="tz_foto" name="foto" accept="image/*" class="hidden-input" aria-label="Adjuntar foto desde archivos">
+                        <input type="file" id="tz_foto_camara" name="foto_camara" accept="image/*" capture="environment" class="hidden-input" aria-label="Tomar foto con la cámara">
+                        <button type="button" class="btn btn-outline" id="btnTomarFotoTz">TOMAR FOTO</button>
+                        <button type="button" class="btn btn-secondary" id="btnAdjuntarFotoTz">ADJUNTAR FOTO</button>
+                        <img id="tz_preview" class="tz-preview" style="display:none;" alt="Vista previa">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">ENVIAR TRAZABILIDAD</button>
+                    <button type="button" class="btn btn-secondary" id="btnVolverInicio">VOLVER</button>
+                </div>
+            </form>
+            <div class="table-container">
+                <h2>REGISTROS TRAZABILIDAD</h2>
+                <div class="table-wrapper">
+                    <table id="tablaTrazabilidad">
+                        <thead>
+                            <tr>
+                                <th>FECHA</th>
+                                <th>REFERENCIA</th>
+                                <th>CKD</th>
+                                <th>RESPONSABLE</th>
+                                <th>FOTO</th>
+                                <th>ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTablaTrazabilidad"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="admin" id="seccionAdmin" style="display:none;">
+        <div class="container">
+            <h2>ADMIN</h2>
+            <div id="adminGrid" class="admin-grid"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="btnVolverInicioAdmin">VOLVER</button>
+            </div>
+        </div>
+    </section>
+
+    <script src="app.js"></script>
 </body>
 </html>
