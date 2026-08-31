@@ -161,17 +161,31 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function actualizarDatalistReferencias() {
-  const registros = getRegistros();
-  const referencias = Array.from(new Set(registros.map(r => r.referencia).filter(Boolean)));
-  referencias.sort((a, b) => a.localeCompare(b));
-
+async function actualizarDatalistReferencias() {
   const datalist = document.getElementById('listaReferencias');
   if (!datalist) return;
   datalist.innerHTML = '';
-  referencias.forEach(ref => {
+
+  const locales = getRegistros();
+  const localesRefs = new Set(locales.map(r => r.referencia).filter(Boolean));
+
+  const remotos = await cargarRegistrosJSON();
+  const todos = [...locales, ...remotos];
+
+  const unicos = new Map();
+  todos.forEach(r => {
+    const clave = r.referencia || r.producto;
+    if (clave && !unicos.has(clave)) {
+      unicos.set(clave, r);
+    }
+  });
+
+  const refs = Array.from(unicos.keys());
+  refs.sort((a, b) => a.localeCompare(b));
+
+  refs.forEach(ref => {
     const option = document.createElement('option');
-    option.value = ref;
+    option.value = ref.toUpperCase();
     datalist.appendChild(option);
   });
 }
@@ -235,8 +249,21 @@ function initReferenciaDropdown() {
       item.className = 'referencia-item';
       const nombre = r.referencia || r.producto;
 
+      const componentes = Array.isArray(r.componentes)
+        ? r.componentes.map(c => {
+            const tipo = c.tipo || '';
+            const codigo = c.codigo || '';
+            return `${tipo}: ${codigo}`;
+          }).join(', ')
+        : '';
+
+      const refMeta = componentes
+        ? `<span class="ref-meta">${escapeHtml(componentes)}</span>`
+        : '<span class="ref-meta">Sin componentes</span>';
+
       item.innerHTML = `
         <span class="ref-code">${escapeHtml(nombre.toUpperCase())}</span>
+        ${refMeta}
       `;
 
       item.addEventListener('mousedown', (e) => {
@@ -272,7 +299,7 @@ function autocompletarFormulario(producto) {
   if (producto.base) document.getElementById('base').value = producto.base;
   if (producto.fomi) document.getElementById('fomi').value = producto.fomi;
   if (producto.forro) document.getElementById('forro').value = producto.forro;
-  if (producto.componentes) {
+  if (producto.componentes && Array.isArray(producto.componentes)) {
     const compInput = document.getElementById('componentes');
     if (compInput) {
       compInput.value = producto.componentes.map(c => {
@@ -302,7 +329,7 @@ function multiplicarComponentes() {
     ...(productoSeleccionado.anti_vibrantes || []),
   ];
 
-  const componentesBase = productoSeleccionado.componentes || [];
+  const componentesBase = Array.isArray(productoSeleccionado.componentes) ? productoSeleccionado.componentes : [];
   const pins = componentesBase.filter(c => {
     const tipo = (c.tipo || '').toLowerCase();
     return tipo.includes('pin');
@@ -526,6 +553,15 @@ function multiplicarComponentesGlobal(producto, cantidadBase) {
     ...(producto.componentes_adicionales || []),
     ...(producto.kits || []),
     ...(producto.anti_vibrantes || []),
+    ...(Array.isArray(producto.componentes)
+      ? producto.componentes.filter(c => {
+          const tipo = (c.tipo || '').toLowerCase();
+          return tipo.includes('pin');
+        }).map(c => ({
+          ...c,
+          cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+        }))
+      : []),
   ];
 
   return adicionales.map(c => {
@@ -561,9 +597,11 @@ async function agregarRegistro(e) {
       ...(producto.componentes || []).filter(c => {
         const tipo = (c.tipo || '').toLowerCase();
         return tipo.includes('pin');
-      }).map(c => ({
-        ...c,
-        cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+      }).map(c => {
+        return {
+          ...c,
+          cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+        };
       }),
     ].filter(c => {
       const tipo = (c.tipo || '').toLowerCase();
