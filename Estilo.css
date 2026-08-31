@@ -1121,6 +1121,7 @@ h1 {
   display: block;
   margin-bottom: 2px;
   font-size: 0.9375rem;
+  text-transform: uppercase;
 }
 
 .referencia-item .ref-meta {

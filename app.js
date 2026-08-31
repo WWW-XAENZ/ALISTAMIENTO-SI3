@@ -3,6 +3,7 @@ const JSON_PATH = 'Registros.json';
 
 let editIndex = null;
 let jsonRegistrosCache = [];
+let productoSeleccionado = null;
 
 function getTodayString() {
   const hoy = new Date();
@@ -101,6 +102,7 @@ function limpiarFormulario() {
   document.getElementById('contabilizado').value = '';
   document.getElementById('responsable').value = '';
   editIndex = null;
+  productoSeleccionado = null;
   document.getElementById('btnGuardar').textContent = 'GUARDAR REGISTRO';
   document.getElementById('btnGuardar').className = 'btn-primary';
   document.getElementById('btnCancelar').style.display = 'none';
@@ -234,12 +236,12 @@ function initReferenciaDropdown() {
       const nombre = r.referencia || r.producto;
 
       item.innerHTML = `
-        <span class="ref-code">${escapeHtml(nombre)}</span>
+        <span class="ref-code">${escapeHtml(nombre.toUpperCase())}</span>
       `;
 
       item.addEventListener('mousedown', (e) => {
         e.preventDefault();
-        input.value = nombre;
+        input.value = nombre.toUpperCase();
         dropdown.style.display = 'none';
         autocompletarFormulario(r);
       });
@@ -264,20 +266,81 @@ function initReferenciaDropdown() {
 }
 
 function autocompletarFormulario(producto) {
-  document.getElementById('referencia').value = producto.referencia || producto.producto || '';
+  productoSeleccionado = producto;
+  const ref = (producto.referencia || producto.producto || '').toUpperCase();
+  document.getElementById('referencia').value = ref;
+  if (producto.base) document.getElementById('base').value = producto.base;
+  if (producto.fomi) document.getElementById('fomi').value = producto.fomi;
+  if (producto.forro) document.getElementById('forro').value = producto.forro;
+  if (producto.componentes) {
+    const compInput = document.getElementById('componentes');
+    if (compInput) {
+      compInput.value = producto.componentes.map(c => {
+        const partes = [];
+        if (c.codigo) partes.push(c.codigo);
+        if (c.descripcion) partes.push(c.descripcion);
+        return partes.join(' ');
+      }).join(', ');
+    }
+  }
+  multiplicarComponentes();
+}
+
+function multiplicarComponentes() {
+  if (!productoSeleccionado) return;
+
+  const baseInput = document.getElementById('base');
+  const componentesInput = document.getElementById('componentes');
+  if (!baseInput || !componentesInput) return;
+
+  const cantidadBase = parseInt(baseInput.value, 10);
+  if (isNaN(cantidadBase) || cantidadBase <= 0) return;
+
+  const adicionales = [
+    ...(productoSeleccionado.componentes_adicionales || []),
+    ...(productoSeleccionado.kits || []),
+    ...(productoSeleccionado.anti_vibrantes || []),
+  ];
+
+  const componentesBase = productoSeleccionado.componentes || [];
+  const pins = componentesBase.filter(c => {
+    const tipo = (c.tipo || '').toLowerCase();
+    return tipo.includes('pin');
+  }).map(c => ({
+    ...c,
+    cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+  }));
+  adicionales.push(...pins);
+
+  if (adicionales.length === 0) return;
+
+  const lineas = adicionales.map(c => {
+    const partes = [];
+    if (c.codigo) partes.push(c.codigo);
+    if (c.descripcion) partes.push(c.descripcion);
+    const cantidad = (c.cantidad_por_base || c.cantidad || 0) * cantidadBase;
+    if (cantidad > 0) partes.push(`x${cantidad}${c.unidad || ''}`);
+    return partes.join(' ');
+  });
+
+  componentesInput.value = lineas.join(', ');
 }
 
 function initMultiplicadorComponentes() {
   const baseInput = document.getElementById('base');
-  const componentesInput = document.getElementById('componentes');
   const referenciaInput = document.getElementById('referencia');
 
-  if (!baseInput || !componentesInput || !referenciaInput) return;
+  if (!baseInput || !referenciaInput) return;
 
-  let productoSeleccionado = null;
+  baseInput.addEventListener('input', multiplicarComponentes);
 
-  async function actualizarOpciones() {
-    const valor = referenciaInput.value.trim().toLowerCase();
+  referenciaInput.addEventListener('change', async () => {
+    const valor = referenciaInput.value.trim();
+    if (!valor) {
+      productoSeleccionado = null;
+      return;
+    }
+
     const locales = getRegistros();
     const remotos = await cargarRegistrosJSON();
     const todos = [...locales, ...remotos];
@@ -285,8 +348,7 @@ function initMultiplicadorComponentes() {
     const filtrados = todos.filter(r => {
       if (!r.referencia && !r.producto) return false;
       const nombre = (r.referencia || r.producto || '').toLowerCase();
-      if (!valor) return true;
-      return nombre.includes(valor);
+      return nombre === valor.toLowerCase();
     });
 
     const unicos = new Map();
@@ -297,53 +359,12 @@ function initMultiplicadorComponentes() {
       }
     });
 
-    return Array.from(unicos.values());
-  }
-
-  referenciaInput.addEventListener('change', async () => {
-    const valor = referenciaInput.value.trim();
-    if (!valor) return;
-
-    const resultados = await actualizarOpciones();
-    const producto = resultados.find(r => {
-      const nombre = r.referencia || r.producto;
-      return nombre.toLowerCase() === valor.toLowerCase();
-    });
-
-    if (producto) {
-      productoSeleccionado = producto;
-      autocompletarFormulario(producto);
+    const productos = Array.from(unicos.values());
+    if (productos.length > 0) {
+      productoSeleccionado = productos[0];
       multiplicarComponentes();
     }
   });
-
-  baseInput.addEventListener('input', multiplicarComponentes);
-
-  function multiplicarComponentes() {
-    if (!productoSeleccionado) return;
-
-    const cantidadBase = parseInt(baseInput.value, 10);
-    if (isNaN(cantidadBase) || cantidadBase <= 0) return;
-
-    const adicionales = [
-      ...(productoSeleccionado.componentes_adicionales || []),
-      ...(productoSeleccionado.kits || []),
-      ...(productoSeleccionado.anti_vibrantes || []),
-    ];
-
-    if (adicionales.length === 0) return;
-
-    const lineas = adicionales.map(c => {
-      const partes = [];
-      if (c.codigo) partes.push(c.codigo);
-      if (c.descripcion) partes.push(c.descripcion);
-      const cantidad = (c.cantidad_por_base || c.cantidad || 0) * cantidadBase;
-      if (cantidad > 0) partes.push(`x${cantidad}${c.unidad || ''}`);
-      return partes.join(' ');
-    });
-
-    componentesInput.value = lineas.join(', ');
-  }
 }
 
 function initFirma() {
@@ -537,6 +558,13 @@ async function agregarRegistro(e) {
       ...(producto.componentes_adicionales || []),
       ...(producto.kits || []),
       ...(producto.anti_vibrantes || []),
+      ...(producto.componentes || []).filter(c => {
+        const tipo = (c.tipo || '').toLowerCase();
+        return tipo.includes('pin');
+      }).map(c => ({
+        ...c,
+        cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+      }),
     ].filter(c => {
       const tipo = (c.tipo || '').toLowerCase();
       return tipo !== 'base' && tipo !== 'forro' && tipo !== 'forro ee';
@@ -584,7 +612,7 @@ async function agregarRegistro(e) {
   showToast('REGISTRO GUARDADO CORRECTAMENTE', 'success');
 }
 
-function editarRegistro(index) {
+async function editarRegistro(index) {
   const registros = getRegistros();
   const registro = registros[index];
   if (!registro) return;
@@ -604,6 +632,9 @@ function editarRegistro(index) {
   } else {
     limpiarFirma();
   }
+
+  const producto = await obtenerProductoReferencia(registro.referencia || '');
+  productoSeleccionado = producto || null;
 
   editIndex = index;
   document.getElementById('btnGuardar').textContent = 'ACTUALIZAR';
@@ -690,7 +721,7 @@ document.getElementById('cuerpoTabla').addEventListener('click', function (e) {
   } else if (e.target.classList.contains('btn-edit')) {
     const index = parseInt(e.target.getAttribute('data-index'), 10);
     if (!isNaN(index)) {
-      editarRegistro(index);
+      editarRegistro(index).catch(() => {});
     }
   }
 });
