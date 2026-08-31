@@ -491,6 +491,7 @@ h1 {
 #referencia {
   padding-left: 58px;
   width: 100%;
+  text-transform: uppercase;
 }
 
 .form-group input,

@@ -4,6 +4,7 @@ const JSON_PATH = 'Registros.json';
 let editIndex = null;
 let jsonRegistrosCache = [];
 let productoSeleccionado = null;
+let componentesEditadoManualmente = false;
 
 function getTodayString() {
   const hoy = new Date();
@@ -103,6 +104,7 @@ function limpiarFormulario() {
   document.getElementById('responsable').value = '';
   editIndex = null;
   productoSeleccionado = null;
+  componentesEditadoManualmente = false;
   document.getElementById('btnGuardar').textContent = 'GUARDAR REGISTRO';
   document.getElementById('btnGuardar').className = 'btn-primary';
   document.getElementById('btnCancelar').style.display = 'none';
@@ -134,7 +136,7 @@ function renderTabla() {
       <td>${escapeHtml(registro.referencia)}</td>
       <td>${escapeHtml(registro.base)}</td>
       <td>${escapeHtml(registro.fomi)}</td>
-      <td>${escapeHtml(registro.componentes)}</td>
+      <td>${escapeHtml(registro.componentes || '').replace(/\n/g, '<br>')}</td>
       <td>${escapeHtml(registro.forro)}</td>
       <td>${registro.recibe ? `<img src="${registro.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
       <td>${escapeHtml(registro.contabilizado)}</td>
@@ -249,16 +251,27 @@ function initReferenciaDropdown() {
       item.className = 'referencia-item';
       const nombre = r.referencia || r.producto;
 
-      const componentes = Array.isArray(r.componentes)
-        ? r.componentes.map(c => {
-            const tipo = c.tipo || '';
-            const codigo = c.codigo || '';
-            return `${tipo}: ${codigo}`;
-          }).join(', ')
-        : '';
+      const componentesList = [];
+      if (Array.isArray(r.componentes)) {
+        r.componentes.forEach(c => {
+          const codigo = c.codigo || '';
+          const tipo = c.tipo || '';
+          if (tipo && codigo) componentesList.push(`${tipo}: ${codigo}`);
+          else if (codigo) componentesList.push(codigo);
+        });
+      }
+      if (Array.isArray(r.componentes_adicionales)) {
+        r.componentes_adicionales.forEach(c => {
+          const codigo = c.codigo || '';
+          const tipo = c.tipo || '';
+          const qty = c.cantidad_por_base || c.cantidad || 1;
+          if (tipo && codigo) componentesList.push(`${tipo}: ${codigo} (x${qty})`);
+          else if (codigo) componentesList.push(`${codigo} (x${qty})`);
+        });
+      }
 
-      const refMeta = componentes
-        ? `<span class="ref-meta">${escapeHtml(componentes)}</span>`
+      const refMeta = componentesList.length
+        ? `<span class="ref-meta">${escapeHtml(componentesList.join(', '))}</span>`
         : '<span class="ref-meta">Sin componentes</span>';
 
       item.innerHTML = `
@@ -294,23 +307,12 @@ function initReferenciaDropdown() {
 
 function autocompletarFormulario(producto) {
   productoSeleccionado = producto;
+  componentesEditadoManualmente = false;
   const ref = (producto.referencia || producto.producto || '').toUpperCase();
   document.getElementById('referencia').value = ref;
   if (producto.base) document.getElementById('base').value = producto.base;
   if (producto.fomi) document.getElementById('fomi').value = producto.fomi;
   if (producto.forro) document.getElementById('forro').value = producto.forro;
-  if (producto.componentes && Array.isArray(producto.componentes)) {
-    const compInput = document.getElementById('componentes');
-    if (compInput) {
-      compInput.value = producto.componentes.map(c => {
-        const partes = [];
-        if (c.codigo) partes.push(c.codigo);
-        if (c.descripcion) partes.push(c.descripcion);
-        return partes.join(' ');
-      }).join(', ');
-    }
-  }
-  multiplicarComponentes();
 }
 
 function multiplicarComponentes() {
@@ -342,15 +344,14 @@ function multiplicarComponentes() {
   if (adicionales.length === 0) return;
 
   const lineas = adicionales.map(c => {
-    const partes = [];
-    if (c.codigo) partes.push(c.codigo);
-    if (c.descripcion) partes.push(c.descripcion);
     const cantidad = (c.cantidad_por_base || c.cantidad || 0) * cantidadBase;
-    if (cantidad > 0) partes.push(`x${cantidad}${c.unidad || ''}`);
-    return partes.join(' ');
-  });
+    const codigo = c.codigo || '';
+    if (cantidad > 0 && codigo) return `${codigo} ${cantidad}`;
+    return '';
+  }).filter(v => v);
 
-  componentesInput.value = lineas.join(', ');
+  componentesInput.value = lineas.join('\n');
+  componentesEditadoManualmente = false;
 }
 
 function initMultiplicadorComponentes() {
@@ -358,6 +359,13 @@ function initMultiplicadorComponentes() {
   const referenciaInput = document.getElementById('referencia');
 
   if (!baseInput || !referenciaInput) return;
+
+  const componentesInput = document.getElementById('componentes');
+  if (componentesInput) {
+    componentesInput.addEventListener('input', () => {
+      componentesEditadoManualmente = true;
+    });
+  }
 
   baseInput.addEventListener('input', multiplicarComponentes);
 
@@ -549,29 +557,25 @@ async function obtenerProductoReferencia(referencia) {
 }
 
 function multiplicarComponentesGlobal(producto, cantidadBase) {
+  const componentesBase = Array.isArray(producto.componentes) ? producto.componentes : [];
   const adicionales = [
     ...(producto.componentes_adicionales || []),
     ...(producto.kits || []),
     ...(producto.anti_vibrantes || []),
-    ...(Array.isArray(producto.componentes)
-      ? producto.componentes.filter(c => {
-          const tipo = (c.tipo || '').toLowerCase();
-          return tipo.includes('pin');
-        }).map(c => ({
-          ...c,
-          cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
-        }))
-      : []),
+    ...(componentesBase.filter(c => {
+      const tipo = (c.tipo || '').toLowerCase();
+      return tipo.includes('pin');
+    }).map(c => ({
+      ...c,
+      cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
+    }))),
   ];
 
   return adicionales.map(c => {
-    const partes = [];
-    if (c.codigo) partes.push(c.codigo);
-    if (c.descripcion) partes.push(c.descripcion);
+    const codigo = c.codigo || '';
     const cantidad = (c.cantidad_por_base || c.cantidad || 0) * cantidadBase;
-    if (cantidad > 0) partes.push(`x${cantidad}${c.unidad || ''}`);
-    return partes.join(' ');
-  }).join(', ');
+    return `${codigo} ${cantidad}`;
+  }).join('\n');
 }
 
 async function agregarRegistro(e) {
@@ -594,41 +598,51 @@ async function agregarRegistro(e) {
       ...(producto.componentes_adicionales || []),
       ...(producto.kits || []),
       ...(producto.anti_vibrantes || []),
-      ...(producto.componentes || []).filter(c => {
-        const tipo = (c.tipo || '').toLowerCase();
-        return tipo.includes('pin');
+      ...(componentesBase.filter(c => {
+        const t = (c.tipo || '').toLowerCase();
+        return t.includes('pin');
       }).map(c => {
         return {
           ...c,
           cantidad_por_base: c.cantidad_por_base || c.cantidad || 1
         };
-      }),
-    ].filter(c => {
-      const tipo = (c.tipo || '').toLowerCase();
-      return tipo !== 'base' && tipo !== 'forro' && tipo !== 'forro ee';
-    });
+      })),
+    ];
 
     if (baseEncontrada || adicionales.length > 0) {
-      const componentesTexto = adicionales.map(c => {
-        const desc = c.descripcion ? ` (${c.descripcion})` : '';
-        const cantidad = (c.cantidad_por_base || c.cantidad || 1) * multiplicadorBase;
-        const unidad = c.unidad || 'und';
-        const codigo = c.codigo ? `${c.codigo}` : '';
-        return `${codigo}${desc} x${cantidad}${unidad}`;
-      }).join(', ');
-
       registros.push({
         fecha: data.fecha,
         turno: data.turno,
         referencia: data.referencia,
         base: baseEncontrada ? `${multiplicadorBase} und` : '',
-        forro: '',
-        componentes: componentesTexto,
+        forro: data.forro || '',
+        componentes: data.componentes || '',
         descripcion: '',
         fomi: data.fomi,
         contabilizado: data.contabilizado,
         responsable: data.responsable,
         recibe: firma,
+      });
+
+      adicionales.forEach(c => {
+        const cantidad = (c.cantidad_por_base || c.cantidad || 1) * multiplicadorBase;
+        const codigo = c.codigo || '';
+        const tipo = c.tipo || '';
+        if (codigo && cantidad > 0) {
+          registros.push({
+            fecha: data.fecha,
+            turno: data.turno,
+            referencia: codigo,
+            base: '',
+            forro: '',
+            componentes: String(cantidad),
+            descripcion: tipo,
+            fomi: '',
+            contabilizado: '',
+            responsable: '',
+            recibe: firma,
+          });
+        }
       });
     } else {
       registros.push({
@@ -705,7 +719,7 @@ async function actualizarRegistro(e) {
   const producto = await obtenerProductoReferencia(data.referencia);
 
   let componentesFinal = data.componentes;
-  if (producto && !isNaN(cantidadBase) && cantidadBase > 0) {
+  if (producto && !isNaN(cantidadBase) && cantidadBase > 0 && !componentesEditadoManualmente) {
     componentesFinal = multiplicarComponentesGlobal(producto, cantidadBase);
   }
 
