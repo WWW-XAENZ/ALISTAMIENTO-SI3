@@ -1,35 +1,38 @@
 {
   "materiales": [
     {
-      "producto": "ADVANCE",
+      "producto": "Bomber Polo",
       "componentes": [
-        { "tipo": "Base", "codigo": "700000530" },
-        { "tipo": "Forro", "codigo": "10002156" }
-      ],
-      "componentes_adicionales": [
-        {
-          "codigo": "30001991",
-          "descripcion": "UND",
-          "cantidad_por_base": 2
-        },
-        {
-          "codigo": "30001992",
-          "descripcion": "UNF",
-          "cantidad_por_base": 2
-        },
-        {
-          "codigo": "30001993",
-          "descripcion": "UND",
-          "cantidad_por_base": 1
-        }
+        { "tipo": "Base", "codigo": "30006403" },
+        { "tipo": "Forro", "codigo": "10002916" }
       ]
     },
     {
-      "producto": "AGILITY FUSIÓN",
+      "producto": "Hunter X1",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30009488" },
+        { "tipo": "Forro", "codigo": "10002074" }
+      ]
+    },
+    {
+      "producto": "MRX 200",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30005837" },
+        { "tipo": "Forro", "codigo": "10002150" }
+      ]
+    },
+    {
+      "producto": "MRX 150",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30005837" },
+        { "tipo": "Forro", "codigo": "10002469" }
+      ]
+    },
+    {
+      "producto": "Agility Fusión",
       "componentes": [
         { "tipo": "Base", "codigo": "70000055" },
-        { "tipo": "Forro", "codigo": "10002157" },
-        { "tipo": "Forro EE", "codigo": "10002803" }
+        { "tipo": "Forro", "codigo": "10002157" }
       ],
       "componentes_adicionales": [
         {
@@ -55,149 +58,15 @@
       ]
     },
     {
-      "producto": "APACHE 200",
+      "producto": "Victory Life",
       "componentes": [
-        { "tipo": "Base delantero", "codigo": "30007922" },
-        { "tipo": "Base trasero", "codigo": "30007923" },
-        { "tipo": "Forro delantero", "codigo": "90004243" },
-        { "tipo": "Forro trasero", "codigo": "90004244" }
-      ],
-      "subensamble": {
-        "codigo": null
-      }
-    },
-    {
-      "producto": "APACHE 4V",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30007544" },
-        { "tipo": "Forro", "codigo": "10002680" },
-        { "tipo": "Forro EE", "codigo": "10002501" }
-      ]
-    },
-    {
-      "producto": "ARIZONA",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30010309" },
-        { "tipo": "Forro NG", "codigo": "10002919" },
-        { "tipo": "Forro V2 NG", "codigo": "10002986" }
-      ]
-    },
-    {
-      "producto": "BBL3",
-      "componentes": [
-        { "tipo": "Base", "codigo": "7000080" },
-        { "tipo": "Forro", "codigo": "10002917" }
-      ]
-    },
-    {
-      "producto": "BET ADV",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30013112" },
-        { "tipo": "Forro", "codigo": "10003229" }
-      ],
-      "componentes_adicionales": [
+        { "tipo": "Base", "codigo": "30005844" },
         {
-          "tipo": "TIRA DE GOMA BET ADV",
-          "codigo": "30013197",
-          "cantidad_por_base": 1
-        }
-      ]
-    },
-    {
-      "producto": "BOMBER POLO",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30006403" },
-        { "tipo": "Forro", "codigo": "10002916" }
-      ]
-    },
-    {
-      "producto": "COMBAT WARRIOR",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30010769" },
-        { "tipo": "Forro", "codigo": "10002464" }
-      ]
-    },
-    {
-      "producto": "DAZZ",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30009791" },
-        { "tipo": "Forro", "codigo": "10002682" }
-      ]
-    },
-    {
-      "producto": "DAYTONA",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30010007" },
-        { "tipo": "Forro", "codigo": "10002142" }
-      ]
-    },
-    {
-      "producto": "D241",
-      "componentes": [
-        { "tipo": "Base", "codigo": "70000077" },
-        { "tipo": "Forro", "codigo": "10002198" },
-        { "tipo": "Pin", "codigo": "10002744" }
-      ]
-    },
-    {
-      "producto": "DUKE 250/390",
-      "componentes": [
-        { "tipo": "Base delantero", "codigo": "30001309" },
-        { "tipo": "Base trasero", "codigo": "30001310" },
-        { "tipo": "Forro delantero", "codigo": "10000860" },
-        { "tipo": "Forro trasero", "codigo": "10000862" }
-      ]
-    },
-    {
-      "producto": "ECO",
-      "componentes": [
-        { "tipo": "Base", "codigo": "10001284" },
-        { "tipo": "Forro Fresh", "codigo": "10002200" },
-        { "tipo": "Forro normal", "codigo": "10001208" }
-      ],
-      "componentes_adicionales": [
-        {
-          "tipo": "RUBBER SEAT CUSHION 77206",
-          "codigo": "10001210",
-          "cantidad_por_base": 2
+          "tipo": "Forro",
+          "codigo": "10001574",
+          "descripcion": "Pade o normal"
         },
-        {
-          "tipo": "RUBBER A SEAT SETTING 77204",
-          "codigo": "10001211",
-          "cantidad_por_base": 5
-        },
-        {
-          "tipo": "RUBBER SEAT MTG 77202",
-          "codigo": "10001212",
-          "cantidad_por_base": 2
-        }
-      ]
-    },
-    {
-      "producto": "FALSOS APACHE 200",
-      "componentes": [
-        { "tipo": "Falso", "codigo": "900004124" },
-        { "tipo": "Falso", "codigo": "90004125" }
-      ]
-    },
-    {
-      "producto": "FOMI MARIPOSA",
-      "componentes": [
-        { "tipo": "Base", "codigo": "10001201" }
-      ]
-    },
-    {
-      "producto": "HUNTER X1",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30009488" },
-        { "tipo": "Forro", "codigo": "10002074" }
-      ]
-    },
-    {
-      "producto": "HUNK",
-      "componentes": [
-        { "tipo": "Base", "codigo": "10001619" },
-        { "tipo": "Forro", "codigo": "90006670" }
+        { "tipo": "Kit", "codigo": "30006029" }
       ]
     },
     {
@@ -209,66 +78,64 @@
       ]
     },
     {
-      "producto": "MRX 150",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30005837" },
-        { "tipo": "Forro", "codigo": "10002469" }
-      ]
-    },
-    {
-      "producto": "MRX 200",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30005837" },
-        { "tipo": "Forro", "codigo": "10002150" }
-      ]
-    },
-    {
-      "producto": "MRX FACELIFT",
+      "producto": "MRX Facelift",
       "componentes": [
         { "tipo": "Forro", "codigo": "10002992" }
       ]
     },
     {
-      "producto": "N360",
-      "componentes": [
-        { "tipo": "Base delantero", "codigo": "30008522" },
-        { "tipo": "Base trasero", "codigo": "30008521" },
-        { "tipo": "Forro delantero", "codigo": "10002190" },
-        { "tipo": "Forro trasero", "codigo": "10002683" }
-      ]
-    },
-    {
-      "producto": "NEO",
+      "producto": "Neo",
       "componentes": [
         { "tipo": "Base", "codigo": "30007867" },
         { "tipo": "Forro", "codigo": "10002679" }
       ]
     },
     {
-      "producto": "NEO FI",
+      "producto": "Apache 200",
       "componentes": [
-        { "tipo": "Base", "codigo": "30013111" },
-        { "tipo": "Forro", "codigo": "10003228" }
+        { "tipo": "Base delantero", "codigo": "30007922" },
+        { "tipo": "Base trasero", "codigo": "30007923" },
+        { "tipo": "Forro delantero", "codigo": "90004243" },
+        { "tipo": "Forro trasero", "codigo": "90004244" }
+      ],
+      "subensamble": {
+        "codigo": null
+      }
+    },
+    {
+      "producto": "Duke 250/390",
+      "componentes": [
+        { "tipo": "Base delantero", "codigo": "30001309" },
+        { "tipo": "Base trasero", "codigo": "30001310" },
+        { "tipo": "Forro delantero", "codigo": "10000860" },
+        { "tipo": "Forro trasero", "codigo": "10000862" }
       ]
     },
     {
-      "producto": "NITRO",
+      "producto": "Apache 4V",
       "componentes": [
-        { "tipo": "Base", "codigo": "30005845" },
-        { "tipo": "Forro", "codigo": "10001681" },
-        { "tipo": "Forro EE", "codigo": "10002757" }
+        { "tipo": "Base", "codigo": "30007544" },
+        { "tipo": "Forro", "codigo": "10002680" },
+        { "tipo": "Forro EE", "codigo": "10002501" }
       ]
     },
     {
-      "producto": "NTORQ",
+      "producto": "Combat Warrior",
       "componentes": [
-        { "tipo": "Base", "codigo": "30007675" },
-        { "tipo": "Forro", "codigo": "10002678" },
-        { "tipo": "Forro EE", "codigo": "10002677" }
+        { "tipo": "Base", "codigo": "30010769" },
+        { "tipo": "Forro", "codigo": "10002464" }
       ]
     },
     {
-      "producto": "SPORT 100",
+      "producto": "Arizona",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30010309" },
+        { "tipo": "Forro NG", "codigo": "10002919" },
+        { "tipo": "Forro V2 NG", "codigo": "10002986" }
+      ]
+    },
+    {
+      "producto": "Sport 100",
       "componentes": [
         { "tipo": "Base", "codigo": "30007310" },
         { "tipo": "Forro", "codigo": "10002681" }
@@ -297,47 +164,22 @@
       ]
     },
     {
-      "producto": "STRIKER",
+      "producto": "Daytona",
       "componentes": [
-        { "tipo": "Base", "codigo": "30007311" },
-        { "tipo": "Forro", "codigo": "10001571" }
+        { "tipo": "Base", "codigo": "30010007" },
+        { "tipo": "Forro", "codigo": "10002142" }
       ]
     },
     {
-      "producto": "SWITCH WEX",
+      "producto": "D241",
       "componentes": [
-        { "tipo": "Base", "codigo": "30006260" },
-        { "tipo": "Forro", "codigo": "10002212" }
+        { "tipo": "Base", "codigo": "70000077" },
+        { "tipo": "Forro", "codigo": "10002198" },
+        { "tipo": "Pin", "codigo": "30011473" }
       ]
     },
     {
-      "producto": "TWIST",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30000140" },
-        { "tipo": "Forro 2022", "codigo": "10002030" }
-      ]
-    },
-    {
-      "producto": "VICTORY LIFE",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30005844" },
-        {
-          "tipo": "Forro",
-          "codigo": "10001574",
-          "descripcion": "PADE O NORMAL"
-        },
-        { "tipo": "Kit", "codigo": "30006029" }
-      ]
-    },
-    {
-      "producto": "VICTORY ONE",
-      "componentes": [
-        { "tipo": "Base", "codigo": "30000335" },
-        { "tipo": "Forro", "codigo": "10000750" }
-      ]
-    },
-    {
-      "producto": "VENOM 14-18",
+      "producto": "Venom 14-18",
       "componentes": [
         { "tipo": "Base delantero", "codigo": "30009772" },
         { "tipo": "Base trasero", "codigo": "30009773" },
@@ -345,6 +187,157 @@
         { "tipo": "Forro 14 trasero", "codigo": "10002141" },
         { "tipo": "Forro 18 delantero", "codigo": "10002125" },
         { "tipo": "Forro 18 trasero", "codigo": "10002126" }
+      ]
+    },
+    {
+      "producto": "Eco",
+      "componentes": [
+        { "tipo": "Base", "codigo": "10001284" },
+        { "tipo": "Forro Fresh", "codigo": "10002200" },
+        { "tipo": "Forro normal", "codigo": "10001208" }
+      ],
+      "componentes_adicionales": [
+        {
+          "tipo": "RUBBER SEAT CUSHION 77206",
+          "codigo": "10001210",
+          "cantidad_por_base": 2
+        },
+        {
+          "tipo": "RUBBER A SEAT SETTING 77204",
+          "codigo": "10001211",
+          "cantidad_por_base": 5
+        },
+        {
+          "tipo": "RUBBER SEAT MTG 77202",
+          "codigo": "10001212",
+          "cantidad_por_base": 2
+        }
+      ]
+    },
+    {
+      "producto": "Nitro",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30005845" },
+        { "tipo": "Forro", "codigo": "10001681" },
+        { "tipo": "Forro EE", "codigo": "10002757" }
+      ]
+    },
+    {
+      "producto": "Victory One",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30000335" },
+        { "tipo": "Forro", "codigo": "10000750" }
+      ]
+    },
+    {
+      "producto": "NtorQ",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30007675" },
+        { "tipo": "Forro", "codigo": "10002678" },
+        { "tipo": "Forro EE", "codigo": "10002677" }
+      ]
+    },
+    {
+      "producto": "Advance",
+      "componentes": [
+        { "tipo": "Base", "codigo": "700000530" },
+        { "tipo": "Forro", "codigo": "10002156" }
+      ],
+      "componentes_adicionales": [
+        {
+          "codigo": "30001991",
+          "descripcion": "UND",
+          "cantidad_por_base": 2
+        },
+        {
+          "codigo": "30001992",
+          "descripcion": "UNF",
+          "cantidad_por_base": 2
+        },
+        {
+          "codigo": "30001993",
+          "descripcion": "UND",
+          "cantidad_por_base": 1
+        }
+      ]
+    },
+    {
+      "producto": "Dazz",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30009791" },
+        { "tipo": "Forro", "codigo": "10002682" }
+      ]
+    },
+    {
+      "producto": "N360",
+      "componentes": [
+        { "tipo": "Base delantero", "codigo": "30008522" },
+        { "tipo": "Base trasero", "codigo": "30008521" },
+        { "tipo": "Forro delantero", "codigo": "10002190" },
+        { "tipo": "Forro trasero", "codigo": "10002683" }
+      ]
+    },
+    {
+      "producto": "Switch WEX",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30006260" },
+        { "tipo": "Forro", "codigo": "10002212" }
+      ]
+    },
+    {
+      "producto": "Striker",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30007311" },
+        { "tipo": "Forro", "codigo": "10001571" }
+      ]
+    },
+    {
+      "producto": "Twist",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30000140" },
+        { "tipo": "Forro 2022", "codigo": "10002030" }
+      ]
+    },
+    {
+      "producto": "Hunk",
+      "componentes": [
+        { "tipo": "Base", "codigo": "10001619" },
+        { "tipo": "Forro", "codigo": "90006670" }
+      ]
+    },
+    {
+      "producto": "Falsos Apache 200",
+      "componentes": [
+        { "tipo": "Falso", "codigo": "900004124" },
+        { "tipo": "Falso", "codigo": "90004125" }
+      ]
+    },
+    {
+      "producto": "BBL3",
+      "componentes": [
+        { "tipo": "Base", "codigo": "7000080" },
+        { "tipo": "Forro", "codigo": "10002917" }
+      ]
+    },
+    {
+      "producto": "NEO FI",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30013111" },
+        { "tipo": "Forro", "codigo": "10003228" }
+      ]
+    },
+    {
+      "producto": "BET ADV",
+      "componentes": [
+        { "tipo": "Base", "codigo": "30013112" },
+        { "tipo": "Forro", "codigo": "10003229" }
+      ],
+      "componentes_adicionales": [
+        {
+          "tipo": "Tira de goma Bet ADV",
+          "codigo": "30013197",
+          "cantidad_por_base": 1
+        }
       ]
     }
   ]

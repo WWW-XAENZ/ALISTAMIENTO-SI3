@@ -112,9 +112,14 @@ function renderTabla() {
   const tbody = document.getElementById('cuerpoTabla');
   tbody.innerHTML = '';
 
+  const countEl = document.getElementById('registroCount');
+  if (countEl) {
+    countEl.textContent = registros.length;
+  }
+
   if (registros.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="10" style="text-align:center; color:#9ca3af; padding: 24px;">Sin registros</td>';
+    tr.innerHTML = '<td colspan="11" class="tabla-empty">Sin registros</td>';
     tbody.appendChild(tr);
     return;
   }
@@ -126,26 +131,19 @@ function renderTabla() {
       <td>${escapeHtml(registro.turno)}</td>
       <td>${escapeHtml(registro.referencia)}</td>
       <td>${escapeHtml(registro.base)}</td>
-      <td>${escapeHtml(registro.descripcion || '')}</td>
       <td>${escapeHtml(registro.fomi)}</td>
       <td>${escapeHtml(registro.componentes)}</td>
       <td>${escapeHtml(registro.forro)}</td>
-      <td><img src="${registro.recibe || ''}" style="height:24px;vertical-align:middle;border-radius:3px;background:#f9fafb;padding:1px;" onerror="this.style.display='none'"></td>
+      <td>${registro.recibe ? `<img src="${registro.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
       <td>${escapeHtml(registro.contabilizado)}</td>
       <td>${escapeHtml(registro.responsable)}</td>
       <td>
         <button class="btn-edit" data-index="${index}" title="Editar registro">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           Editar
         </button>
         <button class="btn-delete" data-index="${index}" title="Eliminar registro">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           Eliminar
         </button>
       </td>
@@ -235,38 +233,8 @@ function initReferenciaDropdown() {
       item.className = 'referencia-item';
       const nombre = r.referencia || r.producto;
 
-      const todasLasSecciones = [
-        ...(r.componentes || []),
-        ...(r.componentes_adicionales || []),
-        ...(r.kits || []),
-        ...(r.anti_vibrantes || []),
-      ];
-
-      const lineas = [];
-      if (todasLasSecciones.length > 0) {
-        const componentesPorTipo = {};
-        todasLasSecciones.forEach(c => {
-          const tipo = (c.tipo || '').toLowerCase();
-          const codigo = c.codigo || '';
-          const desc = c.descripcion ? ` (${c.descripcion})` : '';
-          const cantidad = c.cantidad ? ` x${c.cantidad}${c.unidad || ''}` : '';
-          const extra = `${codigo}${desc}${cantidad}`;
-          if (!componentesPorTipo[tipo]) componentesPorTipo[tipo] = [];
-          componentesPorTipo[tipo].push(extra);
-        });
-
-        Object.entries(componentesPorTipo).forEach(([tipo, codigos]) => {
-          lineas.push(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)}: ${codigos.join(', ')}`);
-        });
-      }
-
-      if (r.subensamble && r.subensamble.codigo) {
-        lineas.push(`Subensamble: ${r.subensamble.codigo}`);
-      }
-
       item.innerHTML = `
         <span class="ref-code">${escapeHtml(nombre)}</span>
-        ${lineas.map(line => `<span class="ref-meta">${escapeHtml(line)}</span>`).join('')}
       `;
 
       item.addEventListener('mousedown', (e) => {
@@ -382,14 +350,13 @@ function initFirma() {
   const canvas = document.getElementById('firmaRecibe');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = '#000';
+  ctx.strokeStyle = '#0f172a';
 
   let drawing = false;
-  let lastX = 0;
-  let lastY = 0;
+  let lastPos = null;
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
@@ -406,25 +373,36 @@ function initFirma() {
   function startDraw(e) {
     drawing = true;
     const pos = getPos(e);
-    lastX = pos.x;
-    lastY = pos.y;
+    lastPos = { x: pos.x, y: pos.y };
+    ctx.beginPath();
+    canvas.classList.add('drawing');
     e.preventDefault();
   }
 
   function draw(e) {
-    if (!drawing) return;
+    if (!drawing || !lastPos) return;
     const pos = getPos(e);
+    const dx = pos.x - lastPos.x;
+    const dy = pos.y - lastPos.y;
+    if (Math.sqrt(dx * dx + dy * dy) < 5) {
+      e.preventDefault();
+      return;
+    }
+
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
+    ctx.moveTo(lastPos.x, lastPos.y);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
-    lastX = pos.x;
-    lastY = pos.y;
+
+    lastPos = { x: pos.x, y: pos.y };
     e.preventDefault();
   }
 
   function stopDraw() {
     drawing = false;
+    lastPos = null;
+    canvas.classList.remove('drawing');
+    checkFirmaContent();
   }
 
   canvas.addEventListener('mousedown', startDraw);
@@ -435,9 +413,36 @@ function initFirma() {
   canvas.addEventListener('touchstart', startDraw, { passive: false });
   canvas.addEventListener('touchmove', draw, { passive: false });
   canvas.addEventListener('touchend', stopDraw);
+  canvas.addEventListener('touchcancel', stopDraw);
 
+  const firmaCard = document.getElementById('firmaCard');
   const firmaWrap = document.getElementById('firmaWrap');
   let expanded = false;
+
+  function toggleFirmaActiva(hasContent) {
+    if (firmaCard) {
+      if (hasContent) {
+        firmaCard.classList.add('activa');
+      } else {
+        firmaCard.classList.remove('activa');
+      }
+    }
+  }
+
+  function checkFirmaContent() {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    let hasContent = false;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) {
+        hasContent = true;
+        break;
+      }
+    }
+    toggleFirmaActiva(hasContent);
+  }
 
   function expandirFirma() {
     if (expanded) return;
@@ -449,13 +454,6 @@ function initFirma() {
     if (!expanded) return;
     expanded = false;
     if (firmaWrap) firmaWrap.classList.remove('expandido');
-  }
-
-  if (firmaWrap) {
-    firmaWrap.addEventListener('click', (e) => {
-      if (e.target.tagName.toLowerCase() === 'button') return;
-      expandirFirma();
-    });
   }
 
   const btnConfirmarFirma = document.getElementById('btnConfirmarFirma');
@@ -476,9 +474,16 @@ function initFirma() {
 function limpiarFirma() {
   const canvas = document.getElementById('firmaRecibe');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  document.getElementById('recibe').value = '';
+  canvas.classList.add('clearing');
+  setTimeout(() => {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.classList.remove('clearing');
+    const card = document.getElementById('firmaCard');
+    if (card) card.classList.remove('activa');
+    document.getElementById('recibe').value = '';
+    showToast('Firma limpiada', 'info');
+  }, 150);
 }
 
 function getFirmaDataUrl() {
@@ -614,6 +619,8 @@ function cargarFirmaEnCanvas(dataUrl) {
   img.onload = function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const card = document.getElementById('firmaCard');
+    if (card) card.classList.add('activa');
   };
   img.src = dataUrl;
 }
@@ -863,6 +870,7 @@ function initMenu() {
   const btnCerrarMenu = document.getElementById('btnCerrarMenu');
   const menuInicio = document.getElementById('menuInicio');
   const menuTrazabilidad = document.getElementById('menuTrazabilidad');
+  const menuAdmin = document.getElementById('menuAdmin');
   const seccionTrazabilidad = document.getElementById('seccionTrazabilidad');
   const seccionAdmin = document.getElementById('seccionAdmin');
   const btnVolverInicio = document.getElementById('btnVolverInicio');
@@ -919,6 +927,14 @@ function initMenu() {
     });
   }
 
+  if (menuAdmin) {
+    menuAdmin.addEventListener('click', (e) => {
+      e.preventDefault();
+      cerrarMenu();
+      mostrarSeccion('admin');
+    });
+  }
+
   if (btnVolverInicioAdmin) {
     btnVolverInicioAdmin.addEventListener('click', () => mostrarSeccion('inicio'));
   }
@@ -945,7 +961,7 @@ function renderTrazabilidad() {
 
   if (registros.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="6" style="text-align:center; color:#9ca3af; padding: 24px;">Sin registros</td>';
+    tr.innerHTML = '<td colspan="8" class="tabla-empty">Sin registros</td>';
     tbody.appendChild(tr);
     return;
   }
@@ -957,7 +973,9 @@ function renderTrazabilidad() {
       <td>${escapeHtml(registro.referencia || '')}</td>
       <td>${escapeHtml(registro.ckd || '')}</td>
       <td>${escapeHtml(registro.responsable || '')}</td>
+      <td>${escapeHtml(registro.cantidad || '')}</td>
       <td>${registro.foto ? `<img src="${registro.foto}" style="height:32px;vertical-align:middle;border-radius:4px;background:#f9fafb;padding:2px;" onerror="this.style.display='none'">` : ''}</td>
+      <td>${escapeHtml(registro.novedades || '')}</td>
       <td>
         <button class="btn-delete" data-index="${index}" title="Eliminar registro">Eliminar</button>
       </td>
@@ -1082,8 +1100,10 @@ function initTrazabilidadForm() {
       const referencia = document.getElementById('tz_referencia').value.trim();
       const ckd = document.getElementById('tz_ckd').value.trim();
       const responsable = document.getElementById('tz_responsable').value.trim();
+      const cantidad = document.getElementById('tz_cantidad').value.trim();
+      const novedades = document.getElementById('tz_novedades').value.trim();
 
-      console.log('Form values:', { fecha, referencia, ckd, responsable, foto: tzFotoDataUrl ? 'si' : 'no' });
+      console.log('Form values:', { fecha, referencia, ckd, responsable, cantidad, novedades, foto: tzFotoDataUrl ? 'si' : 'no' });
 
       if (!fecha || !referencia || !ckd || !responsable || !tzFotoDataUrl) {
         showToast('COMPLETA FECHA, REFERENCIA, CKD, RESPONSABLE Y FOTO', 'error');
@@ -1096,6 +1116,8 @@ function initTrazabilidadForm() {
         referencia,
         ckd,
         responsable,
+        cantidad: cantidad || '',
+        novedades: novedades || '',
         foto: tzFotoDataUrl
       });
       try {

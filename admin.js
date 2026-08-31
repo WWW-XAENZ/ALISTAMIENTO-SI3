@@ -54,6 +54,8 @@ function renderAdmin() {
         <div>
           <div class="admin-card-title">${escapeHtml(registro.referencia || '')}</div>
           <div class="admin-card-meta">${escapeHtml(registro.fecha || '')} - ${escapeHtml(registro.responsable || '')} - ${escapeHtml(registro.ckd || '')}</div>
+          ${registro.cantidad ? `<div class="admin-card-meta">Cantidad: ${escapeHtml(registro.cantidad)}</div>` : ''}
+          ${registro.novedades ? `<div class="admin-card-meta">Novedades: ${escapeHtml(registro.novedades)}</div>` : ''}
         </div>
       </div>
       <div class="admin-card-body">

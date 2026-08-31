@@ -494,7 +494,8 @@ h1 {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   padding: var(--space-4) var(--space-4);
   border: 1.5px solid var(--border-default);
   border-radius: var(--radius-lg);
@@ -504,7 +505,12 @@ h1 {
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
-  height: 52px;
+}
+
+.form-group textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.5;
 }
 
 .form-group input::placeholder {
@@ -515,13 +521,15 @@ h1 {
 }
 
 .form-group input:hover,
-.form-group select:hover {
+.form-group select:hover,
+.form-group textarea:hover {
   border-color: var(--border-dark);
   box-shadow: var(--shadow-md);
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--primary-500);
   box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-md);
@@ -982,13 +990,12 @@ h1 {
 }
 
 .firma-wrap.expandido .firma-canvas {
-  max-width: 95%;
-  max-height: 70vh;
-  width: auto;
+  width: 100%;
   height: auto;
+  max-height: 60vh;
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-2xl);
-  background: #ffffff;
+  background: transparent;
   border: 2px solid var(--border-light);
 }
 
@@ -1334,8 +1341,8 @@ h1 {
   .board-banner {
     width: calc(100% - 32px);
     margin: 16px auto;
-    padding: var(--space-5);
-    gap: var(--space-5);
+    padding: var(--space-6);
+    gap: var(--space-6);
   }
 
   .board-banner-header h2 {
@@ -1361,8 +1368,15 @@ h1 {
     gap: var(--space-4);
   }
 
+  .form-group input,
+  .form-group select {
+    height: 48px;
+    font-size: 1rem;
+  }
+
   .form-actions {
     justify-content: stretch;
+    gap: var(--space-3);
   }
 
   .btn-primary {
@@ -1379,27 +1393,60 @@ h1 {
   }
 
   .btn {
-    min-height: 52px;
-    font-size: 1rem;
+    min-height: 48px;
+    font-size: 0.9375rem;
   }
 
   .tablero-banner-grid {
-    min-height: 300px;
+    min-height: 320px;
   }
 
   .foto-card {
-    width: clamp(280px, 65vw, 600px);
+    width: clamp(260px, 60vw, 560px);
     aspect-ratio: 16 / 10;
-    max-height: 400px;
+    max-height: 380px;
+  }
+
+  #firmaRecibe {
+    max-width: 260px;
+    height: 84px;
+  }
+
+  .firma-wrap.expandido .firma-canvas {
+    max-width: 92%;
+    max-height: 65vh;
   }
 
   table {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 
   th,
   td {
-    padding: var(--space-3) var(--space-2);
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .table-wrapper {
+    border-radius: var(--radius-xl);
+  }
+}
+
+@media (max-width: 1024px) and (orientation: landscape) {
+  .board-banner {
+    padding: var(--space-5);
+    gap: var(--space-5);
+  }
+
+  .container {
+    padding: var(--space-5);
+  }
+
+  .tablero-banner-grid {
+    min-height: 240px;
+  }
+
+  .foto-card {
+    max-height: 280px;
   }
 }
 
@@ -1424,6 +1471,28 @@ h1 {
   .btn {
     width: 100%;
     justify-content: center;
+    min-height: 52px;
+  }
+
+  .board-banner {
+    padding: var(--space-5);
+    gap: var(--space-5);
+  }
+
+  .board-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .board-actions .btn {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .foto-card {
+    width: clamp(220px, 80vw, 420px);
+    max-height: 320px;
   }
 }
 
@@ -1478,6 +1547,10 @@ h1 {
   td {
     padding: var(--space-3) var(--space-2);
   }
+
+  .table-wrapper {
+    border-radius: var(--radius-lg);
+  }
 }
 
 .table-container {
@@ -1523,93 +1596,849 @@ h1 {
   border-radius: var(--radius-full);
 }
 
-.table-wrapper::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-full);
-}
+/* ============== CALENDARIO ============== */
 
-table {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.875rem;
-  table-layout: auto;
-}
-
-th,
-td {
-  padding: var(--space-4) var(--space-3);
-  text-align: left;
-  border-bottom: 1px solid var(--border-light);
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-th {
-  background: linear-gradient(180deg, var(--gray-50) 0%, var(--gray-100) 100%);
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  position: sticky;
-  top: 0;
-}
-
-th:first-child {
-  border-top-left-radius: var(--radius-2xl);
-}
-
-th:last-child {
-  border-top-right-radius: var(--radius-2xl);
-}
-
-tbody tr {
+.calendar-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 0 var(--space-4);
+  height: 44px;
+  min-height: 44px;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.calendar-input-wrap:focus-within {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-md);
+}
+
+.calendar-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  padding: 0;
+  height: 100%;
+  cursor: pointer;
+  width: 0;
+  min-width: 0;
+  box-shadow: none;
+}
+
+.calendar-input-wrap input::placeholder {
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+}
+
+.calendar-input-wrap input:hover,
+.calendar-input-wrap input:focus {
+  border-color: inherit;
+  box-shadow: none;
+}
+
+.calendar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.calendar-icon:hover {
+  color: var(--primary-600);
+  background: var(--primary-50);
+}
+
+.calendar-icon svg {
+  display: block;
+}
+
+.calendar-dropdown {
+  position: fixed;
+  z-index: 200;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  padding: var(--space-3);
+  min-width: 320px;
+  display: none;
+}
+
+.calendar-dropdown.show {
+  display: block;
+}
+
+.calendar-dropdown .calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.calendar-dropdown .calendar-nav-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-dropdown .calendar-nav-btn:hover {
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.calendar-dropdown .calendar-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-top: var(--space-2);
+}
+
+.calendar-grid .calendar-day-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-2) 0;
+}
+
+.calendar-grid .calendar-day {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.calendar-grid .calendar-day.other-month {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.calendar-grid .calendar-day:hover:not(.other-month):not(.disabled) {
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.calendar-grid .calendar-day.today {
+  background: var(--primary-500);
+  color: var(--text-inverse);
+}
+
+.calendar-grid .calendar-day.selected {
+  background: var(--primary-600);
+  color: var(--text-inverse);
+  font-weight: 700;
+}
+
+.calendar-grid .calendar-day.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.calendar-dropdown .calendar-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-light);
+  margin-top: var(--space-3);
+}
+
+.calendar-dropdown .btn-clear-date {
+  background: transparent;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.calendar-dropdown .btn-clear-date:hover {
+  background: var(--danger-50);
+  color: var(--danger-600);
+  border-color: var(--danger-300);
+}
+
+.admin-filters {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-filter-input {
+  flex: 1;
+  min-width: 200px;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 500;
   background-color: var(--bg-primary);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
 }
 
-tbody tr:hover {
-  background-color: var(--primary-50);
-  box-shadow: inset 4px 0 0 var(--primary-500);
+.admin-filter-input::placeholder {
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 400;
 }
 
-tbody tr:last-child td {
-  border-bottom: none;
+.admin-filter-input:hover {
+  border-color: var(--border-dark);
+  box-shadow: var(--shadow-md);
 }
 
-tbody tr:last-child td:first-child {
-  border-bottom-left-radius: var(--radius-2xl);
-}
-
-tbody tr:last-child td:last-child {
-  border-bottom-right-radius: var(--radius-2xl);
-}
-
-@media (max-width: 1024px) {
-  .table-container {
-    margin-left: calc(-1 * var(--space-6));
-    margin-right: calc(-1 * var(--space-6));
-  }
-
-  .table-wrapper {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
+.admin-filter-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-md);
 }
 
 @media (max-width: 640px) {
-  .table-wrapper {
-    margin-left: calc(-1 * var(--space-4));
-    margin-right: calc(-1 * var(--space-4));
+  .calendar-input-wrap {
+    height: 48px;
+    min-height: 48px;
   }
 
-  th,
-  td {
-    padding: var(--space-3) var(--space-2);
+  .calendar-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .calendar-dropdown {
+    min-width: 90vw;
+    max-width: 340px;
+    left: 5vw !important;
+  }
+
+  .calendar-grid .calendar-day {
+    width: 34px;
+    height: 34px;
+    font-size: 0.8rem;
+  }
+
+  .admin-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-filter-input {
+    min-width: 100%;
+  }
+}
+
+/* ============== MEJORAS: TABLA DE REGISTROS ============== */
+
+.table-container {
+  margin-top: var(--space-8);
+}
+
+.table-container h2 {
+  margin-bottom: var(--space-5);
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.table-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 1.5rem;
+  background: linear-gradient(180deg, var(--primary-500) 0%, var(--primary-700) 100%);
+  border-radius: var(--radius-full);
+}
+
+.registro-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-primary);
+  -webkit-overflow-scrolling: touch;
+  overflow-y: visible;
+}
+
+.table-wrapper table {
+  width: 100;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9375rem;
+  min-width: 1000px;
+}
+
+.table-wrapper thead th {
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 100%);
+  color: var(--text-inverse);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 2px solid var(--primary-600);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.table-wrapper td {
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table-wrapper tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.table-wrapper tbody tr:nth-child(even) {
+  background: var(--gray-50);
+}
+
+.table-wrapper tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-wrapper tbody tr:hover td {
+  background: var(--primary-50);
+}
+
+.table-wrapper tbody tr:nth-child(even):hover td {
+  background: var(--primary-50);
+}
+
+.registro-firma-img {
+  height: 32px;
+  max-width: 80px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+  vertical-align: middle;
+  background: #f9fafb;
+  padding: 1px;
+  object-fit: contain;
+  display: block;
+}
+
+.table-wrapper .btn-edit,
+.table-wrapper .btn-delete {
+  margin-right: var(--space-1);
+}
+
+.table-wrapper .btn-edit:last-child,
+.table-wrapper .btn-delete:last-child {
+  margin-right: 0;
+}
+
+.tabla-empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* ============== FIRMA PROFESIONAL ============== */
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes drawLine {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(37, 99, 235, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2); }
+}
+
+@keyframes borderGlow {
+  0% { border-color: var(--border-default); }
+  50% { border-color: var(--primary-400); }
+  100% { border-color: var(--border-default); }
+}
+
+.form-group .firma-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-3);
+}
+
+.form-group .firma-label svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+  transition: transform 0.3s ease;
+}
+
+.form-group .firma-label:hover svg {
+  transform: scale(1.15);
+}
+
+.firma-sublabel {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.firma-sublabel::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--primary-500);
+  flex-shrink: 0;
+}
+
+.firma-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 0 0 0 transparent;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.firma-card:hover {
+  border-style: solid;
+  border-color: var(--primary-300);
+  box-shadow: var(--shadow-2xl);
+  transform: translateY(-4px);
+}
+
+.firma-card.activa {
+  border-style: solid;
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 4px var(--primary-50), var(--shadow-xl);
+}
+
+#firmaRecibe {
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.06) 1px, transparent 2px),
+    radial-gradient(circle at 80% 50%, rgba(148, 163, 184, 0.06) 1px, transparent 2px),
+    linear-gradient(145deg, #fdfdfd 0%, #f1f5f9 100%);
+  background-size: 16px 16px;
+  cursor: crosshair;
+  touch-action: none;
+  display: block;
+  width: 100%;
+  height: 100px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  padding: 2px;
+}
+
+#firmaRecibe:hover {
+  border-color: var(--primary-400);
+  box-shadow: var(--shadow-md);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.08) 1px, transparent 2px),
+    radial-gradient(circle at 80% 50%, rgba(148, 163, 184, 0.08) 1px, transparent 2px),
+    linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+#firmaRecibe:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  border-style: solid;
+  box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-lg);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.1) 1px, transparent 2px),
+    radial-gradient(circle at 80% 50%, rgba(148, 163, 184, 0.1) 1px, transparent 2px),
+    #ffffff;
+}
+
+#firmaRecibe:active {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-md);
+}
+
+#firmaRecibe.drawing {
+  border-color: var(--primary-500);
+  border-style: solid;
+  box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-lg);
+  animation: none;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.1) 1px, transparent 2px),
+    radial-gradient(circle at 80% 50%, rgba(148, 163, 184, 0.1) 1px, transparent 2px),
+    #ffffff;
+}
+
+@keyframes clearFlash {
+  0% { background-color: rgba(239, 68, 68, 0.1); }
+  50% { background-color: rgba(239, 68, 68, 0.2); }
+  100% { background-color: transparent; }
+}
+
+#firmaRecibe.clearing {
+  animation: clearFlash 0.15s ease-in-out;
+}
+
+.firma-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: transparent;
+  flex-shrink: 0;
+  border-radius: var(--radius-xl);
+}
+
+.firma-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-xl);
+   backdrop-filter: blur(2px);
+}
+
+#firmaRecibe.drawing ~ .firma-hint {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.firma-hint::before {
+  content: '';
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.firma-card .firma-hint {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+}
+
+.firma-card .firma-hint::after {
+  content: none;
+  margin: 0;
+  font-size: 0;
+}
+
+.firma-hint-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.firma-wrap.expandido {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  animation: drawLine 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.firma-wrap.expandido .firma-card {
+  max-width: 720px;
+  width: 100%;
+  padding: var(--space-8);
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px dashed var(--border-light);
+}
+
+.firma-wrap.expandido .firma-canvas {
+  width: 100%;
+  max-height: 60vh;
+  height: auto;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  background: transparent;
+  border: 2px solid var(--border-light);
+}
+
+.firma-wrap.expandido .firma-hint {
+  display: none;
+}
+
+.firma-wrap.expandido .firma-actions {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+}
+
+.firma-actions {
+  display: none;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  align-items: center;
+  width: 100%;
+}
+
+.firma-wrap:not(.expandido) .firma-actions {
+  display: flex;
+}
+
+.firma-actions .btn-clear-signature {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  padding: var(--space-3) var(--space-5);
+  min-height: 44px;
+  background: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+}
+
+.firma-actions .btn-clear-signature:hover {
+  background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-800) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.firma-actions .btn-clear-signature:active {
+  transform: translateY(0);
+}
+
+.firma-actions .btn-confirm-signature {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  padding: var(--space-3) var(--space-5);
+  min-height: 44px;
+  background: linear-gradient(135deg, var(--accent-600) 0%, var(--accent-700) 100%);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+}
+
+.firma-actions .btn-confirm-signature:hover {
+  background: linear-gradient(135deg, var(--accent-700) 0%, #15803d 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.firma-actions .btn-confirm-signature:active {
+  transform: translateY(0);
+}
+
+.firma-actions .btn-clear-signature svg,
+.firma-actions .btn-confirm-signature svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.25s ease;
+}
+
+.firma-actions .btn-clear-signature:hover svg,
+.firma-actions .btn-confirm-signature:hover svg {
+  transform: scale(1.15);
+}
+
+.firma-toolbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.firma-toolbar-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.firma-toolbar-title::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-400);
+}
+
+@media (max-width: 640px) {
+  .firma-card {
+    padding: var(--space-5);
+    max-width: 100%;
+  }
+
+  #firmaRecibe {
+    height: 90px;
+  }
+
+  .table-wrapper table {
     font-size: 0.8125rem;
+    min-width: 768px;
+  }
+
+  .table-wrapper thead th {
+    padding: var(--space-3) var(--space-2);
+    font-size: 0.65rem;
+  }
+
+  .table-wrapper td {
+    padding: var(--space-3) var(--space-2);
+  }
+}
+
+@media (max-width: 1024px) {
+  .table-wrapper table {
+    font-size: 0.875rem;
+    min-width: 800px;
+  }
+
+  .table-wrapper thead th {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.6875rem;
+  }
+
+  .table-wrapper td {
+    padding: var(--space-3) var(--space-3);
   }
 }

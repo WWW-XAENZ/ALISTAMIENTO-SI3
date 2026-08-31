@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Registro y trazabilidad de alistamiento de producción.">
-    <title>Alistamiento</title>
+    <meta name="description" content="Panel de administración de trazabilidad de alistamiento.">
+    <title>Admin - Alistamiento</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="Estilo.css">
@@ -18,8 +18,8 @@
         <div class="logo">
             <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
             <div class="logo-text">
-                <div class="logo-title">ALISTAMIENTO</div>
-                <div class="logo-subtitle">Sistema de Registro</div>
+                <div class="logo-title">TRAZABILIDAD</div>
+                <div class="logo-subtitle">Panel de Trazabilidad</div>
             </div>
         </div>
         <div class="header-actions">
@@ -35,224 +35,36 @@
             <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
             <h3 class="menu-title">MENÚ</h3>
             <ul class="menu-list">
-                <li><a href="#" id="menuInicio" class="menu-link">INICIO</a></li>
-                <li><a href="#" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+                <li><a href="Alistamiento.html" id="menuInicio" class="menu-link">VOLVER A INICIO</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- TABLERO -->
-    <div class="board-banner">
-        <div class="board-banner-header">
-            <h2 id="boardFecha">TABLERO</h2>
-            <div class="board-actions">
-                <input type="file" id="inputFotoBoard" accept="image/*" class="hidden-input" aria-label="Adjuntar foto desde archivos">
-                <input type="file" id="inputFotoCamara" accept="image/*" capture="environment" class="hidden-input" aria-label="Tomar foto con la cámara">
-                <button type="button" class="btn btn-primary" id="btnAdicionarFoto">ADICIONAR FOTO</button>
-                <button type="button" class="btn btn-outline" id="btnTomarFoto">TOMAR FOTO</button>
-            </div>
-        </div>
-        <div id="tableroGrid" class="tablero-banner-grid"></div>
-    </div>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="container" id="inicio">
-        <h1>Registro de Alistamiento</h1>
-
-        <form id="formAlistamiento">
-            <!-- PRIMERA FILA -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fecha">Fecha</label>
-                    <input type="date" id="fecha" name="fecha">
-                </div>
-
-                <div class="form-group">
-                    <label for="turno">Turno</label>
-                    <select id="turno" name="turno">
-                        <option value="">Seleccionar</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                    </select>
-                </div>
-
-                <div class="form-group form-group--relative">
-                    <label for="referencia">Referencia</label>
-                    <input type="text" id="referencia" name="referencia" placeholder="Escribe una referencia..." autocomplete="off">
-                    <div id="referenciaDropdown" class="referencia-dropdown hidden"></div>
-                </div>
-            </div>
-
-            <!-- SEGUNDA FILA -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="base">Base</label>
-                    <input type="text" id="base" name="base" placeholder="Base">
-                </div>
-
-                <div class="form-group">
-                    <label for="fomi">Fomi</label>
-                    <input type="text" id="fomi" name="fomi" placeholder="Fomi">
-                </div>
-
-                <div class="form-group">
-                    <label for="componentes">Componentes</label>
-                    <input type="text" id="componentes" name="componentes" placeholder="Componentes">
-                </div>
-
-                <div class="form-group">
-                    <label for="forro">Forro</label>
-                    <input type="text" id="forro" name="forro" placeholder="Forro">
-                </div>
-            </div>
-
-            <!-- TERCERA FILA -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Firma</label>
-                    <div class="firma-wrap" id="firmaWrap">
-                        <canvas id="firmaRecibe" width="260" height="80" class="firma-canvas" role="img" aria-label="Panel para dibujar la firma de quien recibe">
-                            Tu navegador no soporta el panel de firma. Actualízalo para poder firmar digitalmente.
-                        </canvas>
-                        <div class="firma-hint">Toca para ampliar</div>
-                        <div class="firma-actions">
-                            <button type="button" class="btn btn-limpiar-firma" id="btnLimpiarFirma">Limpiar</button>
-                            <button type="button" class="btn btn-confirmar-firma" id="btnConfirmarFirma">Confirmar firma</button>
-                        </div>
-                    </div>
-                    <input type="hidden" id="recibe" name="recibe">
-                </div>
-
-                <div class="form-group">
-                    <label for="contabilizado">Contabilizado</label>
-                    <input type="number" id="contabilizado" name="contabilizado" placeholder="Contabilizado" min="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="responsable">Responsable</label>
-                    <select id="responsable" name="responsable">
-                        <option value="">Seleccionar</option>
-                        <option value="JUAN JOSE SAENZ">JUAN JOSE SAENZ</option>
-                        <option value="DAVID VALENCIA">DAVID VALENCIA</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- BOTONES -->
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar Registro</button>
-                <button type="button" class="btn btn-secondary" id="btnCancelar" style="display:none;">Cancelar</button>
-                <button type="button" class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
-            </div>
-        </form>
-
-        <!-- DATOS DE REFERENCIAS -->
-        <datalist id="listaReferencias"></datalist>
-
-        <!-- TABLA -->
-        <div class="table-container">
-            <h2>Registros Guardados</h2>
-            <div class="table-wrapper">
-                <table id="tablaRegistros">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Turno</th>
-                            <th>Referencia</th>
-                            <th>Base</th>
-                            <th>Fomi</th>
-                            <th>Componentes</th>
-                            <th>Forro</th>
-                            <th>Firma</th>
-                            <th>Contabilizado</th>
-                            <th>Responsable</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTabla"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- TRAZABILIDAD -->
-    <section class="trazabilidad" id="seccionTrazabilidad" style="display:none;">
-        <div class="container">
-            <h2>TRAZABILIDAD</h2>
-            <form id="formTrazabilidad" class="trazabilidad-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="tz_fecha">FECHA</label>
-                        <input type="date" id="tz_fecha" name="fecha" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tz_referencia">REFERENCIA</label>
-                        <input type="text" id="tz_referencia" name="referencia" placeholder="REFERENCIA">
-                    </div>
-                    <div class="form-group">
-                        <label for="tz_ckd">CKD</label>
-                        <select id="tz_ckd" name="ckd">
-                            <option value="">SELECCIONAR</option>
-                            <option value="CARTAGENA">CARTAGENA</option>
-                            <option value="RIONEGRO">RIONEGRO</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="tz_responsable">RESPONSABLE</label>
-                        <select id="tz_responsable" name="responsable">
-                            <option value="">SELECCIONAR</option>
-                            <option value="JUAN JOSE SAENZ">JUAN JOSE SAENZ</option>
-                            <option value="DAVID VALENCIA">DAVID VALENCIA</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>FOTO / CAMARA</label>
-                        <input type="file" id="tz_foto" name="foto" accept="image/*" class="hidden-input" aria-label="Adjuntar foto desde archivos">
-                        <input type="file" id="tz_foto_camara" name="foto_camara" accept="image/*" capture="environment" class="hidden-input" aria-label="Tomar foto con la cámara">
-                        <button type="button" class="btn btn-outline" id="btnTomarFotoTz">TOMAR FOTO</button>
-                        <button type="button" class="btn btn-secondary" id="btnAdjuntarFotoTz">ADJUNTAR FOTO</button>
-                        <img id="tz_preview" class="tz-preview" style="display:none;" alt="Vista previa">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">ENVIAR TRAZABILIDAD</button>
-                    <button type="button" class="btn btn-secondary" id="btnVolverInicio">VOLVER</button>
-                </div>
-            </form>
-            <div class="table-container">
-                <h2>REGISTROS TRAZABILIDAD</h2>
-                <div class="table-wrapper">
-                    <table id="tablaTrazabilidad">
-                        <thead>
-                            <tr>
-                                <th>FECHA</th>
-                                <th>REFERENCIA</th>
-                                <th>CKD</th>
-                                <th>RESPONSABLE</th>
-                                <th>FOTO</th>
-                                <th>ACCIÓN</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoTablaTrazabilidad"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- ADMIN -->
-    <section class="admin" id="seccionAdmin" style="display:none;">
+    <section class="admin" id="seccionAdmin">
         <div class="container">
-            <h2>ADMIN</h2>
+            <h2>REPORTADOS</h2>
+            <div class="admin-filters">
+                <div class="calendar-input-wrap">
+                    <input type="text" id="adminDate" readonly placeholder="Filtrar fecha">
+                    <span class="calendar-icon" data-for="adminDate">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                    </span>
+                </div>
+                <input type="text" id="adminSearch" class="admin-filter-input" placeholder="Buscar referencia o responsable...">
+                <button type="button" class="btn btn-outline" id="btnHoy">Hoy</button>
+                <button type="button" class="btn btn-secondary" id="btnClearFilters">Limpiar filtros</button>
+            </div>
             <div id="adminGrid" class="admin-grid"></div>
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="btnVolverInicioAdmin">VOLVER</button>
+                <a href="Alistamiento.html" class="btn btn-secondary" id="btnVolverInicioAdmin">VOLVER</a>
             </div>
         </div>
     </section>
 
-    <script src="app.js"></script>
+    <div id="calendarDropdown" class="calendar-dropdown"></div>
+
+    <script src="admin.js"></script>
+    <script src="calendario.js"></script>
 </body>
 </html>
