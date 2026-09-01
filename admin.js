@@ -4,7 +4,10 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function getTrazabilidad() {
+async function getTrazabilidad() {
+  if (typeof DB !== 'undefined' && isSupabaseEnabled()) {
+    return await DB.getTrazabilidad();
+  }
   try {
     const data = localStorage.getItem('trazabilidad_registros');
     return data ? JSON.parse(data) : [];
@@ -13,14 +16,14 @@ function getTrazabilidad() {
   }
 }
 
-function renderAdmin() {
+async function renderAdmin() {
   const grid = document.getElementById('adminGrid');
   const searchInput = document.getElementById('adminSearch');
   const dateInput = document.getElementById('adminDate');
 
   if (!grid) return;
 
-  const registros = getTrazabilidad();
+  const registros = await getTrazabilidad();
   const filtro = searchInput ? searchInput.value.trim().toLowerCase() : '';
   const fechaFiltro = dateInput ? dateInput.value.trim() : '';
 

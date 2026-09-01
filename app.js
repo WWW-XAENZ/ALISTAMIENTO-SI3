@@ -2,6 +2,7 @@ const STORAGE_KEY = 'alistamiento_registros';
 const JSON_PATH = 'Registros.json';
 
 let editIndex = null;
+let editRegistroId = null;
 let jsonRegistrosCache = [];
 let productoSeleccionado = null;
 let componentesEditadoManualmente = false;
@@ -52,6 +53,25 @@ function compressImage(file, maxWidth = 800, quality = 0.7) {
 
 async function cargarRegistrosJSON() {
   try {
+    if (isSupabaseEnabled()) {
+      const productos = await DB.getProductos();
+      return productos.map(p => ({
+        producto: p.nombre,
+        referencia: p.referencia,
+        componentes: (p.producto_componentes || [])
+          .filter(c => c.categoria === 'base' || c.categoria === 'pin')
+          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion })),
+        componentes_adicionales: (p.producto_componentes || [])
+          .filter(c => c.categoria === 'adicional')
+          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
+        kits: (p.producto_componentes || [])
+          .filter(c => c.categoria === 'kit')
+          .map(c => ({ tipo: c.tipo, codigo: c.codigo, cantidad_por_base: c.cantidad_por_base })),
+        anti_vibrantes: (p.producto_componentes || [])
+          .filter(c => c.categoria === 'anti_vibrante')
+          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
+      }));
+    }
     const response = await fetch(JSON_PATH + '?t=' + Date.now());
     if (!response.ok) return [];
     const json = await response.json();
@@ -64,7 +84,10 @@ async function cargarRegistrosJSON() {
   }
 }
 
-function getRegistros() {
+async function getRegistros() {
+  if (isSupabaseEnabled()) {
+    return await DB.getRegistros();
+  }
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
@@ -74,7 +97,13 @@ function getRegistros() {
   }
 }
 
-function saveRegistros(registros) {
+async function saveRegistros(registros) {
+  if (isSupabaseEnabled()) {
+    // En Supabase, saveRegistros se usa solo para reemplazar todo
+    // No es común, pero lo mantenemos por compatibilidad
+    console.warn('saveRegistros masivo no implementado en Supabase');
+    return;
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
 }
 
@@ -103,6 +132,7 @@ function limpiarFormulario() {
   document.getElementById('contabilizado').value = '';
   document.getElementById('responsable').value = '';
   editIndex = null;
+  editRegistroId = null;
   productoSeleccionado = null;
   componentesEditadoManualmente = false;
   document.getElementById('btnGuardar').textContent = 'GUARDAR REGISTRO';
@@ -111,8 +141,8 @@ function limpiarFormulario() {
   limpiarFirma();
 }
 
-function renderTabla() {
-  const registros = getRegistros();
+async function renderTabla() {
+  const registros = await getRegistros();
   const tbody = document.getElementById('cuerpoTabla');
   tbody.innerHTML = '';
 
@@ -128,19 +158,22 @@ function renderTabla() {
     return;
   }
 
-  registros.forEach((registro, index) => {
+  registros.forEach((grupo, index) => {
+    const items = grupo.items || [];
+    const esGrupo = items.length > 0;
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escapeHtml(registro.fecha)}</td>
-      <td>${escapeHtml(registro.turno)}</td>
-      <td>${escapeHtml(registro.referencia)}</td>
-      <td>${escapeHtml(registro.base)}</td>
-      <td>${escapeHtml(registro.fomi)}</td>
-      <td>${escapeHtml(registro.componentes || '').replace(/\n/g, '<br>')}</td>
-      <td>${escapeHtml(registro.forro)}</td>
-      <td>${registro.recibe ? `<img src="${registro.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
-      <td>${escapeHtml(registro.contabilizado)}</td>
-      <td>${escapeHtml(registro.responsable)}</td>
+      <td>${escapeHtml(grupo.fecha)}</td>
+      <td>${escapeHtml(grupo.turno)}</td>
+      <td>${escapeHtml(grupo.referencia)}</td>
+      <td>${escapeHtml(grupo.base)}</td>
+      <td>${escapeHtml(grupo.fomi)}</td>
+      <td>${esGrupo ? '<span style="color:var(--text-tertiary);font-style:italic;">Ver items abajo</span>' : escapeHtml(grupo.componentes || '').replace(/\n/g, '<br>')}</td>
+      <td>${escapeHtml(grupo.forro)}</td>
+      <td>${grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
+      <td>${escapeHtml(grupo.contabilizado)}</td>
+      <td>${escapeHtml(grupo.responsable)}</td>
       <td>
         <button class="btn-edit" data-index="${index}" title="Editar registro">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -153,6 +186,26 @@ function renderTabla() {
       </td>
     `;
     tbody.appendChild(tr);
+
+    if (esGrupo) {
+      items.forEach(item => {
+        const itemTr = document.createElement('tr');
+        itemTr.className = 'item-row';
+        itemTr.innerHTML = `
+          <td colspan="2"></td>
+          <td>${escapeHtml(item.referencia)}</td>
+          <td></td>
+          <td></td>
+          <td>${escapeHtml(item.componentes || '')}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        `;
+        tbody.appendChild(itemTr);
+      });
+    }
   });
 }
 
@@ -168,26 +221,19 @@ async function actualizarDatalistReferencias() {
   if (!datalist) return;
   datalist.innerHTML = '';
 
-  const locales = getRegistros();
-  const localesRefs = new Set(locales.map(r => r.referencia).filter(Boolean));
+  const productos = await cargarRegistrosJSON();
+  const refs = new Set();
 
-  const remotos = await cargarRegistrosJSON();
-  const todos = [...locales, ...remotos];
-
-  const unicos = new Map();
-  todos.forEach(r => {
-    const clave = r.referencia || r.producto;
-    if (clave && !unicos.has(clave)) {
-      unicos.set(clave, r);
-    }
+  productos.forEach(p => {
+    const ref = p.referencia || p.producto;
+    if (ref) refs.add(ref.toUpperCase());
   });
 
-  const refs = Array.from(unicos.keys());
-  refs.sort((a, b) => a.localeCompare(b));
+  const refsArray = Array.from(refs).sort((a, b) => a.localeCompare(b));
 
-  refs.forEach(ref => {
+  refsArray.forEach(ref => {
     const option = document.createElement('option');
-    option.value = ref.toUpperCase();
+    option.value = ref;
     datalist.appendChild(option);
   });
 }
@@ -586,7 +632,7 @@ async function agregarRegistro(e) {
   const cantidadBase = parseInt(data.base, 10);
   const producto = await obtenerProductoReferencia(data.referencia);
 
-  const registros = getRegistros();
+  const grupoId = crypto.randomUUID();
 
   if (producto) {
     const componentesBase = producto.componentes || [];
@@ -609,27 +655,30 @@ async function agregarRegistro(e) {
       })),
     ];
 
-    if (baseEncontrada || adicionales.length > 0) {
-      registros.push({
+    if (isSupabaseEnabled()) {
+      const header = {
+        grupo_id: grupoId,
         fecha: data.fecha,
         turno: data.turno,
         referencia: data.referencia,
-        base: baseEncontrada ? `${multiplicadorBase} und` : '',
+        base: baseEncontrada ? `${multiplicadorBase}` : '',
         forro: data.forro || '',
-        componentes: data.componentes || '',
+        componentes: '',
         descripcion: '',
         fomi: data.fomi,
         contabilizado: data.contabilizado,
         responsable: data.responsable,
         recibe: firma,
-      });
+      };
+      await DB.saveRegistro(header);
 
-      adicionales.forEach(c => {
+      for (const c of adicionales) {
         const cantidad = (c.cantidad_por_base || c.cantidad || 1) * multiplicadorBase;
         const codigo = c.codigo || '';
         const tipo = c.tipo || '';
         if (codigo && cantidad > 0) {
-          registros.push({
+          await DB.saveRegistro({
+            grupo_id: grupoId,
             fecha: data.fecha,
             turno: data.turno,
             referencia: codigo,
@@ -643,21 +692,78 @@ async function agregarRegistro(e) {
             recibe: firma,
           });
         }
+      }
+    } else {
+      const registros = getRegistros();
+      if (baseEncontrada || adicionales.length > 0) {
+        registros.push({
+          fecha: data.fecha,
+          turno: data.turno,
+          referencia: data.referencia,
+          base: baseEncontrada ? `${multiplicadorBase}` : '',
+          forro: data.forro || '',
+          componentes: '',
+          descripcion: '',
+          fomi: data.fomi,
+          contabilizado: data.contabilizado,
+          responsable: data.responsable,
+          recibe: firma,
+        });
+
+        adicionales.forEach(c => {
+          const cantidad = (c.cantidad_por_base || c.cantidad || 1) * multiplicadorBase;
+          const codigo = c.codigo || '';
+          const tipo = c.tipo || '';
+          if (codigo && cantidad > 0) {
+            registros.push({
+              fecha: data.fecha,
+              turno: data.turno,
+              referencia: codigo,
+              base: '',
+              forro: '',
+              componentes: String(cantidad),
+              descripcion: tipo,
+              fomi: '',
+              contabilizado: '',
+              responsable: '',
+              recibe: firma,
+            });
+          }
+        });
+      } else {
+        registros.push({
+          ...data,
+          recibe: firma,
+        });
+      }
+      saveRegistros(registros);
+    }
+  } else {
+    if (isSupabaseEnabled()) {
+      await DB.saveRegistro({
+        grupo_id: grupoId,
+        fecha: data.fecha,
+        turno: data.turno,
+        referencia: data.referencia,
+        base: data.base,
+        fomi: data.fomi,
+        componentes: data.componentes,
+        forro: data.forro,
+        contabilizado: data.contabilizado,
+        responsable: data.responsable,
+        descripcion: '',
+        recibe: firma,
       });
     } else {
+      const registros = getRegistros();
       registros.push({
         ...data,
         recibe: firma,
       });
+      saveRegistros(registros);
     }
-  } else {
-    registros.push({
-      ...data,
-      recibe: firma,
-    });
   }
 
-  saveRegistros(registros);
   limpiarFormulario();
   renderTabla();
   actualizarDatalistReferencias();
@@ -665,7 +771,7 @@ async function agregarRegistro(e) {
 }
 
 async function editarRegistro(index) {
-  const registros = getRegistros();
+  const registros = await getRegistros();
   const registro = registros[index];
   if (!registro) return;
 
@@ -689,6 +795,7 @@ async function editarRegistro(index) {
   productoSeleccionado = producto || null;
 
   editIndex = index;
+  editRegistroId = registro.id || null;
   document.getElementById('btnGuardar').textContent = 'ACTUALIZAR';
   document.getElementById('btnGuardar').className = 'btn-update';
   document.getElementById('btnCancelar').style.display = 'inline-block';
@@ -710,7 +817,7 @@ function cargarFirmaEnCanvas(dataUrl) {
 
 async function actualizarRegistro(e) {
   e.preventDefault();
-  if (editIndex === null) return;
+  if (editIndex === null && editRegistroId === null) return;
 
   const data = getFormData();
   const firma = getFirmaDataUrl();
@@ -723,27 +830,54 @@ async function actualizarRegistro(e) {
     componentesFinal = multiplicarComponentesGlobal(producto, cantidadBase);
   }
 
-  const registros = getRegistros();
-  registros[editIndex] = { ...registros[editIndex], ...data, recibe: firma, componentes: componentesFinal };
-  saveRegistros(registros);
+  if (isSupabaseEnabled() && editRegistroId) {
+    const updates = {
+      fecha: data.fecha,
+      turno: data.turno,
+      referencia: data.referencia,
+      base: data.base,
+      fomi: data.fomi,
+      componentes: componentesFinal,
+      forro: data.forro,
+      contabilizado: data.contabilizado,
+      responsable: data.responsable,
+      recibe: firma,
+    };
+    await DB.updateRegistro(editRegistroId, updates);
+  } else if (!isSupabaseEnabled()) {
+    const registros = getRegistros();
+    registros[editIndex] = { ...registros[editIndex], ...data, recibe: firma, componentes: componentesFinal };
+    saveRegistros(registros);
+  }
+
   limpiarFormulario();
   renderTabla();
   actualizarDatalistReferencias();
   showToast('REGISTRO ACTUALIZADO CORRECTAMENTE', 'success');
 }
 
-function eliminarRegistro(index) {
+async function eliminarRegistro(index) {
   if (!confirm('¿Deseas eliminar este registro?')) {
     return;
   }
-  const registros = getRegistros();
-  registros.splice(index, 1);
-  saveRegistros(registros);
-  if (editIndex === index) {
-    limpiarFormulario();
-  } else if (editIndex !== null && editIndex > index) {
-    editIndex--;
+
+  if (isSupabaseEnabled()) {
+    const registros = await getRegistros();
+    const grupo = registros[index];
+    if (grupo && grupo.grupo_id) {
+      await DB.deleteGrupo(grupo.grupo_id);
+    }
+  } else {
+    const registros = getRegistros();
+    registros.splice(index, 1);
+    saveRegistros(registros);
+    if (editIndex === index) {
+      limpiarFormulario();
+    } else if (editIndex !== null && editIndex > index) {
+      editIndex--;
+    }
   }
+
   renderTabla();
   actualizarDatalistReferencias();
   showToast('REGISTRO ELIMINADO', 'info');
@@ -1023,7 +1157,10 @@ function initMenu() {
   }
 }
 
-function getTrazabilidad() {
+async function getTrazabilidad() {
+  if (isSupabaseEnabled()) {
+    return await DB.getTrazabilidad();
+  }
   try {
     const data = localStorage.getItem('trazabilidad_registros');
     return data ? JSON.parse(data) : [];
@@ -1032,14 +1169,18 @@ function getTrazabilidad() {
   }
 }
 
-function saveTrazabilidad(registros) {
+async function saveTrazabilidad(registros) {
+  if (isSupabaseEnabled()) {
+    console.warn('saveTrazabilidad masivo no implementado en Supabase');
+    return;
+  }
   localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
 }
 
-function renderTrazabilidad() {
+async function renderTrazabilidad() {
   const tbody = document.getElementById('cuerpoTablaTrazabilidad');
   if (!tbody) return;
-  const registros = getTrazabilidad();
+  const registros = await getTrazabilidad();
   tbody.innerHTML = '';
 
   if (registros.length === 0) {
@@ -1060,31 +1201,36 @@ function renderTrazabilidad() {
       <td>${registro.foto ? `<img src="${registro.foto}" style="height:32px;vertical-align:middle;border-radius:4px;background:#f9fafb;padding:2px;" onerror="this.style.display='none'">` : ''}</td>
       <td>${escapeHtml(registro.novedades || '')}</td>
       <td>
-        <button class="btn-delete" data-index="${index}" title="Eliminar registro">Eliminar</button>
+        <button class="btn-delete" data-index="${index}" data-id="${registro.id || ''}" title="Eliminar registro">Eliminar</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 
   tbody.querySelectorAll('.btn-delete').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const idx = parseInt(btn.getAttribute('data-index'), 10);
-      if (!isNaN(idx)) {
-        if (!confirm('¿Deseas eliminar este registro de trazabilidad?')) return;
-        const lista = getTrazabilidad();
+      const id = btn.getAttribute('data-id');
+      if (!confirm('¿Deseas eliminar este registro de trazabilidad?')) return;
+      
+      if (isSupabaseEnabled() && id) {
+        await DB.deleteTrazabilidad(id);
+      } else {
+        const lista = await getTrazabilidad();
         lista.splice(idx, 1);
         saveTrazabilidad(lista);
-        renderTrazabilidad();
-        showToast('REGISTRO DE TRAZABILIDAD ELIMINADO', 'info');
       }
+      renderTrazabilidad();
+      renderAdmin();
+      showToast('REGISTRO DE TRAZABILIDAD ELIMINADO', 'info');
     });
   });
 }
 
-function renderAdmin() {
+async function renderAdmin() {
   const grid = document.getElementById('adminGrid');
   if (!grid) return;
-  const registros = getTrazabilidad();
+  const registros = await getTrazabilidad();
   grid.innerHTML = '';
 
   if (registros.length === 0) {
@@ -1175,7 +1321,7 @@ function initTrazabilidadForm() {
     return;
   }
 
-  formTrazabilidad.addEventListener('submit', (e) => {
+  formTrazabilidad.addEventListener('submit', async (e) => {
     try {
       console.log('Form trazabilidad submit');
       e.preventDefault();
@@ -1194,7 +1340,8 @@ function initTrazabilidadForm() {
       }
 
       const registros = getTrazabilidad();
-      registros.push({
+      
+      const nuevoRegistro = {
         fecha,
         referencia,
         ckd,
@@ -1202,15 +1349,21 @@ function initTrazabilidadForm() {
         cantidad: cantidad || '',
         novedades: novedades || '',
         foto: tzFotoDataUrl
-      });
-      try {
-        saveTrazabilidad(registros);
-      } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-          showToast('ALMACENAMIENTO LLENO. ELIMINA REGISTROS ANTIGUOS.', 'error');
-          return;
+      };
+
+      if (isSupabaseEnabled()) {
+        await DB.saveTrazabilidad(nuevoRegistro);
+      } else {
+        registros.push(nuevoRegistro);
+        try {
+          saveTrazabilidad(registros);
+        } catch (e) {
+          if (e.name === 'QuotaExceededError') {
+            showToast('ALMACENAMIENTO LLENO. ELIMINA REGISTROS ANTIGUOS.', 'error');
+            return;
+          }
+          throw e;
         }
-        throw e;
       }
       formTrazabilidad.reset();
       tzFotoDataUrl = null;
@@ -1230,23 +1383,27 @@ function initTrazabilidadForm() {
   console.log('submit listener attached to formTrazabilidad');
 }
 
-function init() {
+async function init() {
   autoAsignarTurno();
+
+  if (typeof initSupabase === 'function') {
+    await initSupabase();
+  }
 
   const boardFecha = document.getElementById('boardFecha');
   if (boardFecha) {
     boardFecha.textContent = formatearFechaEspanol(new Date());
   }
 
-  renderTabla();
-  actualizarDatalistReferencias();
+  await renderTabla();
+  await actualizarDatalistReferencias();
   initFirma();
   initReferenciaDropdown();
   initMultiplicadorComponentes();
   initBoard();
   initMenu();
   initTrazabilidadForm();
-  renderTrazabilidad();
+  await renderTrazabilidad();
 }
 
 init();

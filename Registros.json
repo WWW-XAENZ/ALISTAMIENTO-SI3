@@ -65,8 +65,14 @@
           "tipo": "Forro",
           "codigo": "10001574",
           "descripcion": "Pade o normal"
-        },
-        { "tipo": "Kit", "codigo": "30006029" }
+        }
+      ],
+      "kits": [
+        {
+          "tipo": "Kit",
+          "codigo": "30006029",
+          "cantidad_por_base": 1
+        }
       ]
     },
     {
