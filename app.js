@@ -1436,6 +1436,22 @@ function initMenu() {
   if (btnVolverInicioAdmin) {
     btnVolverInicioAdmin.addEventListener('click', () => mostrarSeccion('inicio'));
   }
+
+  const btnLimpiarFiltro = document.getElementById('btnLimpiarFiltro');
+  if (btnLimpiarFiltro) {
+    btnLimpiarFiltro.addEventListener('click', () => {
+      const input = document.getElementById('admin_fecha');
+      if (input) input.value = '';
+      renderAdmin();
+    });
+  }
+
+  const adminFecha = document.getElementById('admin_fecha');
+  if (adminFecha) {
+    adminFecha.addEventListener('change', () => {
+      renderAdmin();
+    });
+  }
 }
 
 async function getTrazabilidad() {
@@ -1515,8 +1531,20 @@ async function renderTrazabilidad() {
         } else {
           localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
         }
-        renderTrazabilidad();
-        renderAdmin();
+        const row = img.closest('tr');
+        if (row) {
+          row.classList.add('tabla-row--revisado');
+          img.style.border = '2px solid #22c55e';
+          const lastCell = row.querySelector('td:last-child');
+          if (lastCell && !lastCell.querySelector('.revisado-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'revisado-badge';
+            badge.style.color = '#22c55e';
+            badge.style.fontWeight = '600';
+            badge.textContent = '✓ Revisado';
+            lastCell.insertBefore(badge, lastCell.firstChild);
+          }
+        }
       }
     });
   });
@@ -1544,8 +1572,13 @@ async function renderTrazabilidad() {
 async function renderAdmin() {
   const grid = document.getElementById('adminGrid');
   if (!grid) return;
-  const registros = await getTrazabilidad();
+  let registros = await getTrazabilidad();
   grid.innerHTML = '';
+
+  const filtroFecha = document.getElementById('admin_fecha');
+  if (filtroFecha && filtroFecha.value) {
+    registros = registros.filter(r => r.fecha === filtroFecha.value);
+  }
 
   if (registros.length === 0) {
     grid.innerHTML = '<div class="admin-empty">Sin registros</div>';
@@ -1560,6 +1593,11 @@ async function renderAdmin() {
         <div>
           <div class="admin-card-title">${escapeHtml(registro.referencia || '')}</div>
           <div class="admin-card-meta">${escapeHtml(registro.fecha || '')} - ${escapeHtml(registro.responsable || '')}</div>
+          <div class="admin-card-info">
+            <span>CKD: ${escapeHtml(registro.ckd || '')}</span>
+            <span>Cantidad: ${escapeHtml(registro.cantidad || '0')}</span>
+          </div>
+          ${registro.novedades ? `<div class="admin-card-novedades">${escapeHtml(registro.novedades)}</div>` : ''}
         </div>
         ${registro.revisado ? '<span class="admin-card-check">✓</span>' : ''}
       </div>
@@ -1587,10 +1625,16 @@ async function renderAdmin() {
         } else {
           localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
         }
-        renderAdmin();
         const card = img.closest('.admin-card');
         if (card) {
           card.classList.add('admin-card--revisado');
+          const header = card.querySelector('.admin-card-header');
+          if (header && !header.querySelector('.admin-card-check')) {
+            const check = document.createElement('span');
+            check.className = 'admin-card-check';
+            check.textContent = '✓';
+            header.appendChild(check);
+          }
         }
       }
     });

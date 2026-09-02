@@ -1307,6 +1307,46 @@ h1 {
   font-weight: 700;
 }
 
+.admin-card-info {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.admin-card-info span {
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.admin-card-novedades {
+  margin-top: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: var(--gray-50);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-400);
+}
+
+.admin-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+}
+
+.admin-filters .form-group {
+  flex: 1;
+  max-width: 250px;
+}
+
 .admin-card-header {
   display: flex;
   align-items: flex-start;
