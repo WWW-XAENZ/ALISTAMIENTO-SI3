@@ -712,8 +712,8 @@ h1 {
     width: 100%;
   }
 
-  .btn-confirmar-firma,
-  .btn-limpiar-firma,
+  .btn-confirm-signature,
+  .btn-clear-signature,
   .btn-edit,
   .btn-delete {
     font-size: 0.75rem;
@@ -722,7 +722,7 @@ h1 {
   }
 }
 
-.btn-confirmar-firma {
+.btn-confirm-signature {
   padding: var(--space-3) var(--space-4);
   background: var(--accent-600);
   color: var(--text-inverse);
@@ -741,13 +741,13 @@ h1 {
   text-transform: uppercase;
 }
 
-.btn-confirmar-firma:hover {
+.btn-confirm-signature:hover {
   background: var(--accent-700);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.btn-confirmar-firma:active {
+.btn-confirm-signature:active {
   transform: translateY(0);
   background: var(--accent-700);
 }
@@ -803,8 +803,8 @@ h1 {
     font-size: 0.8125rem;
   }
 
-  .btn-confirmar-firma,
-  .btn-limpiar-firma {
+  .btn-confirm-signature,
+  .btn-clear-signature {
     font-size: 0.75rem;
     padding: var(--space-1) var(--space-2);
   }
@@ -901,7 +901,7 @@ h1 {
   box-shadow: 0 0 0 4px var(--primary-100), var(--shadow-md);
 }
 
-.btn-limpiar-firma {
+.btn-clear-signature {
   padding: var(--space-3) var(--space-4);
   background: var(--gray-600);
   color: var(--text-inverse);
@@ -920,13 +920,13 @@ h1 {
   text-transform: uppercase;
 }
 
-.btn-limpiar-firma:hover {
+.btn-clear-signature:hover {
   background: var(--gray-700);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.btn-limpiar-firma:active {
+.btn-clear-signature:active {
   transform: translateY(0);
   background: var(--gray-800);
 }

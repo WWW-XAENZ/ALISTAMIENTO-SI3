@@ -45,17 +45,23 @@ const DB = {
   async getRegistros() {
     if (!isSupabaseEnabled()) return [];
     
-    const { data, error } = await supabaseClient
-      .from('registros')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error obteniendo registros:', error);
+    try {
+      const { data, error } = await supabaseClient
+        .from('registros')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error obteniendo registros:', error);
+        return [];
+      }
+      
+      const rows = Array.isArray(data) ? data : [];
+      return agruparRegistros(rows);
+    } catch (e) {
+      console.error('Error en getRegistros():', e);
       return [];
     }
-    
-    return agruparRegistros(data || []);
   },
 
   async saveRegistro(registro) {
@@ -149,17 +155,22 @@ const DB = {
   async getTrazabilidad() {
     if (!isSupabaseEnabled()) return [];
     
-    const { data, error } = await supabaseClient
-      .from('trazabilidad')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error obteniendo trazabilidad:', error);
+    try {
+      const { data, error } = await supabaseClient
+        .from('trazabilidad')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error obteniendo trazabilidad:', error);
+        return [];
+      }
+      
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error('Error en getTrazabilidad():', e);
       return [];
     }
-    
-    return data || [];
   },
 
   async saveTrazabilidad(registro) {
@@ -227,9 +238,12 @@ function agruparRegistros(registros) {
   
   registros.forEach(r => {
     const gid = r.grupo_id || r.id;
+    const isHeader = !r.componentes && !r.descripcion;
+    
     if (!grupos.has(gid)) {
       grupos.set(gid, {
         grupo_id: gid,
+        id: r.id,
         fecha: r.fecha,
         turno: r.turno,
         referencia: r.referencia,
@@ -244,12 +258,32 @@ function agruparRegistros(registros) {
     }
     
     const grupo = grupos.get(gid);
-    if (r.id !== gid) {
+    
+    if (isHeader) {
+      grupo.id = r.id;
+      grupo.fecha = r.fecha;
+      grupo.turno = r.turno;
+      grupo.referencia = r.referencia;
+      grupo.base = r.base;
+      grupo.fomi = r.fomi;
+      grupo.forro = r.forro;
+      grupo.contabilizado = r.contabilizado;
+      grupo.responsable = r.responsable;
+      grupo.recibe = r.recibe;
+    } else {
       grupo.items.push({
         id: r.id,
+        fecha: r.fecha,
+        turno: r.turno,
         referencia: r.referencia,
+        base: '',
+        fomi: '',
+        forro: '',
         componentes: r.componentes,
-        descripcion: r.descripcion
+        descripcion: r.descripcion,
+        contabilizado: r.contabilizado,
+        responsable: r.responsable,
+        recibe: r.recibe,
       });
     }
   });

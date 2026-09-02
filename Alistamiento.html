@@ -77,16 +77,16 @@
                         <option value="2">2</option>
                     </select>
                 </div>
+            </div>
 
+            <!-- SEGUNDA FILA -->
+            <div class="form-row">
                 <div class="form-group form-group--relative">
                     <label for="referencia">Referencia</label>
                     <input type="text" id="referencia" name="referencia" list="listaReferencias" placeholder="Escribe una referencia..." autocomplete="off">
                     <div id="referenciaDropdown" class="referencia-dropdown hidden"></div>
                 </div>
-            </div>
 
-            <!-- SEGUNDA FILA -->
-            <div class="form-row">
                 <div class="form-group">
                     <label for="base">Base</label>
                     <input type="text" id="base" name="base" placeholder="Base">
@@ -98,17 +98,20 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="componentes">Componentes</label>
-                    <textarea id="componentes" name="componentes" rows="4" placeholder="Componentes"></textarea>
-                </div>
-
-                <div class="form-group">
                     <label for="forro">Forro</label>
                     <input type="text" id="forro" name="forro" placeholder="Forro">
                 </div>
             </div>
 
             <!-- TERCERA FILA -->
+            <div class="form-row">
+                <div class="form-group form-group--full">
+                    <label for="componentes">Componentes</label>
+                    <textarea id="componentes" name="componentes" rows="4" placeholder="Componentes"></textarea>
+                </div>
+            </div>
+
+            <!-- CUARTA FILA -->
             <div class="form-row">
                 <div class="form-group">
                     <label class="firma-label">
@@ -121,7 +124,7 @@
                             <span class="firma-toolbar-title">Firma del responsable</span>
                         </div>
                         <div class="firma-wrap" id="firmaWrap">
-                            <canvas id="firmaRecibe" width="260" height="100" class="firma-canvas"></canvas>
+                            <canvas id="firmaRecibe" width="260" height="100" class="firma-canvas" style="will-read-frequently: true;"></canvas>
                             <div class="firma-hint">
                                 <span class="firma-hint-text">Firme aquí</span>
                             </div>

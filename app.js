@@ -3,6 +3,7 @@ const JSON_PATH = 'Registros.json';
 
 let editIndex = null;
 let editRegistroId = null;
+let editTipo = null;
 let jsonRegistrosCache = [];
 let productoSeleccionado = null;
 let componentesEditadoManualmente = false;
@@ -55,22 +56,24 @@ async function cargarRegistrosJSON() {
   try {
     if (isSupabaseEnabled()) {
       const productos = await DB.getProductos();
-      return productos.map(p => ({
-        producto: p.nombre,
-        referencia: p.referencia,
-        componentes: (p.producto_componentes || [])
-          .filter(c => c.categoria === 'base' || c.categoria === 'pin')
-          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion })),
-        componentes_adicionales: (p.producto_componentes || [])
-          .filter(c => c.categoria === 'adicional')
-          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
-        kits: (p.producto_componentes || [])
-          .filter(c => c.categoria === 'kit')
-          .map(c => ({ tipo: c.tipo, codigo: c.codigo, cantidad_por_base: c.cantidad_por_base })),
-        anti_vibrantes: (p.producto_componentes || [])
-          .filter(c => c.categoria === 'anti_vibrante')
-          .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
-      }));
+      if (Array.isArray(productos) && productos.length > 0) {
+        return productos.map(p => ({
+          producto: p.nombre,
+          referencia: p.referencia,
+          componentes: (p.producto_componentes || [])
+            .filter(c => c.categoria === 'base' || c.categoria === 'pin')
+            .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion })),
+          componentes_adicionales: (p.producto_componentes || [])
+            .filter(c => c.categoria === 'adicional')
+            .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
+          kits: (p.producto_componentes || [])
+            .filter(c => c.categoria === 'kit')
+            .map(c => ({ tipo: c.tipo, codigo: c.codigo, cantidad_por_base: c.cantidad_por_base })),
+          anti_vibrantes: (p.producto_componentes || [])
+            .filter(c => c.categoria === 'anti_vibrante')
+            .map(c => ({ tipo: c.tipo, codigo: c.codigo, descripcion: c.descripcion, cantidad_por_base: c.cantidad_por_base })),
+        }));
+      }
     }
     const response = await fetch(JSON_PATH + '?t=' + Date.now());
     if (!response.ok) return [];
@@ -90,11 +93,70 @@ async function getRegistros() {
   }
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    const registros = data ? JSON.parse(data) : [];
+    return agruparRegistrosLocal(registros);
   } catch (e) {
     console.error('Error al leer registros', e);
     return [];
   }
+}
+
+function agruparRegistrosLocal(registros) {
+  const grupos = new Map();
+  
+  registros.forEach(r => {
+    const gid = r.grupo_id || r.id;
+    const isHeader = !r.componentes && !r.descripcion;
+    
+    if (!grupos.has(gid)) {
+      grupos.set(gid, {
+        grupo_id: gid,
+        id: r.id,
+        fecha: r.fecha,
+        turno: r.turno,
+        referencia: r.referencia,
+        base: r.base,
+        fomi: r.fomi,
+        forro: r.forro,
+        contabilizado: r.contabilizado,
+        responsable: r.responsable,
+        recibe: r.recibe,
+        items: []
+      });
+    }
+    
+    const grupo = grupos.get(gid);
+    
+    if (isHeader) {
+      grupo.id = r.id;
+      grupo.fecha = r.fecha;
+      grupo.turno = r.turno;
+      grupo.referencia = r.referencia;
+      grupo.base = r.base;
+      grupo.fomi = r.fomi;
+      grupo.forro = r.forro;
+      grupo.contabilizado = r.contabilizado;
+      grupo.responsable = r.responsable;
+      grupo.recibe = r.recibe;
+    } else {
+      grupo.items.push({
+        id: r.id,
+        fecha: r.fecha,
+        turno: r.turno,
+        referencia: r.referencia,
+        base: '',
+        fomi: '',
+        forro: '',
+        componentes: r.componentes,
+        descripcion: r.descripcion,
+        contabilizado: r.contabilizado,
+        responsable: r.responsable,
+        recibe: r.recibe,
+      });
+    }
+  });
+  
+  return Array.from(grupos.values());
 }
 
 async function saveRegistros(registros) {
@@ -109,7 +171,7 @@ async function saveRegistros(registros) {
 
 function getFormData() {
   return {
-    fecha: document.getElementById('fecha').value.trim(),
+    fecha: document.getElementById('fecha').value.trim() || new Date().toISOString().split('T')[0],
     turno: document.getElementById('turno').value,
     referencia: document.getElementById('referencia').value.trim(),
     base: document.getElementById('base').value.trim(),
@@ -133,6 +195,7 @@ function limpiarFormulario() {
   document.getElementById('responsable').value = '';
   editIndex = null;
   editRegistroId = null;
+  editTipo = null;
   productoSeleccionado = null;
   componentesEditadoManualmente = false;
   document.getElementById('btnGuardar').textContent = 'GUARDAR REGISTRO';
@@ -146,15 +209,14 @@ async function renderTabla() {
   const tbody = document.getElementById('cuerpoTabla');
   tbody.innerHTML = '';
 
-  const countEl = document.getElementById('registroCount');
-  if (countEl) {
-    countEl.textContent = registros.length;
-  }
+  let totalRows = 0;
 
   if (registros.length === 0) {
     const tr = document.createElement('tr');
     tr.innerHTML = '<td colspan="11" class="tabla-empty">Sin registros</td>';
     tbody.appendChild(tr);
+    const countEl = document.getElementById('registroCount');
+    if (countEl) countEl.textContent = 0;
     return;
   }
 
@@ -162,24 +224,26 @@ async function renderTabla() {
     const items = grupo.items || [];
     const esGrupo = items.length > 0;
     
+    totalRows++;
     const tr = document.createElement('tr');
+    tr.className = esGrupo ? 'header-row' : '';
     tr.innerHTML = `
       <td>${escapeHtml(grupo.fecha)}</td>
       <td>${escapeHtml(grupo.turno)}</td>
       <td>${escapeHtml(grupo.referencia)}</td>
       <td>${escapeHtml(grupo.base)}</td>
       <td>${escapeHtml(grupo.fomi)}</td>
-      <td>${esGrupo ? '<span style="color:var(--text-tertiary);font-style:italic;">Ver items abajo</span>' : escapeHtml(grupo.componentes || '').replace(/\n/g, '<br>')}</td>
+      <td>${esGrupo ? '<span style="color:var(--text-tertiary);font-style:italic;">Ver componentes ↓</span>' : escapeHtml(grupo.componentes || '').replace(/\n/g, '<br>')}</td>
       <td>${escapeHtml(grupo.forro)}</td>
       <td>${grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
       <td>${escapeHtml(grupo.contabilizado)}</td>
       <td>${escapeHtml(grupo.responsable)}</td>
       <td>
-        <button class="btn-edit" data-index="${index}" title="Editar registro">
+        <button class="btn-edit" data-id="${grupo.id}" data-tipo="header" title="Editar registro">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           Editar
         </button>
-        <button class="btn-delete" data-index="${index}" title="Eliminar registro">
+        <button class="btn-delete" data-id="${grupo.grupo_id || grupo.id}" data-tipo="header" title="Eliminar registro">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           Eliminar
         </button>
@@ -189,24 +253,40 @@ async function renderTabla() {
 
     if (esGrupo) {
       items.forEach(item => {
+        totalRows++;
         const itemTr = document.createElement('tr');
         itemTr.className = 'item-row';
         itemTr.innerHTML = `
-          <td colspan="2"></td>
+          <td>${escapeHtml(item.fecha || grupo.fecha || '')}</td>
+          <td>${escapeHtml(item.turno || grupo.turno || '')}</td>
           <td>${escapeHtml(item.referencia)}</td>
           <td></td>
           <td></td>
-          <td>${escapeHtml(item.componentes || '')}</td>
+          <td>${escapeHtml(item.componentes || '').replace(/\n/g, '<br>')}</td>
           <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td>${item.recibe ? `<img src="${item.recibe}" class="registro-firma-img" alt="Firma">` : (grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>')}</td>
+          <td>${escapeHtml(item.contabilizado || grupo.contabilizado || '')}</td>
+          <td>${escapeHtml(item.responsable || grupo.responsable || '')}</td>
+          <td>
+            <button class="btn-edit" data-id="${item.id}" data-tipo="item" title="Editar componente">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Editar
+            </button>
+            <button class="btn-delete" data-id="${item.id}" data-tipo="item" title="Eliminar componente">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Eliminar
+            </button>
+          </td>
         `;
         tbody.appendChild(itemTr);
       });
     }
   });
+
+  const countEl = document.getElementById('registroCount');
+  if (countEl) {
+    countEl.textContent = totalRows;
+  }
 }
 
 function escapeHtml(text) {
@@ -224,10 +304,12 @@ async function actualizarDatalistReferencias() {
   const productos = await cargarRegistrosJSON();
   const refs = new Set();
 
-  productos.forEach(p => {
-    const ref = p.referencia || p.producto;
-    if (ref) refs.add(ref.toUpperCase());
-  });
+  if (Array.isArray(productos)) {
+    productos.forEach(p => {
+      const ref = p.referencia || p.producto;
+      if (ref) refs.add(ref.toUpperCase());
+    });
+  }
 
   const refsArray = Array.from(refs).sort((a, b) => a.localeCompare(b));
 
@@ -265,7 +347,7 @@ function initReferenciaDropdown() {
 
   async function actualizarOpciones() {
     const valor = input.value.trim().toLowerCase();
-    const locales = getRegistros();
+    const locales = await getRegistros();
     const remotos = await cargarRegistrosJSON();
     const todos = [...locales, ...remotos];
 
@@ -278,7 +360,7 @@ function initReferenciaDropdown() {
 
     const unicos = new Map();
     filtrados.forEach(r => {
-      const clave = r.referencia || r.producto;
+      const clave = r.producto || r.referencia;
       if (!unicos.has(clave)) {
         unicos.set(clave, r);
       }
@@ -295,7 +377,7 @@ function initReferenciaDropdown() {
     resultados.forEach(r => {
       const item = document.createElement('div');
       item.className = 'referencia-item';
-      const nombre = r.referencia || r.producto;
+      const nombre = r.producto || r.referencia;
 
       const componentesList = [];
       if (Array.isArray(r.componentes)) {
@@ -363,6 +445,7 @@ function autocompletarFormulario(producto) {
 
 function multiplicarComponentes() {
   if (!productoSeleccionado) return;
+  if (componentesEditadoManualmente) return;
 
   const baseInput = document.getElementById('base');
   const componentesInput = document.getElementById('componentes');
@@ -397,7 +480,6 @@ function multiplicarComponentes() {
   }).filter(v => v);
 
   componentesInput.value = lineas.join('\n');
-  componentesEditadoManualmente = false;
 }
 
 function initMultiplicadorComponentes() {
@@ -422,7 +504,7 @@ function initMultiplicadorComponentes() {
       return;
     }
 
-    const locales = getRegistros();
+    const locales = await getRegistros();
     const remotos = await cargarRegistrosJSON();
     const todos = [...locales, ...remotos];
 
@@ -596,10 +678,22 @@ function getFirmaDataUrl() {
 
 async function obtenerProductoReferencia(referencia) {
   const remotos = await cargarRegistrosJSON();
-  return remotos.find(r => {
+  const valor = (referencia || '').trim().toLowerCase();
+  if (!valor) return null;
+
+  let producto = remotos.find(r => {
     const nombre = (r.referencia || r.producto || '').toLowerCase();
-    return nombre === referencia.trim().toLowerCase();
+    return nombre === valor;
   });
+
+  if (!producto) {
+    producto = remotos.find(r => {
+      const nombre = (r.referencia || r.producto || '').toLowerCase();
+      return nombre.includes(valor);
+    });
+  }
+
+  return producto || null;
 }
 
 function multiplicarComponentesGlobal(producto, cantidadBase) {
@@ -632,7 +726,11 @@ async function agregarRegistro(e) {
   const cantidadBase = parseInt(data.base, 10);
   const producto = await obtenerProductoReferencia(data.referencia);
 
-  const grupoId = crypto.randomUUID();
+  const grupoId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  if (!data.fecha) {
+    data.fecha = new Date().toISOString().split('T')[0];
+  }
 
   if (producto) {
     const componentesBase = producto.componentes || [];
@@ -661,7 +759,7 @@ async function agregarRegistro(e) {
         fecha: data.fecha,
         turno: data.turno,
         referencia: data.referencia,
-        base: baseEncontrada ? `${multiplicadorBase}` : '',
+        base: data.base || '',
         forro: data.forro || '',
         componentes: '',
         descripcion: '',
@@ -687,20 +785,23 @@ async function agregarRegistro(e) {
             componentes: String(cantidad),
             descripcion: tipo,
             fomi: '',
-            contabilizado: '',
-            responsable: '',
+            contabilizado: data.contabilizado,
+            responsable: data.responsable,
             recibe: firma,
           });
         }
       }
     } else {
-      const registros = getRegistros();
+      const registros = await getRegistros();
       if (baseEncontrada || adicionales.length > 0) {
+        const headerId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         registros.push({
+          id: headerId,
+          grupo_id: grupoId,
           fecha: data.fecha,
           turno: data.turno,
           referencia: data.referencia,
-          base: baseEncontrada ? `${multiplicadorBase}` : '',
+          base: data.base || '',
           forro: data.forro || '',
           componentes: '',
           descripcion: '',
@@ -716,6 +817,8 @@ async function agregarRegistro(e) {
           const tipo = c.tipo || '';
           if (codigo && cantidad > 0) {
             registros.push({
+              id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+              grupo_id: grupoId,
               fecha: data.fecha,
               turno: data.turno,
               referencia: codigo,
@@ -724,19 +827,22 @@ async function agregarRegistro(e) {
               componentes: String(cantidad),
               descripcion: tipo,
               fomi: '',
-              contabilizado: '',
-              responsable: '',
+              contabilizado: data.contabilizado,
+              responsable: data.responsable,
               recibe: firma,
             });
           }
         });
       } else {
+        const fallbackId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         registros.push({
+          id: fallbackId,
+          grupo_id: grupoId,
           ...data,
           recibe: firma,
         });
       }
-      saveRegistros(registros);
+      await saveRegistros(registros);
     }
   } else {
     if (isSupabaseEnabled()) {
@@ -755,12 +861,12 @@ async function agregarRegistro(e) {
         recibe: firma,
       });
     } else {
-      const registros = getRegistros();
+      const registros = await getRegistros();
       registros.push({
         ...data,
         recibe: firma,
       });
-      saveRegistros(registros);
+      await saveRegistros(registros);
     }
   }
 
@@ -770,20 +876,58 @@ async function agregarRegistro(e) {
   showToast('REGISTRO GUARDADO CORRECTAMENTE', 'success');
 }
 
-async function editarRegistro(index) {
-  const registros = await getRegistros();
-  const registro = registros[index];
+async function editarRegistroPorId(id, tipo) {
+  let registro;
+
+  if (tipo === 'header') {
+    const registros = await getRegistros();
+    const grupo = registros.find(g => g.grupo_id === id || g.id === id);
+    if (!grupo) return;
+    registro = grupo;
+  } else if (tipo === 'item') {
+    if (isSupabaseEnabled()) {
+      const { data, error } = await supabaseClient
+        .from('registros')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !data) {
+        console.error('Error obteniendo item:', error);
+        showToast('ERROR AL CARGAR EL REGISTRO', 'error');
+        return;
+      }
+      registro = data;
+    } else {
+      const registros = await getRegistros();
+      for (const grupo of registros) {
+        const item = (grupo.items || []).find(i => i.id === id);
+        if (item) {
+          registro = { ...grupo, ...item };
+          break;
+        }
+      }
+    }
+  }
+
   if (!registro) return;
 
   document.getElementById('fecha').value = registro.fecha || '';
   document.getElementById('turno').value = registro.turno || '';
   document.getElementById('referencia').value = registro.referencia || '';
-  document.getElementById('base').value = registro.base || '';
-  document.getElementById('fomi').value = registro.fomi || '';
   document.getElementById('componentes').value = registro.componentes || '';
-  document.getElementById('forro').value = registro.forro || '';
   document.getElementById('contabilizado').value = registro.contabilizado !== undefined && registro.contabilizado !== null ? registro.contabilizado : '';
   document.getElementById('responsable').value = registro.responsable || '';
+
+  if (tipo === 'header') {
+    document.getElementById('base').value = registro.base || '';
+    document.getElementById('fomi').value = registro.fomi || '';
+    document.getElementById('forro').value = registro.forro || '';
+  } else {
+    document.getElementById('base').value = '';
+    document.getElementById('fomi').value = '';
+    document.getElementById('forro').value = '';
+  }
 
   if (registro.recibe) {
     cargarFirmaEnCanvas(registro.recibe);
@@ -791,11 +935,11 @@ async function editarRegistro(index) {
     limpiarFirma();
   }
 
-  const producto = await obtenerProductoReferencia(registro.referencia || '');
-  productoSeleccionado = producto || null;
-
-  editIndex = index;
-  editRegistroId = registro.id || null;
+  editIndex = null;
+  editRegistroId = id;
+  editTipo = tipo;
+  componentesEditadoManualmente = true;
+  productoSeleccionado = null;
   document.getElementById('btnGuardar').textContent = 'ACTUALIZAR';
   document.getElementById('btnGuardar').className = 'btn-update';
   document.getElementById('btnCancelar').style.display = 'inline-block';
@@ -817,7 +961,7 @@ function cargarFirmaEnCanvas(dataUrl) {
 
 async function actualizarRegistro(e) {
   e.preventDefault();
-  if (editIndex === null && editRegistroId === null) return;
+  if (!editRegistroId) return;
 
   const data = getFormData();
   const firma = getFirmaDataUrl();
@@ -831,60 +975,195 @@ async function actualizarRegistro(e) {
   }
 
   if (isSupabaseEnabled() && editRegistroId) {
-    const updates = {
-      fecha: data.fecha,
-      turno: data.turno,
-      referencia: data.referencia,
-      base: data.base,
-      fomi: data.fomi,
-      componentes: componentesFinal,
-      forro: data.forro,
-      contabilizado: data.contabilizado,
-      responsable: data.responsable,
-      recibe: firma,
-    };
-    await DB.updateRegistro(editRegistroId, updates);
+    if (editTipo === 'header') {
+      const headerUpdates = {
+        fecha: data.fecha,
+        turno: data.turno,
+        referencia: data.referencia,
+        base: data.base,
+        fomi: data.fomi,
+        forro: data.forro,
+        contabilizado: data.contabilizado,
+        responsable: data.responsable,
+        recibe: firma,
+      };
+      const { error } = await supabaseClient
+        .from('registros')
+        .update(headerUpdates)
+        .eq('id', editRegistroId);
+      if (error) {
+        console.error('Error actualizando header:', error);
+        showToast('ERROR AL ACTUALIZAR', 'error');
+        return;
+      }
+    } else {
+      const itemUpdates = {
+        fecha: data.fecha,
+        turno: data.turno,
+        referencia: data.referencia,
+        componentes: componentesFinal,
+        contabilizado: data.contabilizado,
+        responsable: data.responsable,
+        recibe: firma,
+      };
+      await DB.updateRegistro(editRegistroId, itemUpdates);
+    }
   } else if (!isSupabaseEnabled()) {
-    const registros = getRegistros();
-    registros[editIndex] = { ...registros[editIndex], ...data, recibe: firma, componentes: componentesFinal };
-    saveRegistros(registros);
+    const registros = await getRegistros();
+    if (editTipo === 'header') {
+      const grupo = registros.find(g => g.grupo_id === editRegistroId || g.id === editRegistroId);
+      if (grupo) {
+        grupo.fecha = data.fecha;
+        grupo.turno = data.turno;
+        grupo.referencia = data.referencia;
+        grupo.base = data.base;
+        grupo.fomi = data.fomi;
+        grupo.forro = data.forro;
+        grupo.contabilizado = data.contabilizado;
+        grupo.responsable = data.responsable;
+        grupo.recibe = firma;
+      }
+    } else if (editTipo === 'item') {
+      for (const grupo of registros) {
+        const item = (grupo.items || []).find(i => i.id === editRegistroId);
+        if (item) {
+          item.fecha = data.fecha;
+          item.turno = data.turno;
+          item.referencia = data.referencia;
+          item.componentes = componentesFinal;
+          item.contabilizado = data.contabilizado;
+          item.responsable = data.responsable;
+          item.recibe = firma;
+          break;
+        }
+      }
+    }
+    const flatList = [];
+    registros.forEach(grupo => {
+      flatList.push({
+        id: grupo.id,
+        grupo_id: grupo.grupo_id,
+        fecha: grupo.fecha,
+        turno: grupo.turno,
+        referencia: grupo.referencia,
+        base: grupo.base,
+        fomi: grupo.fomi,
+        forro: grupo.forro,
+        componentes: grupo.componentes,
+        contabilizado: grupo.contabilizado,
+        responsable: grupo.responsable,
+        recibe: grupo.recibe,
+      });
+      (grupo.items || []).forEach(item => {
+        flatList.push({
+          id: item.id,
+          grupo_id: grupo.grupo_id,
+          fecha: item.fecha || grupo.fecha,
+          turno: item.turno || grupo.turno,
+          referencia: item.referencia,
+          base: '',
+          fomi: '',
+          forro: '',
+          componentes: item.componentes,
+          descripcion: item.descripcion,
+          contabilizado: item.contabilizado || '',
+          responsable: item.responsable || '',
+          recibe: item.recibe || grupo.recibe,
+        });
+      });
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(flatList));
   }
 
   limpiarFormulario();
-  renderTabla();
+  await renderTabla();
   actualizarDatalistReferencias();
   showToast('REGISTRO ACTUALIZADO CORRECTAMENTE', 'success');
 }
 
-async function eliminarRegistro(index) {
+async function eliminarRegistro(id, tipo) {
   if (!confirm('¿Deseas eliminar este registro?')) {
     return;
   }
 
   if (isSupabaseEnabled()) {
-    const registros = await getRegistros();
-    const grupo = registros[index];
-    if (grupo && grupo.grupo_id) {
-      await DB.deleteGrupo(grupo.grupo_id);
+    if (tipo === 'header') {
+      await DB.deleteGrupo(id);
+    } else {
+      await DB.deleteRegistro(id);
     }
   } else {
-    const registros = getRegistros();
-    registros.splice(index, 1);
-    saveRegistros(registros);
-    if (editIndex === index) {
-      limpiarFormulario();
-    } else if (editIndex !== null && editIndex > index) {
-      editIndex--;
+    const registros = await getRegistros();
+    
+    if (tipo === 'header') {
+      const index = registros.findIndex(g => g.grupo_id === id || g.id === id);
+      if (index !== -1) {
+        registros.splice(index, 1);
+      }
+    } else {
+      let encontrado = false;
+      for (const grupo of registros) {
+        const itemIndex = (grupo.items || []).findIndex(i => i.id === id);
+        if (itemIndex !== -1) {
+          grupo.items.splice(itemIndex, 1);
+          encontrado = true;
+          break;
+        }
+      }
+      if (!encontrado) {
+        const index = registros.findIndex(g => g.id === id);
+        if (index !== -1) {
+          registros.splice(index, 1);
+        }
+      }
     }
+    
+    const flatList = [];
+    registros.forEach(grupo => {
+      flatList.push({
+        id: grupo.id,
+        grupo_id: grupo.grupo_id,
+        fecha: grupo.fecha,
+        turno: grupo.turno,
+        referencia: grupo.referencia,
+        base: grupo.base,
+        fomi: grupo.fomi,
+        forro: grupo.forro,
+        componentes: grupo.componentes,
+        contabilizado: grupo.contabilizado,
+        responsable: grupo.responsable,
+        recibe: grupo.recibe,
+      });
+      (grupo.items || []).forEach(item => {
+        flatList.push({
+          id: item.id,
+          grupo_id: grupo.grupo_id,
+          fecha: item.fecha || grupo.fecha,
+          turno: item.turno || grupo.turno,
+          referencia: item.referencia,
+          base: '',
+          fomi: '',
+          forro: '',
+          componentes: item.componentes,
+          descripcion: item.descripcion,
+          contabilizado: item.contabilizado || '',
+          responsable: item.responsable || '',
+          recibe: item.recibe || grupo.recibe,
+        });
+      });
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(flatList));
   }
 
-  renderTabla();
+  await renderTabla();
   actualizarDatalistReferencias();
   showToast('REGISTRO ELIMINADO', 'info');
 }
 
+
+
 document.getElementById('formAlistamiento').addEventListener('submit', function(e) {
-  if (editIndex !== null) {
+  if (editRegistroId) {
     actualizarRegistro(e);
   } else {
     agregarRegistro(e);
@@ -899,16 +1178,18 @@ document.getElementById('btnCancelar').addEventListener('click', limpiarFormular
 document.getElementById('btnLimpiarFirma').addEventListener('click', limpiarFirma);
 
 document.getElementById('cuerpoTabla').addEventListener('click', function (e) {
-  if (e.target.classList.contains('btn-delete')) {
-    const index = parseInt(e.target.getAttribute('data-index'), 10);
-    if (!isNaN(index)) {
-      eliminarRegistro(index);
-    }
-  } else if (e.target.classList.contains('btn-edit')) {
-    const index = parseInt(e.target.getAttribute('data-index'), 10);
-    if (!isNaN(index)) {
-      editarRegistro(index).catch(() => {});
-    }
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  const id = btn.getAttribute('data-id');
+  const tipo = btn.getAttribute('data-tipo');
+
+  if (!id) return;
+
+  if (btn.classList.contains('btn-delete')) {
+    eliminarRegistro(id, tipo);
+  } else if (btn.classList.contains('btn-edit')) {
+    editarRegistroPorId(id, tipo);
   }
 });
 
@@ -1159,7 +1440,10 @@ function initMenu() {
 
 async function getTrazabilidad() {
   if (isSupabaseEnabled()) {
-    return await DB.getTrazabilidad();
+    const registros = await DB.getTrazabilidad();
+    if (Array.isArray(registros) && registros.length > 0) {
+      return registros;
+    }
   }
   try {
     const data = localStorage.getItem('trazabilidad_registros');
@@ -1171,7 +1455,9 @@ async function getTrazabilidad() {
 
 async function saveTrazabilidad(registros) {
   if (isSupabaseEnabled()) {
-    console.warn('saveTrazabilidad masivo no implementado en Supabase');
+    for (const registro of registros) {
+      await DB.saveTrazabilidad(registro);
+    }
     return;
   }
   localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
@@ -1339,7 +1625,7 @@ function initTrazabilidadForm() {
         return;
       }
 
-      const registros = getTrazabilidad();
+      const registros = await getTrazabilidad();
       
       const nuevoRegistro = {
         fecha,
@@ -1352,7 +1638,13 @@ function initTrazabilidadForm() {
       };
 
       if (isSupabaseEnabled()) {
-        await DB.saveTrazabilidad(nuevoRegistro);
+        try {
+          await DB.saveTrazabilidad(nuevoRegistro);
+        } catch (error) {
+          console.error('Error guardando trazabilidad en Supabase:', error);
+          showToast('ERROR AL GUARDAR TRAZABILIDAD', 'error');
+          return;
+        }
       } else {
         registros.push(nuevoRegistro);
         try {
