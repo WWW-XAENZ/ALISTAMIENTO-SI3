@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS trazabilidad (
   cantidad TEXT,
   novedades TEXT,
   foto TEXT,
+  revisado BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

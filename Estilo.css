@@ -1283,12 +1283,28 @@ h1 {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .admin-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-2xl);
+}
+
+.admin-card--revisado {
+  border-color: var(--accent-500);
+  border-width: 2px;
+  box-shadow: 0 0 0 1px var(--accent-500), var(--shadow-lg);
+}
+
+.admin-card--revisado .admin-card-header {
+  background: var(--accent-50);
+}
+
+.admin-card-check {
+  color: var(--accent-600);
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .admin-card-header {
@@ -2033,6 +2049,23 @@ h1 {
   color: var(--text-tertiary);
   font-size: 1.125rem;
   font-weight: 600;
+}
+
+.tabla-row--revisado {
+  background: var(--accent-50) !important;
+}
+
+.tabla-row--revisado td {
+  border-bottom-color: var(--accent-200) !important;
+}
+
+.tabla-foto-img {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.tabla-foto-img:hover {
+  transform: scale(1.1);
 }
 
 /* ============== FIRMA PROFESIONAL ============== */

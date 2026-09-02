@@ -1478,19 +1478,47 @@ async function renderTrazabilidad() {
 
   registros.forEach((registro, index) => {
     const tr = document.createElement('tr');
+    if (registro.revisado) {
+      tr.className = 'tabla-row--revisado';
+    }
     tr.innerHTML = `
       <td>${escapeHtml(registro.fecha || '')}</td>
       <td>${escapeHtml(registro.referencia || '')}</td>
       <td>${escapeHtml(registro.ckd || '')}</td>
       <td>${escapeHtml(registro.responsable || '')}</td>
       <td>${escapeHtml(registro.cantidad || '')}</td>
-      <td>${registro.foto ? `<img src="${registro.foto}" style="height:32px;vertical-align:middle;border-radius:4px;background:#f9fafb;padding:2px;" onerror="this.style.display='none'">` : ''}</td>
+      <td>${registro.foto ? `<img src="${registro.foto}" class="tabla-foto-img" style="height:32px;vertical-align:middle;border-radius:4px;${registro.revisado ? 'border:2px solid #22c55e;' : 'background:#f9fafb;padding:2px;'}" onerror="this.style.display='none'">` : ''}</td>
       <td>${escapeHtml(registro.novedades || '')}</td>
       <td>
+        ${registro.revisado ? '<span style="color:#22c55e;font-weight:600;">✓ Revisado</span>' : ''}
         <button class="btn-delete" data-index="${index}" data-id="${registro.id || ''}" title="Eliminar registro">Eliminar</button>
       </td>
     `;
     tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('.tabla-foto-img').forEach((img, index) => {
+    img.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const win = window.open('', '_blank', 'width=900,height=700');
+      if (win) {
+        win.document.write(`<html><head><title>Trazabilidad</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${img.src}" style="max-width:100%;max-height:100%;"></body></html>`);
+      }
+      const registros = await getTrazabilidad();
+      if (registros[index] && !registros[index].revisado) {
+        registros[index].revisado = true;
+        if (isSupabaseEnabled() && registros[index].id) {
+          await supabaseClient
+            .from('trazabilidad')
+            .update({ revisado: true })
+            .eq('id', registros[index].id);
+        } else {
+          localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
+        }
+        renderTrazabilidad();
+        renderAdmin();
+      }
+    });
   });
 
   tbody.querySelectorAll('.btn-delete').forEach((btn) => {
@@ -1526,13 +1554,14 @@ async function renderAdmin() {
 
   registros.forEach((registro, index) => {
     const card = document.createElement('div');
-    card.className = 'admin-card';
+    card.className = 'admin-card' + (registro.revisado ? ' admin-card--revisado' : '');
     card.innerHTML = `
       <div class="admin-card-header">
         <div>
           <div class="admin-card-title">${escapeHtml(registro.referencia || '')}</div>
           <div class="admin-card-meta">${escapeHtml(registro.fecha || '')} - ${escapeHtml(registro.responsable || '')}</div>
         </div>
+        ${registro.revisado ? '<span class="admin-card-check">✓</span>' : ''}
       </div>
       <div class="admin-card-body">
         ${registro.foto ? `<img src="${registro.foto}" class="admin-card-img" onerror="this.style.display='none'">` : '<div class="admin-card-empty">Sin foto</div>'}
@@ -1541,11 +1570,28 @@ async function renderAdmin() {
     grid.appendChild(card);
   });
 
-  grid.querySelectorAll('.admin-card-img').forEach((img) => {
-    img.addEventListener('click', () => {
+  grid.querySelectorAll('.admin-card-img').forEach((img, index) => {
+    img.addEventListener('click', async () => {
       const win = window.open('', '_blank', 'width=900,height=700');
       if (win) {
         win.document.write(`<html><head><title>Trazabilidad</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${img.src}" style="max-width:100%;max-height:100%;"></body></html>`);
+      }
+      const registros = await getTrazabilidad();
+      if (registros[index] && !registros[index].revisado) {
+        registros[index].revisado = true;
+        if (isSupabaseEnabled() && registros[index].id) {
+          await supabaseClient
+            .from('trazabilidad')
+            .update({ revisado: true })
+            .eq('id', registros[index].id);
+        } else {
+          localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
+        }
+        renderAdmin();
+        const card = img.closest('.admin-card');
+        if (card) {
+          card.classList.add('admin-card--revisado');
+        }
       }
     });
   });
@@ -1696,6 +1742,24 @@ async function init() {
   initMenu();
   initTrazabilidadForm();
   await renderTrazabilidad();
+  await renderAdmin();
+
+  if (isSupabaseEnabled() && typeof DB.onRegistrosChange === 'function') {
+    DB.onRegistrosChange(async (payload) => {
+      console.log('Cambio en registros:', payload);
+      await renderTabla();
+      await actualizarDatalistReferencias();
+      await renderAdmin();
+    });
+  }
+
+  if (isSupabaseEnabled() && typeof DB.onTrazabilidadChange === 'function') {
+    DB.onTrazabilidadChange(async (payload) => {
+      console.log('Cambio en trazabilidad:', payload);
+      await renderTrazabilidad();
+      await renderAdmin();
+    });
+  }
 }
 
 init();
