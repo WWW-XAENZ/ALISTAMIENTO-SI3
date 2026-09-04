@@ -1697,6 +1697,14 @@ async function init() {
   await renderTrazabilidad();
   await renderAdmin();
 
+  const params = new URLSearchParams(window.location.search);
+  const seccion = params.get('seccion');
+  if (seccion === 'trazabilidad') {
+    document.getElementById('menuTrazabilidad')?.click();
+  } else if (seccion === 'admin') {
+    document.getElementById('menuAdmin')?.click();
+  }
+
   if (isSupabaseEnabled() && typeof DB.onRegistrosChange === 'function') {
     DB.onRegistrosChange(async (payload) => {
       console.log('Cambio en registros:', payload);

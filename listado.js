@@ -132,6 +132,10 @@ function initMenuListado() {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       cerrarMenu();
+      const href = link.getAttribute('href');
+      if (href && href !== '#') {
+        window.location.href = href;
+      }
     });
   });
 }
