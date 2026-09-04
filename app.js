@@ -1226,7 +1226,10 @@ function initBoard() {
 
   if (!btnAdicionar || !inputFoto || !grid || !btnTomarFoto || !inputFotoCamara) return;
 
-  function getFotos() {
+  async function getFotos() {
+    if (isSupabaseEnabled()) {
+      return await DB.getBoardFotos();
+    }
     try {
       const data = localStorage.getItem('board_fotos');
       return data ? JSON.parse(data) : [];
@@ -1235,12 +1238,34 @@ function initBoard() {
     }
   }
 
-  function saveFotos(fotos) {
+  async function saveFotos(fotos) {
+    if (isSupabaseEnabled()) {
+      try {
+        const existing = await DB.getBoardFotos();
+        const existingIds = new Set(existing.map(f => f.id));
+        for (const foto of fotos) {
+          if (foto.id && existingIds.has(foto.id)) {
+            await DB.updateBoardFoto(foto.id, { src: foto.src, orden: fotos.indexOf(foto) });
+          } else {
+            await DB.saveBoardFoto({ src: foto.src, orden: fotos.indexOf(foto) });
+          }
+        }
+        const newIds = new Set(fotos.map(f => f.id).filter(Boolean));
+        for (const oldFoto of existing) {
+          if (oldFoto.id && !newIds.has(oldFoto.id)) {
+            await DB.deleteBoardFoto(oldFoto.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error guardando fotos en Supabase:', error);
+      }
+      return;
+    }
     localStorage.setItem('board_fotos', JSON.stringify(fotos));
   }
 
-  function renderTablero() {
-    const fotos = getFotos();
+  async function renderTablero() {
+    const fotos = await getFotos();
     grid.innerHTML = '';
 
     if (fotos.length === 0) {
@@ -1251,7 +1276,7 @@ function initBoard() {
     fotos.forEach((foto, index) => {
       const card = document.createElement('div');
       card.className = 'foto-card';
-
+      const src = foto.src || foto;
       const img = document.createElement('img');
       img.src = foto.src;
       img.alt = `Foto ${index + 1}`;
@@ -1270,15 +1295,15 @@ function initBoard() {
         newInput.style.display = 'none';
         document.body.appendChild(newInput);
 
-        newInput.addEventListener('change', (ev) => {
+        newInput.addEventListener('change', async (ev) => {
           const file = ev.target.files[0];
           if (!file) return;
 
           const reader = new FileReader();
-          reader.onload = (event) => {
-            const nuevasFotos = getFotos();
-            nuevasFotos[index].src = event.target.result;
-            saveFotos(nuevasFotos);
+          reader.onload = async (event) => {
+            const nuevasFotos = await getFotos();
+            nuevasFotos[index] = { ...nuevasFotos[index], src: event.target.result };
+            await saveFotos(nuevasFotos);
             renderTablero();
             showToast('FOTO ACTUALIZADA CORRECTAMENTE', 'success');
           };
@@ -1292,12 +1317,12 @@ function initBoard() {
       const btnDelete = document.createElement('button');
       btnDelete.className = 'btn-foto btn-foto-delete';
       btnDelete.textContent = 'ELIMINAR';
-      btnDelete.addEventListener('click', (e) => {
+      btnDelete.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!confirm('¿Deseas eliminar esta foto?')) return;
-        const nuevasFotos = getFotos();
+        const nuevasFotos = await getFotos();
         nuevasFotos.splice(index, 1);
-        saveFotos(nuevasFotos);
+        await saveFotos(nuevasFotos);
         renderTablero();
         showToast('FOTO ELIMINADA', 'info');
       });
@@ -1328,10 +1353,10 @@ function initBoard() {
       const file = e.target.files[0];
       if (!file) return;
 
-      compressImage(file, 800, 0.7).then((compressedDataUrl) => {
-        const fotos = getFotos();
+      compressImage(file, 800, 0.7).then(async (compressedDataUrl) => {
+        const fotos = await getFotos();
         fotos.push({ src: compressedDataUrl });
-        saveFotos(fotos);
+        await saveFotos(fotos);
         renderTablero();
         showToast('FOTO TOMADA CORRECTAMENTE', 'success');
       }).catch((error) => {
@@ -1346,10 +1371,10 @@ function initBoard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    compressImage(file, 800, 0.7).then((compressedDataUrl) => {
-      const fotos = getFotos();
+    compressImage(file, 800, 0.7).then(async (compressedDataUrl) => {
+      const fotos = await getFotos();
       fotos.push({ src: compressedDataUrl });
-      saveFotos(fotos);
+      await saveFotos(fotos);
       renderTablero();
       showToast('FOTO AGREGADA AL TABLERO', 'success');
     }).catch((error) => {
@@ -1802,6 +1827,13 @@ async function init() {
       console.log('Cambio en trazabilidad:', payload);
       await renderTrazabilidad();
       await renderAdmin();
+    });
+  }
+
+  if (isSupabaseEnabled() && typeof DB.onBoardFotosChange === 'function') {
+    DB.onBoardFotosChange(async (payload) => {
+      console.log('Cambio en board_fotos:', payload);
+      renderTablero();
     });
   }
 }

@@ -226,6 +226,82 @@ const DB = {
       .subscribe();
     
     return () => supabaseClient.removeChannel(channel);
+  },
+
+  onBoardFotosChange(callback) {
+    if (!isSupabaseEnabled()) return () => {};
+    
+    const channel = supabaseClient
+      .channel('board_fotos-changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'board_fotos' },
+        callback
+      )
+      .subscribe();
+    
+    return () => supabaseClient.removeChannel(channel);
+  },
+
+  async getBoardFotos() {
+    if (!isSupabaseEnabled()) return [];
+    
+    try {
+      const { data, error } = await supabaseClient
+        .from('board_fotos')
+        .select('*')
+        .order('orden', { ascending: true });
+      
+      if (error) {
+        console.error('Error obteniendo board_fotos:', error);
+        return [];
+      }
+      
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error('Error en getBoardFotos():', e);
+      return [];
+    }
+  },
+
+  async saveBoardFoto(foto) {
+    if (!isSupabaseEnabled()) return;
+    
+    const { error } = await supabaseClient
+      .from('board_fotos')
+      .insert(foto);
+    
+    if (error) {
+      console.error('Error guardando board_foto:', error);
+      throw error;
+    }
+  },
+
+  async deleteBoardFoto(id) {
+    if (!isSupabaseEnabled()) return;
+    
+    const { error } = await supabaseClient
+      .from('board_fotos')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error eliminando board_foto:', error);
+      throw error;
+    }
+  },
+
+  async updateBoardFoto(id, updates) {
+    if (!isSupabaseEnabled()) return;
+    
+    const { error } = await supabaseClient
+      .from('board_fotos')
+      .update(updates)
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error actualizando board_foto:', error);
+      throw error;
+    }
   }
 };
 

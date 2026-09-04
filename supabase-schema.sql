@@ -69,6 +69,17 @@ CREATE TABLE IF NOT EXISTS trazabilidad (
 );
 
 -- ============================================
+-- TABLA: board_fotos (fotos del tablero)
+-- ============================================
+CREATE TABLE IF NOT EXISTS board_fotos (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  src TEXT NOT NULL,
+  orden INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
 -- ÍNDICES
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_productos_referencia ON productos(referencia);
@@ -78,6 +89,7 @@ CREATE INDEX IF NOT EXISTS idx_registros_fecha ON registros(fecha);
 CREATE INDEX IF NOT EXISTS idx_registros_referencia ON registros(referencia);
 CREATE INDEX IF NOT EXISTS idx_trazabilidad_fecha ON trazabilidad(fecha);
 CREATE INDEX IF NOT EXISTS idx_trazabilidad_referencia ON trazabilidad(referencia);
+CREATE INDEX IF NOT EXISTS idx_board_fotos_orden ON board_fotos(orden);
 
 -- ============================================
 -- TRIGGER: updated_at automático
@@ -100,6 +112,7 @@ CREATE TRIGGER update_productos_updated_at
 -- ============================================
 ALTER PUBLICATION supabase_realtime ADD TABLE registros;
 ALTER PUBLICATION supabase_realtime ADD TABLE trazabilidad;
+ALTER PUBLICATION supabase_realtime ADD TABLE board_fotos;
 
 -- ============================================
 -- ROW LEVEL SECURITY
@@ -132,6 +145,12 @@ CREATE POLICY "Permitir lectura trazabilidad" ON trazabilidad FOR SELECT USING (
 CREATE POLICY "Permitir inserción trazabilidad" ON trazabilidad FOR INSERT WITH CHECK (true);
 CREATE POLICY "Permitir actualización trazabilidad" ON trazabilidad FOR UPDATE USING (true);
 CREATE POLICY "Permitir eliminación trazabilidad" ON trazabilidad FOR DELETE USING (true);
+
+-- Board fotos: lectura pública, escritura pública
+CREATE POLICY "Permitir lectura board_fotos" ON board_fotos FOR SELECT USING (true);
+CREATE POLICY "Permitir inserción board_fotos" ON board_fotos FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualización board_fotos" ON board_fotos FOR UPDATE USING (true);
+CREATE POLICY "Permitir eliminación board_fotos" ON board_fotos FOR DELETE USING (true);
 
 -- ============================================
 -- FUNCIÓN: Obtener registros agrupados por grupo_id
