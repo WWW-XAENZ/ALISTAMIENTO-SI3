@@ -7,6 +7,9 @@ let editTipo = null;
 let jsonRegistrosCache = [];
 let productoSeleccionado = null;
 let componentesEditadoManualmente = false;
+let paginaRegistrosActual = 1;
+const REGISTROS_POR_PAGINA = 34;
+let guardandoRegistro = false;
 
 function getTodayString() {
   const hoy = new Date();
@@ -217,6 +220,7 @@ async function renderTabla() {
     tbody.appendChild(tr);
     const countEl = document.getElementById('registroCount');
     if (countEl) countEl.textContent = 0;
+    actualizarPaginacion(0);
     return;
   }
 
@@ -253,6 +257,7 @@ async function renderTabla() {
         </div>
       </td>
     `;
+    tr.dataset.registroFila = totalRows;
     tbody.appendChild(tr);
 
     if (esGrupo) {
@@ -286,6 +291,7 @@ async function renderTabla() {
             </div>
           </td>
         `;
+        itemTr.dataset.registroFila = totalRows;
         tbody.appendChild(itemTr);
       });
     }
@@ -295,6 +301,41 @@ async function renderTabla() {
   if (countEl) {
     countEl.textContent = totalRows;
   }
+  actualizarPaginacion(totalRows);
+}
+
+function actualizarPaginacion(totalFilas) {
+  const paginacion = document.getElementById('registrosPaginacion');
+  const tbody = document.getElementById('cuerpoTabla');
+  if (!paginacion || !tbody) return;
+
+  const totalPaginas = Math.max(1, Math.ceil(totalFilas / REGISTROS_POR_PAGINA));
+  paginaRegistrosActual = Math.min(Math.max(paginaRegistrosActual, 1), totalPaginas);
+
+  tbody.querySelectorAll('tr[data-registro-fila]').forEach((fila) => {
+    const numero = Number(fila.dataset.registroFila);
+    const pagina = Math.ceil(numero / REGISTROS_POR_PAGINA);
+    fila.hidden = pagina !== paginaRegistrosActual;
+  });
+
+  if (totalFilas <= REGISTROS_POR_PAGINA) {
+    paginacion.innerHTML = '';
+    return;
+  }
+
+  const botones = [];
+  botones.push(`<button type="button" class="pagina-btn pagina-anterior" data-pagina="${paginaRegistrosActual - 1}" ${paginaRegistrosActual === 1 ? 'disabled' : ''} aria-label="Página anterior">‹</button>`);
+  for (let pagina = 1; pagina <= totalPaginas; pagina++) {
+    botones.push(`<button type="button" class="pagina-btn${pagina === paginaRegistrosActual ? ' activa' : ''}" data-pagina="${pagina}" aria-current="${pagina === paginaRegistrosActual ? 'page' : 'false'}">${pagina}</button>`);
+  }
+  botones.push(`<button type="button" class="pagina-btn pagina-siguiente" data-pagina="${paginaRegistrosActual + 1}" ${paginaRegistrosActual === totalPaginas ? 'disabled' : ''} aria-label="Página siguiente">›</button>`);
+  paginacion.innerHTML = botones.join('');
+  paginacion.querySelectorAll('[data-pagina]').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      paginaRegistrosActual = Number(boton.dataset.pagina);
+      actualizarPaginacion(totalFilas);
+    });
+  });
 }
 
 function escapeHtml(text) {
@@ -880,7 +921,7 @@ async function agregarRegistro(e) {
   }
 
   limpiarFormulario();
-  renderTabla();
+  await renderTabla();
   actualizarDatalistReferencias();
   showToast('REGISTRO GUARDADO CORRECTAMENTE', 'success');
 }
@@ -1171,11 +1212,32 @@ async function eliminarRegistro(id, tipo) {
 
 
 
-document.getElementById('formAlistamiento').addEventListener('submit', function(e) {
-  if (editRegistroId) {
-    actualizarRegistro(e);
-  } else {
-    agregarRegistro(e);
+document.getElementById('formAlistamiento').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (guardandoRegistro) return;
+
+  const btnGuardar = document.getElementById('btnGuardar');
+  guardandoRegistro = true;
+  if (btnGuardar) {
+    btnGuardar.disabled = true;
+    btnGuardar.setAttribute('aria-busy', 'true');
+  }
+
+  try {
+    if (editRegistroId) {
+      await actualizarRegistro(e);
+    } else {
+      await agregarRegistro(e);
+    }
+  } catch (error) {
+    console.error('Error al guardar registro:', error);
+    showToast('ERROR AL GUARDAR EL REGISTRO', 'error');
+  } finally {
+    guardandoRegistro = false;
+    if (btnGuardar) {
+      btnGuardar.disabled = false;
+      btnGuardar.removeAttribute('aria-busy');
+    }
   }
 });
 document.getElementById('btnLimpiar').addEventListener('click', function(e) {
@@ -1492,7 +1554,7 @@ async function getTrazabilidad() {
   if (isSupabaseEnabled()) {
     const registros = await DB.getTrazabilidad();
     if (Array.isArray(registros) && registros.length > 0) {
-      return registros;
+      return aplicarRevisadosLocales(registros);
     }
   }
   try {
@@ -1500,6 +1562,29 @@ async function getTrazabilidad() {
     return data ? JSON.parse(data) : [];
   } catch (e) {
     return [];
+  }
+}
+
+function aplicarRevisadosLocales(registros) {
+  try {
+    const revisados = JSON.parse(localStorage.getItem('trazabilidad_revisados') || '{}');
+    return registros.map(registro => ({
+      ...registro,
+      revisado: Boolean(registro.revisado || (registro.id && revisados[registro.id]))
+    }));
+  } catch (error) {
+    return registros;
+  }
+}
+
+function guardarRevisadoLocal(id) {
+  if (!id) return;
+  try {
+    const revisados = JSON.parse(localStorage.getItem('trazabilidad_revisados') || '{}');
+    revisados[id] = true;
+    localStorage.setItem('trazabilidad_revisados', JSON.stringify(revisados));
+  } catch (error) {
+    console.error('No se pudo guardar respaldo local de revisado:', error);
   }
 }
 
@@ -1555,13 +1640,11 @@ async function renderTrazabilidad() {
         win.document.write(`<html><head><title>Trazabilidad</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${img.src}" style="max-width:100%;max-height:100%;"></body></html>`);
       }
       const registros = await getTrazabilidad();
-      if (registros[index] && !registros[index].revisado) {
-        registros[index].revisado = true;
-        if (isSupabaseEnabled() && registros[index].id) {
-          await supabaseClient
-            .from('trazabilidad')
-            .update({ revisado: true })
-            .eq('id', registros[index].id);
+      const registroActual = registros[index];
+      if (registroActual && !registroActual.revisado) {
+        registroActual.revisado = true;
+        if (isSupabaseEnabled() && registroActual.id) {
+          await DB.updateTrazabilidad(registroActual.id, { revisado: true });
         } else {
           localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
         }
@@ -1632,7 +1715,7 @@ async function renderAdmin() {
         </div>
         ${registro.revisado ? '<span class="admin-card-check">✓</span>' : ''}
       </div>
-        ${registro.foto ? `<img src="${registro.foto}" class="admin-card-img" onerror="this.style.display='none'">` : '<div class="admin-card-empty">Sin foto</div>'}
+        ${registro.foto ? `<img src="${registro.foto}" class="admin-card-img${registro.revisado ? ' admin-img--revisada' : ''}" onerror="this.style.display='none'">` : '<div class="admin-card-empty">Sin foto</div>'}
     `;
     grid.appendChild(card);
 
@@ -1644,26 +1727,37 @@ async function renderAdmin() {
         win.document.write(`<html><head><title>Trazabilidad</title></head><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${img.src}" style="max-width:100%;max-height:100%;"></body></html>`);
       }
       const registros = await getTrazabilidad();
-      if (registros[index] && !registros[index].revisado) {
-        registros[index].revisado = true;
-        if (isSupabaseEnabled() && registros[index].id) {
-          await supabaseClient
-            .from('trazabilidad')
-            .update({ revisado: true })
-            .eq('id', registros[index].id);
-        } else {
-          localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
-        }
-        const card = img.closest('.admin-card');
-        if (card) {
-          card.classList.add('admin-card--revisado');
-          const header = card.querySelector('.admin-card-header');
-          if (header && !header.querySelector('.admin-card-check')) {
-            const check = document.createElement('span');
-            check.className = 'admin-card-check';
-            check.textContent = '✓';
-            header.appendChild(check);
+      const registroActual = registro.id
+        ? registros.find(item => item.id === registro.id)
+        : registros[index];
+      if (registroActual && !registroActual.revisado) {
+        registroActual.revisado = true;
+        try {
+          if (isSupabaseEnabled() && registroActual.id) {
+            await DB.updateTrazabilidad(registroActual.id, { revisado: true });
+          } else {
+            localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
           }
+          const card = img.closest('.admin-card');
+          if (card) {
+            card.classList.add('admin-card--revisado');
+            const header = card.querySelector('.admin-card-header');
+            if (header && !header.querySelector('.admin-card-check')) {
+              const check = document.createElement('span');
+              check.className = 'admin-card-check';
+              check.textContent = '✓';
+              header.appendChild(check);
+            }
+          }
+          img.classList.add('admin-img--revisada');
+          await renderTrazabilidad();
+        } catch (error) {
+          guardarRevisadoLocal(registroActual.id);
+          const card = img.closest('.admin-card');
+          if (card) card.classList.add('admin-card--revisado');
+          img.classList.add('admin-img--revisada');
+          await renderTrazabilidad();
+          console.error('Error marcando trazabilidad como revisada:', error);
         }
       }
     });

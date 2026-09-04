@@ -186,6 +186,21 @@ const DB = {
     }
   },
 
+  async updateTrazabilidad(id, updates) {
+    if (!isSupabaseEnabled()) return;
+
+    const { error } = await supabaseClient
+      .from('trazabilidad')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error actualizando trazabilidad:', error);
+      throw error;
+    }
+
+  },
+
   async deleteTrazabilidad(id) {
     if (!isSupabaseEnabled()) return;
     
