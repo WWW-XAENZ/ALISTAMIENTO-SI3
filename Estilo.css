@@ -460,6 +460,14 @@ h1 {
   position: relative;
 }
 
+.form-group.firma-group {
+  grid-column: 1 / -1;
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
 .form-group label {
   font-weight: 700;
   margin-bottom: var(--space-3);
@@ -510,6 +518,7 @@ h1 {
 
 .form-group textarea {
   min-height: 96px;
+  width: 100%;
   resize: vertical;
   line-height: 1.5;
 }
@@ -1020,6 +1029,11 @@ h1 {
 }
 
 .firma-wrap:not(.expandido) .firma-actions {
+  display: none;
+}
+
+.firma-wrap:not(.expandido):hover .firma-actions,
+.firma-wrap:not(.expandido):focus-within .firma-actions {
   display: flex;
 }
 
@@ -1172,7 +1186,7 @@ h1 {
   background: #ffffff;
   border-left: 1px solid var(--border-light);
   box-shadow: var(--shadow-2xl);
-  padding: var(--space-6);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
@@ -1334,7 +1348,7 @@ h1 {
 .admin-filters {
   display: flex;
   align-items: flex-end;
-  gap: var(--space-4);
+  gap: clamp(0.75rem, 1.5vw, 1rem);
   margin-bottom: var(--space-6);
   padding: var(--space-4);
   background: var(--bg-secondary);
@@ -1466,8 +1480,9 @@ h1 {
   }
 
   #firmaRecibe {
-    max-width: 260px;
-    height: 84px;
+    width: 100%;
+    max-width: none;
+    height: auto;
   }
 
   .firma-wrap.expandido .firma-canvas {
@@ -1993,11 +2008,11 @@ h1 {
 }
 
 .table-wrapper table {
-  width: 100;
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.9375rem;
-  min-width: 1000px;
+  min-width: 1280px;
 }
 
 .table-wrapper thead th {
@@ -2008,8 +2023,9 @@ h1 {
   letter-spacing: 0.05em;
   font-size: 0.7rem;
   padding: var(--space-3) var(--space-4);
-  text-align: left;
+  text-align: center;
   border-bottom: 2px solid var(--primary-600);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -2018,10 +2034,26 @@ h1 {
 }
 
 .table-wrapper td {
-  padding: var(--space-3) var(--space-4);
+  padding: 0.25rem 0.75rem;
   color: var(--text-primary);
+  line-height: 1.25;
+  text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+}
+
+.table-wrapper th:last-child,
+.table-wrapper td:last-child {
+  border-right: none;
+}
+
+.table-wrapper .registro-numero {
+  width: 56px;
+  min-width: 56px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary-700);
 }
 
 .table-wrapper tbody tr {
@@ -2045,27 +2077,54 @@ h1 {
   background: var(--primary-50);
 }
 
+.table-wrapper tbody tr.header-row td {
+  background: var(--primary-50);
+  border-top: 2px solid var(--primary-200);
+  border-bottom-color: var(--primary-200);
+  font-weight: 600;
+}
+
+.table-wrapper tbody tr.header-row:not(:first-child) td {
+  border-top-width: 10px;
+  border-top-color: var(--bg-secondary);
+}
+
+.table-wrapper tbody tr.header-row td:first-child {
+  border-left: 4px solid var(--primary-500);
+}
+
 .registro-firma-img {
-  height: 32px;
-  max-width: 80px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-xs);
+  width: 160px;
+  height: auto;
+  max-width: none;
+  border: none;
+  box-shadow: none;
   vertical-align: middle;
-  background: #f9fafb;
-  padding: 1px;
+  background: transparent;
+  padding: 0;
   object-fit: contain;
   display: block;
+  margin: 0 auto;
 }
 
-.table-wrapper .btn-edit,
-.table-wrapper .btn-delete {
-  margin-right: var(--space-1);
+.registro-firma-cell {
+  width: 180px;
+  min-width: 180px;
 }
 
-.table-wrapper .btn-edit:last-child,
-.table-wrapper .btn-delete:last-child {
-  margin-right: 0;
+.registro-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.registro-actions .btn-edit,
+.registro-actions .btn-delete {
+  margin: 0;
+  min-height: 30px;
+  padding: 0.25rem 0.6rem;
 }
 
 .table-wrapper .item-row {
@@ -2073,7 +2132,7 @@ h1 {
 }
 
 .table-wrapper .item-row td {
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.75rem;
   font-size: 0.8125rem;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-light);
@@ -2184,7 +2243,7 @@ h1 {
     inset 0 0 0 0 transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
-  max-width: 340px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -2215,7 +2274,9 @@ h1 {
   touch-action: none;
   display: block;
   width: 100%;
-  height: 100px;
+  height: auto;
+  aspect-ratio: 560 / 120;
+  max-width: 100%;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
   padding: 2px;
@@ -2500,17 +2561,19 @@ h1 {
 
 @media (max-width: 640px) {
   .firma-card {
-    padding: var(--space-5);
+    padding: 0.75rem;
     max-width: 100%;
   }
 
   #firmaRecibe {
-    height: 90px;
+    width: 100%;
+    max-width: none;
+    height: auto;
   }
 
   .table-wrapper table {
     font-size: 0.8125rem;
-    min-width: 768px;
+    min-width: 1080px;
   }
 
   .table-wrapper thead th {
@@ -2519,14 +2582,14 @@ h1 {
   }
 
   .table-wrapper td {
-    padding: var(--space-3) var(--space-2);
+    padding: 0.2rem 0.5rem;
   }
 }
 
 @media (max-width: 1024px) {
   .table-wrapper table {
     font-size: 0.875rem;
-    min-width: 800px;
+    min-width: 1160px;
   }
 
   .table-wrapper thead th {
@@ -2535,6 +2598,6 @@ h1 {
   }
 
   .table-wrapper td {
-    padding: var(--space-3) var(--space-3);
+    padding: 0.25rem 0.65rem;
   }
 }

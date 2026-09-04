@@ -84,7 +84,10 @@
             <div class="form-row">
                 <div class="form-group form-group--relative">
                     <label for="referencia">Referencia</label>
-                    <input type="text" id="referencia" name="referencia" list="listaReferencias" placeholder="Escribe una referencia..." autocomplete="off">
+                    <div class="search-input-wrap">
+                        <img src="Logo-Web-SI3.png" alt="" class="search-logo">
+                        <input type="text" id="referencia" name="referencia" list="listaReferencias" placeholder="Escribe una referencia..." autocomplete="off">
+                    </div>
                     <div id="referenciaDropdown" class="referencia-dropdown hidden"></div>
                 </div>
 
@@ -114,7 +117,7 @@
 
             <!-- CUARTA FILA -->
             <div class="form-row">
-                <div class="form-group">
+                <div class="form-group firma-group">
                     <label class="firma-label">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.05a2.5 2.5 0 0 0-1.73 0h-.27a2 2 0 0 1-1.73-1L12 2 9.73 1a2 2 0 0 0-1.73 1 2.5 2.5 0 0 0 0 1.9V5.27a2 2 0 0 1 1.42 1.42L12 10l-1 1-1-1 1-4.4A2 2 0 0 1 12.86 4h.27a2.5 2.5 0 0 0 0 1.9z"/><path d="M6 18h12"/><path d="M6 18l6-6 6 6"/></svg>
                         Firma
@@ -125,7 +128,7 @@
                             <span class="firma-toolbar-title">Firma del responsable</span>
                         </div>
                         <div class="firma-wrap" id="firmaWrap">
-                            <canvas id="firmaRecibe" width="260" height="100" class="firma-canvas" style="will-read-frequently: true;"></canvas>
+                            <canvas id="firmaRecibe" width="560" height="120" class="firma-canvas" tabindex="0" aria-label="Área para firmar"></canvas>
                             <div class="firma-hint">
                                 <span class="firma-hint-text">Firme aquí</span>
                             </div>
@@ -176,7 +179,8 @@
             <div class="table-wrapper">
                 <table id="tablaRegistros">
                     <thead>
-                        <tr>
+                            <tr>
+                                <th>N.º</th>
                             <th>Fecha</th>
                             <th>Turno</th>
                             <th>Referencia</th>

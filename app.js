@@ -213,7 +213,7 @@ async function renderTabla() {
 
   if (registros.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="11" class="tabla-empty">Sin registros</td>';
+    tr.innerHTML = '<td colspan="12" class="tabla-empty">Sin registros</td>';
     tbody.appendChild(tr);
     const countEl = document.getElementById('registroCount');
     if (countEl) countEl.textContent = 0;
@@ -225,28 +225,32 @@ async function renderTabla() {
     const esGrupo = items.length > 0;
     
     totalRows++;
+    const numeroRegistro = totalRows;
     const tr = document.createElement('tr');
     tr.className = esGrupo ? 'header-row' : '';
     tr.innerHTML = `
+      <td class="registro-numero">${numeroRegistro}</td>
       <td>${escapeHtml(grupo.fecha)}</td>
       <td>${escapeHtml(grupo.turno)}</td>
       <td>${escapeHtml(grupo.referencia)}</td>
       <td>${escapeHtml(grupo.base)}</td>
       <td>${escapeHtml(grupo.fomi)}</td>
-      <td>${esGrupo ? '<span style="color:var(--text-tertiary);font-style:italic;">Ver componentes ↓</span>' : escapeHtml(grupo.componentes || '').replace(/\n/g, '<br>')}</td>
+      <td>${esGrupo ? '' : escapeHtml(grupo.componentes || '').replace(/\n/g, '<br>')}</td>
       <td>${escapeHtml(grupo.forro)}</td>
-      <td>${grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
+      <td class="registro-firma-cell">${grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>'}</td>
       <td>${escapeHtml(grupo.contabilizado)}</td>
       <td>${escapeHtml(grupo.responsable)}</td>
       <td>
-        <button class="btn-edit" data-id="${grupo.id}" data-tipo="header" title="Editar registro">
+        <div class="registro-actions">
+          <button class="btn-edit" data-id="${grupo.id}" data-tipo="header" title="Editar registro">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           Editar
-        </button>
-        <button class="btn-delete" data-id="${grupo.grupo_id || grupo.id}" data-tipo="header" title="Eliminar registro">
+          </button>
+          <button class="btn-delete" data-id="${grupo.grupo_id || grupo.id}" data-tipo="header" title="Eliminar registro">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           Eliminar
-        </button>
+          </button>
+        </div>
       </td>
     `;
     tbody.appendChild(tr);
@@ -254,9 +258,11 @@ async function renderTabla() {
     if (esGrupo) {
       items.forEach(item => {
         totalRows++;
+        const numeroRegistro = totalRows;
         const itemTr = document.createElement('tr');
         itemTr.className = 'item-row';
         itemTr.innerHTML = `
+          <td class="registro-numero">${numeroRegistro}</td>
           <td>${escapeHtml(item.fecha || grupo.fecha || '')}</td>
           <td>${escapeHtml(item.turno || grupo.turno || '')}</td>
           <td>${escapeHtml(item.referencia)}</td>
@@ -264,18 +270,20 @@ async function renderTabla() {
           <td></td>
           <td>${escapeHtml(item.componentes || '').replace(/\n/g, '<br>')}</td>
           <td></td>
-          <td>${item.recibe ? `<img src="${item.recibe}" class="registro-firma-img" alt="Firma">` : (grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>')}</td>
+          <td class="registro-firma-cell">${item.recibe ? `<img src="${item.recibe}" class="registro-firma-img" alt="Firma">` : (grupo.recibe ? `<img src="${grupo.recibe}" class="registro-firma-img" alt="Firma">` : '<span style="color:var(--text-tertiary);font-size:0.8125rem;">— Sin firma</span>')}</td>
           <td>${escapeHtml(item.contabilizado || grupo.contabilizado || '')}</td>
           <td>${escapeHtml(item.responsable || grupo.responsable || '')}</td>
           <td>
-            <button class="btn-edit" data-id="${item.id}" data-tipo="item" title="Editar componente">
+            <div class="registro-actions">
+              <button class="btn-edit" data-id="${item.id}" data-tipo="item" title="Editar componente">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
               Editar
-            </button>
-            <button class="btn-delete" data-id="${item.id}" data-tipo="item" title="Eliminar componente">
+              </button>
+              <button class="btn-delete" data-id="${item.id}" data-tipo="item" title="Eliminar componente">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               Eliminar
-            </button>
+              </button>
+            </div>
           </td>
         `;
         tbody.appendChild(itemTr);
@@ -1616,24 +1624,19 @@ async function renderAdmin() {
     card.innerHTML = `
       <div class="admin-card-header">
         <div>
-          <div class="admin-card-title">${escapeHtml(registro.referencia || '')}</div>
           <div class="admin-card-meta">${escapeHtml(registro.fecha || '')} - ${escapeHtml(registro.responsable || '')}</div>
           <div class="admin-card-info">
-            <span>CKD: ${escapeHtml(registro.ckd || '')}</span>
-            <span>Cantidad: ${escapeHtml(registro.cantidad || '0')}</span>
-          </div>
           ${registro.novedades ? `<div class="admin-card-novedades">${escapeHtml(registro.novedades)}</div>` : ''}
+          </div>
         </div>
         ${registro.revisado ? '<span class="admin-card-check">✓</span>' : ''}
       </div>
-      <div class="admin-card-body">
         ${registro.foto ? `<img src="${registro.foto}" class="admin-card-img" onerror="this.style.display='none'">` : '<div class="admin-card-empty">Sin foto</div>'}
-      </div>
     `;
     grid.appendChild(card);
-  });
 
-  grid.querySelectorAll('.admin-card-img').forEach((img, index) => {
+    const img = card.querySelector('.admin-card-img');
+    if (!img) return;
     img.addEventListener('click', async () => {
       const win = window.open('', '_blank', 'width=900,height=700');
       if (win) {
