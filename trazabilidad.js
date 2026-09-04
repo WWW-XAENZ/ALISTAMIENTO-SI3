@@ -231,6 +231,7 @@ async function renderAdmin() {
         }
         img.classList.add('admin-img--revisada');
         await renderTrazabilidad();
+      }
     });
   });
 }
