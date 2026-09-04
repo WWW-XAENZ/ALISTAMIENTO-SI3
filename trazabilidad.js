@@ -33,9 +33,13 @@ async function saveTrazabilidad(registros) {
 
 async function getTrazabilidad() {
   if (isSupabaseEnabled()) {
-    const registros = await DB.getTrazabilidad();
-    if (Array.isArray(registros) && registros.length > 0) {
-      return aplicarRevisadosLocales(registros);
+    try {
+      const registros = await DB.getTrazabilidad();
+      if (Array.isArray(registros) && registros.length > 0) {
+        return aplicarRevisadosLocales(registros);
+      }
+    } catch (error) {
+      console.error('Error obteniendo trazabilidad desde Supabase:', error);
     }
   }
   try {
@@ -91,10 +95,20 @@ async function renderTrazabilidad() {
       const registroActual = registros[index];
       if (registroActual && !registroActual.revisado) {
         registroActual.revisado = true;
+        let supabaseOk = false;
         if (isSupabaseEnabled() && registroActual.id) {
-          await DB.updateTrazabilidad(registroActual.id, { revisado: true });
-        } else {
-          localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
+          try {
+            await DB.updateTrazabilidad(registroActual.id, { revisado: true });
+            supabaseOk = true;
+          } catch (error) {
+            const esColumnaFaltante = error && error.code === 'PGRST204';
+            if (!esColumnaFaltante) {
+              console.error('Error marcando trazabilidad como revisada:', error);
+            }
+          }
+        }
+        if (!supabaseOk) {
+          guardarRevisadoLocal(registroActual.id);
         }
         const row = img.closest('tr');
         if (row) {
@@ -166,8 +180,10 @@ async function renderAdmin() {
     card.innerHTML = `
       <div class="admin-card-header">
         <div>
+          <div class="admin-card-title">${escapeHtml(registro.referencia || '')}</div>
           <div class="admin-card-meta">${escapeHtml(registro.fecha || '')} - ${escapeHtml(registro.responsable || '')}</div>
           <div class="admin-card-info">
+          ${registro.cantidad ? `<div class="admin-card-meta">Cantidad: ${escapeHtml(registro.cantidad)}</div>` : ''}
           ${registro.novedades ? `<div class="admin-card-novedades">${escapeHtml(registro.novedades)}</div>` : ''}
           </div>
         </div>
@@ -193,31 +209,28 @@ async function renderAdmin() {
         try {
           if (isSupabaseEnabled() && registroActual.id) {
             await DB.updateTrazabilidad(registroActual.id, { revisado: true });
-          } else {
-            localStorage.setItem('trazabilidad_registros', JSON.stringify(registros));
           }
-          const card = img.closest('.admin-card');
-          if (card) {
-            card.classList.add('admin-card--revisado');
-            const header = card.querySelector('.admin-card-header');
-            if (header && !header.querySelector('.admin-card-check')) {
-              const check = document.createElement('span');
-              check.className = 'admin-card-check';
-              check.textContent = '✓';
-              header.appendChild(check);
-            }
-          }
-          img.classList.add('admin-img--revisada');
-          await renderTrazabilidad();
         } catch (error) {
+          const esColumnaFaltante = error && error.code === 'PGRST204';
+          if (!esColumnaFaltante) {
+            console.error('Error marcando trazabilidad como revisada:', error);
+          }
+        } finally {
           guardarRevisadoLocal(registroActual.id);
-          const card = img.closest('.admin-card');
-          if (card) card.classList.add('admin-card--revisado');
-          img.classList.add('admin-img--revisada');
-          await renderTrazabilidad();
-          console.error('Error marcando trazabilidad como revisada:', error);
         }
-      }
+        const card = img.closest('.admin-card');
+        if (card) {
+          card.classList.add('admin-card--revisado');
+          const header = card.querySelector('.admin-card-header');
+          if (header && !header.querySelector('.admin-card-check')) {
+            const check = document.createElement('span');
+            check.className = 'admin-card-check';
+            check.textContent = '✓';
+            header.appendChild(check);
+          }
+        }
+        img.classList.add('admin-img--revisada');
+        await renderTrazabilidad();
     });
   });
 }

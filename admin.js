@@ -37,12 +37,23 @@ if (document.getElementById('btnHoy')) {
   });
 }
 
-renderAdmin();
-
-if (isSupabaseEnabled() && typeof DB.onTrazabilidadChange === 'function') {
-  DB.onTrazabilidadChange(async (payload) => {
-    console.log('Cambio en trazabilidad (admin):', payload);
-    await renderAdmin();
-    await renderTrazabilidad();
-  });
+async function initAdmin() {
+  try {
+    if (typeof initSupabase === 'function') {
+      await initSupabase();
+    }
+  } catch (error) {
+    console.error('Error inicializando Supabase en admin:', error);
+  }
+  renderAdmin();
+  
+  if (isSupabaseEnabled() && typeof DB.onTrazabilidadChange === 'function') {
+    DB.onTrazabilidadChange(async (payload) => {
+      console.log('Cambio en trazabilidad (admin):', payload);
+      await renderAdmin();
+      await renderTrazabilidad();
+    });
+  }
 }
+
+initAdmin();
