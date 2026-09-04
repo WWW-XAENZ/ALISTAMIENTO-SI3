@@ -345,6 +345,12 @@
           "cantidad_por_base": 1
         }
       ]
+    },
+    {
+      "producto": "Fomi",
+      "componentes": [
+        { "tipo": "Fomi", "codigo": "10001201" }
+      ]
     }
   ]
 }

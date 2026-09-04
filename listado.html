@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Referencias</title>
+  <link rel="stylesheet" href="Estilo.css">
+  <style>
+    .listado-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    .listado-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .listado-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .listado-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      min-width: 260px;
+    }
+    .listado-search input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 1rem;
+      background: transparent;
+      color: #0f172a;
+    }
+    .listado-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .listado-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .listado-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      border-color: #cbd5e1;
+    }
+    .listado-card-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .listado-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      font-size: 0.85rem;
+      color: #334155;
+    }
+    .listado-badge .badge-label {
+      font-weight: 600;
+      color: #475569;
+    }
+    .listado-badge .badge-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #0f172a;
+      background: #ffffff;
+      padding: 2px 8px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .listado-section {
+      margin-top: 10px;
+    }
+    .listado-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .listado-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      font-size: 0.82rem;
+      color: #334155;
+      margin: 0 6px 6px 0;
+    }
+    .listado-chip .chip-type {
+      color: #475569;
+      font-weight: 600;
+    }
+    .listado-chip .chip-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #0f172a;
+    }
+    .listado-empty {
+      text-align: center;
+      color: #64748b;
+      padding: 40px 10px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
+      <div class="logo-text">
+        <div class="logo-title">TRAZABILIDAD</div>
+        <div class="logo-subtitle">Listado de Referencias</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+      <h3 class="menu-title">MENÚ</h3>
+      <ul class="menu-list">
+        <li><a href="Alistamiento.html" id="menuInicio" class="menu-link">INICIO</a></li>
+        <li><a href="#" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+        <li><a href="admin.html" id="menuAdmin" class="menu-link">ADMIN</a></li>
+        <li><a href="#" id="menuListado" class="menu-link">LISTADO</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="listado-container" id="seccionListado">
+    <div class="listado-header">
+      <h1>Listado de Referencias</h1>
+      <div class="listado-search">
+        <input type="text" id="listadoSearch" placeholder="Buscar referencia o código...">
+      </div>
+    </div>
+    <div id="listadoGrid" class="listado-grid"></div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="listado.js"></script>
+</body>
+</html>
