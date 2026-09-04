@@ -745,6 +745,7 @@ async function agregarRegistro(e) {
     const baseEncontrada = componentesBase.find(c => (c.tipo || '').toLowerCase() === 'base');
     const cantidadBaseValor = parseInt(data.base, 10);
     const multiplicadorBase = (!isNaN(cantidadBaseValor) && cantidadBaseValor > 0) ? cantidadBaseValor : 1;
+    const esRegistroDeBase = Boolean(baseEncontrada && cantidadBaseValor > 0);
 
     const adicionales = [
       ...(producto.componentes_adicionales || []),
@@ -778,7 +779,7 @@ async function agregarRegistro(e) {
       };
       await DB.saveRegistro(header);
 
-      for (const c of adicionales) {
+      for (const c of esRegistroDeBase ? adicionales : []) {
         const cantidad = (c.cantidad_por_base || c.cantidad || 1) * multiplicadorBase;
         const codigo = c.codigo || '';
         const tipo = c.tipo || '';
@@ -801,7 +802,7 @@ async function agregarRegistro(e) {
       }
     } else {
       const registros = await getRegistros();
-      if (baseEncontrada || adicionales.length > 0) {
+      if (esRegistroDeBase) {
         const headerId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         registros.push({
           id: headerId,

@@ -49,7 +49,7 @@ const DB = {
       const { data, error } = await supabaseClient
         .from('registros')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
       
       if (error) {
         console.error('Error obteniendo registros:', error);
