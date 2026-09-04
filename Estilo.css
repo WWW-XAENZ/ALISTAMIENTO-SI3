@@ -1580,25 +1580,25 @@ h1 {
   }
 
   .logo-img {
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
   }
 
   .logo-title {
-    font-size: 1.35rem;
+    font-size: 1.1rem;
   }
 
   .logo-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .container {
     margin: var(--space-4);
-    padding: var(--space-5);
+    padding: var(--space-4);
   }
 
   h1 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     margin-bottom: var(--space-6);
   }
 
@@ -1617,17 +1617,294 @@ h1 {
     justify-content: center;
   }
 
+  .board-banner {
+    width: calc(100% - 24px);
+    margin: 16px auto;
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .board-banner-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .board-banner-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .board-banner-header h2::before {
+    height: 1.6rem;
+  }
+
+  .board-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .board-actions .btn {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .foto-card {
+    width: clamp(220px, 85vw, 380px);
+    max-height: 260px;
+  }
+
+  .admin-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-filter-input {
+    min-width: 100%;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .admin-card-header {
+    padding: var(--space-3);
+  }
+
+  .admin-card-title {
+    font-size: 0.875rem;
+  }
+
+  .admin-card-meta {
+    font-size: 0.75rem;
+  }
+
+  .admin-card-body {
+    padding: var(--space-3);
+    min-height: 180px;
+  }
+
+  .menu-panel {
+    width: min(260px, 85vw);
+    padding: var(--space-4);
+  }
+
+  .calendar-dropdown {
+    min-width: 90vw;
+    max-width: 320px;
+    left: 5vw !important;
+  }
+
   table {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
   }
 
   th,
   td {
-    padding: var(--space-3) var(--space-2);
+    padding: var(--space-2) var(--space-1);
   }
 
   .table-wrapper {
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
+    margin-left: calc(-1 * var(--space-3));
+    margin-right: calc(-1 * var(--space-3));
+  }
+
+  #firmaRecibe {
+    max-width: none;
+    height: 80px;
+  }
+
+  .firma-wrap.expandido .firma-canvas {
+    max-height: 55vh;
+  }
+
+  .listado-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .listado-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .listado-search {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .logo-img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-title {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+
+  .logo-subtitle {
+    font-size: 0.65rem;
+  }
+
+  .container {
+    margin: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-5);
+  }
+
+  .board-banner {
+    width: calc(100% - 16px);
+    margin: 12px auto;
+    padding: var(--space-3);
+  }
+
+  .board-banner-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .board-banner-header h2::before {
+    height: 1.2rem;
+    width: 6px;
+  }
+
+  .foto-card {
+    width: calc(100% - 16px);
+    max-height: 220px;
+  }
+
+  .btn {
+    min-height: 48px;
+    font-size: 0.9375rem;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .btn-primary {
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .admin-card-title {
+    font-size: 0.8125rem;
+  }
+
+  .admin-card-meta {
+    font-size: 0.75rem;
+  }
+
+  .admin-card-novedades {
+    font-size: 0.75rem;
+  }
+
+  .admin-filters {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .calendar-dropdown .calendar-day {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
+
+  .menu-panel {
+    width: min(240px, 88vw);
+  }
+
+  .menu-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  table {
+    font-size: 0.7rem;
+  }
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-1);
+  }
+
+  .form-group label {
+    font-size: 0.7rem;
+    margin-bottom: var(--space-2);
+  }
+
+  #firmaRecibe {
+    height: 70px;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-title {
+    font-size: 0.85rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.6rem;
+  }
+
+  .header {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .container {
+    margin: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  h1 {
+    font-size: 1.1rem;
+  }
+
+  .board-banner {
+    padding: var(--space-3);
+  }
+
+  .board-banner-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .foto-card {
+    max-height: 200px;
+  }
+
+  .admin-card {
+    border-radius: var(--radius-md);
+  }
+
+  .menu-panel {
+    width: 88vw;
+  }
+
+  .calendar-dropdown {
+    max-width: 300px;
+  }
+
+  table {
+    font-size: 0.65rem;
+  }
+
+  th,
+  td {
+    padding: var(--space-1);
   }
 }
 

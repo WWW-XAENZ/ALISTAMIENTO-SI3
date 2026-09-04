@@ -106,8 +106,42 @@ function initListado() {
   renderListado();
 }
 
+function initMenuListado() {
+  const btnMenu = document.getElementById('btnMenu');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const btnCerrarMenu = document.getElementById('btnCerrarMenu');
+  const menuInicio = document.getElementById('menuInicio');
+  const menuTrazabilidad = document.getElementById('menuTrazabilidad');
+  const menuAdmin = document.getElementById('menuAdmin');
+  const menuListado = document.getElementById('menuListado');
+
+  function abrirMenu() {
+    if (menuOverlay) menuOverlay.classList.add('open');
+  }
+
+  function cerrarMenu() {
+    if (menuOverlay) menuOverlay.classList.remove('open');
+  }
+
+  if (btnMenu) btnMenu.addEventListener('click', abrirMenu);
+  if (btnCerrarMenu) btnCerrarMenu.addEventListener('click', cerrarMenu);
+  if (menuOverlay) menuOverlay.addEventListener('click', (e) => { if (e.target === menuOverlay) cerrarMenu(); });
+
+  [menuInicio, menuTrazabilidad, menuAdmin, menuListado].forEach((link) => {
+    if (!link) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      cerrarMenu();
+    });
+  });
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initListado);
+  document.addEventListener('DOMContentLoaded', () => {
+    initListado();
+    initMenuListado();
+  });
 } else {
   initListado();
+  initMenuListado();
 }
