@@ -18,7 +18,9 @@
       "producto": "MRX 200",
       "componentes": [
         { "tipo": "Base", "codigo": "30005837" },
-        { "tipo": "Forro", "codigo": "10002150" }
+        { "tipo": "Forro", "codigo": "10002150" },
+        { "tipo": "Forro Gris-negro", "codigo": "10003273" }
+      
       ]
     },
     {
@@ -76,17 +78,13 @@
       ]
     },
     {
-      "producto": "MRX 125",
+      "producto": "MRX 125 Facelift",
       "componentes": [
         { "tipo": "Base", "codigo": "30005836" },
-        { "tipo": "Forro", "codigo": "10002468" },
-        { "tipo": "Forro EE", "codigo": "10002502" }
-      ]
-    },
-    {
-      "producto": "MRX Facelift",
-      "componentes": [
-        { "tipo": "Forro", "codigo": "10002992" }
+        { "tipo": "Forro", "codigo": "10002992" },
+        { "tipo": "Forro EE", "codigo": "10002502" },
+        { "tipo": "Forro Rojo", "codigo": "10003267" },
+        { "tipo": "Forro Gris-negro", "codigo": "10003271" }
       ]
     },
     {
