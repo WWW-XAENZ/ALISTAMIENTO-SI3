@@ -190,7 +190,7 @@
         { "tipo": "Base", "codigo": "70000077" },
         { "tipo": "Forro", "codigo": "10002198" },
         { "tipo": "Pin", "codigo": "30011473" },
-        { "tipo": "CAUCHO ANTIVIBRANTE SILLIN D24", "codigo": "10003264" }
+        { "tipo": "CAUCHO ANTIVIBRANTE SILLIN D24", "codigo": "10003264","cantidad_por_base": 5 }
       ]
     },
 
