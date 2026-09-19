@@ -180,8 +180,20 @@
         { "tipo": "Base", "codigo": "70000077" },
         { "tipo": "Forro", "codigo": "10002198" },
         { "tipo": "Pin", "codigo": "30011473" }
+
       ]
     },
+
+{
+      "producto": "D242",
+      "componentes": [
+        { "tipo": "Base", "codigo": "70000077" },
+        { "tipo": "Forro", "codigo": "10002198" },
+        { "tipo": "Pin", "codigo": "30011473" },
+        { "tipo": "CAUCHO ANTIVIBRANTE SILLIN D24", "codigo": "10003264" }
+      ]
+    },
+
     {
       "producto": "Venom 14-18",
       "componentes": [
