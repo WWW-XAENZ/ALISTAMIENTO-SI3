@@ -37,7 +37,8 @@ INSERT INTO productos (id, nombre, referencia) VALUES
   ('24dfb151-e737-4ff0-9c14-f0b611249422', 'Falsos Apache 200', 'Falsos Apache 200'),
   ('5633c51f-df1f-412a-ba12-3787b16d5545', 'BBL3', 'BBL3'),
   ('77d965d0-20fa-458b-ba27-d02a6c98353d', 'NEO FI', 'NEO FI'),
-  ('32c7b91e-6276-4c18-9d30-d24898f1ec77', 'BET ADV', 'BET ADV');
+  ('32c7b91e-6276-4c18-9d30-d24898f1ec77', 'BET ADV', 'BET ADV')
+ON CONFLICT (id) DO NOTHING;
 
 -- Componentes de productos
 INSERT INTO producto_componentes (id, producto_id, tipo, codigo, descripcion, cantidad_por_base, categoria, orden) VALUES
@@ -169,6 +170,57 @@ INSERT INTO producto_componentes (id, producto_id, tipo, codigo, descripcion, ca
   ('11111111-1111-1111-1111-111111111204', '77d965d0-20fa-458b-ba27-d02a6c98353d', 'Base', '30013111', '', 1, 'base', 0),
   ('11111111-1111-1111-1111-111111111205', '77d965d0-20fa-458b-ba27-d02a6c98353d', 'Forro', '10003228', '', 1, 'base', 1),
 -- BET ADV
-  ('11111111-1111-1111-1111-111111111206', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Base', '30013112', '', 1, 'base', 0),
-  ('11111111-1111-1111-1111-111111111207', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Forro', '10003229', '', 1, 'base', 1),
-  ('11111111-1111-1111-1111-111111111208', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Tira de goma Bet ADV', '30013197', '', 1, 'adicional', 2);
+    ('11111111-1111-1111-1111-111111111206', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Base', '30013112', '', 1, 'base', 0),
+    ('11111111-1111-1111-1111-111111111207', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Forro', '10003229', '', 1, 'base', 1),
+    ('11111111-1111-1111-1111-111111111208', '32c7b91e-6276-4c18-9d30-d24898f1ec77', 'Tira de goma Bet ADV', '30013197', '', 1, 'adicional', 2)
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
+-- CORRECCIONES Y AGREGADOS (D242, MRX 200, MRX 125 Facelift)
+-- ============================================
+
+-- Producto D242 (nuevo)
+INSERT INTO productos (id, nombre, referencia) VALUES
+  ('d2420000-0000-0000-0000-000000000001', 'D242', 'D242')
+ON CONFLICT (id) DO NOTHING;
+
+-- Componentes D242 (elimina los viejos, inserta los nuevos)
+DELETE FROM producto_componentes
+WHERE producto_id = 'd2420000-0000-0000-0000-000000000001';
+
+INSERT INTO producto_componentes (producto_id, tipo, codigo, descripcion, cantidad_por_base, categoria, orden) VALUES
+  ('d2420000-0000-0000-0000-000000000001', 'Base', '70000077', '', 1, 'base', 0),
+  ('d2420000-0000-0000-0000-000000000001', 'Forro', '10002198', '', 1, 'base', 1),
+  ('d2420000-0000-0000-0000-000000000001', 'Pin', '30011473', '', 1, 'pin', 2),
+  ('d2420000-0000-0000-0000-000000000001', 'CAUCHO ANTIVIBRANTE SILLIN D24', '10003264', '', 5, 'anti_vibrante', 3);
+
+-- MRX 200: agregar Forro Gris-negro (10003273) si no existe
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM producto_componentes
+    WHERE producto_id = 'c3d4e5f6-3333-3333-3333-333333333333' AND codigo = '10003273'
+  ) THEN
+    INSERT INTO producto_componentes (producto_id, tipo, codigo, descripcion, cantidad_por_base, categoria, orden)
+    VALUES ('c3d4e5f6-3333-3333-3333-333333333333', 'Forro Gris-negro', '10003273', '', 1, 'base', 2);
+  END IF;
+END $$;
+
+-- MRX 125 -> rename a "MRX 125 Facelift" y corregir componentes
+UPDATE productos SET nombre = 'MRX 125 Facelift', referencia = 'MRX 125 Facelift'
+WHERE id = '9a1f23be-7914-469b-85e4-5d6263f87445';
+
+-- Eliminar componentes antiguos del MRX 125 (forro 10002468 que es incorrecto)
+DELETE FROM producto_componentes
+WHERE producto_id = '9a1f23be-7914-469b-85e4-5d6263f87445' AND codigo = '10002468';
+
+-- Insertar/actualizar componentes del MRX 125 Facelift
+DELETE FROM producto_componentes
+WHERE producto_id = '9a1f23be-7914-469b-85e4-5d6263f87445';
+
+INSERT INTO producto_componentes (producto_id, tipo, codigo, descripcion, cantidad_por_base, categoria, orden) VALUES
+  ('9a1f23be-7914-469b-85e4-5d6263f87445', 'Base', '30005836', '', 1, 'base', 0),
+  ('9a1f23be-7914-469b-85e4-5d6263f87445', 'Forro', '10002992', '', 1, 'base', 1),
+  ('9a1f23be-7914-469b-85e4-5d6263f87445', 'Forro EE', '10002502', '', 1, 'base', 2),
+  ('9a1f23be-7914-469b-85e4-5d6263f87445', 'Forro Rojo', '10003267', '', 1, 'base', 3),
+  ('9a1f23be-7914-469b-85e4-5d6263f87445', 'Forro Gris-negro', '10003271', '', 1, 'base', 4);
