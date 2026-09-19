@@ -189,7 +189,7 @@
       "componentes": [
         { "tipo": "Base", "codigo": "70000077" },
         { "tipo": "Forro", "codigo": "10002198" },
-        { "tipo": "Pin", "codigo": "30011473" },
+        { "tipo": "Pin", "codigo": "30011473","cantidad_por_base": 1 },
         { "tipo": "CAUCHO ANTIVIBRANTE SILLIN D24", "codigo": "10003264", "cantidad_por_base": 4 }
       ]
     },
@@ -262,17 +262,17 @@
       "componentes_adicionales": [
         {
           "codigo": "30001991",
-          "descripcion": "UND",
+          "descripcion": "ANTIVIBRANTE SILLIN ADV RHB44184A0A00",
           "cantidad_por_base": 2
         },
         {
           "codigo": "30001992",
-          "descripcion": "UNF",
+          "descripcion": "ANTIVIBRANTE SILLIN ADV RHC44185A0A00",
           "cantidad_por_base": 2
         },
         {
           "codigo": "30001993",
-          "descripcion": "UND",
+          "descripcion": "ANTIVIBRANTE SILLIN ADV RHB44183A0A00",
           "cantidad_por_base": 1
         }
       ]

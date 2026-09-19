@@ -3,86 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listado de Referencias</title>
+  <title>LISTADO DE REFERENCIAS</title>
   <link rel="stylesheet" href="Estilo.css">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+      min-height: 100vh;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
     .listado-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
+      padding: 32px 24px 64px;
     }
     .listado-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 28px;
       flex-wrap: wrap;
     }
     .listado-header h1 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    .listado-header h1 span {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .listado-search {
       display: flex;
       align-items: center;
       gap: 10px;
       background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 8px 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-      min-width: 260px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      min-width: 280px;
+      transition: box-shadow .25s ease, border-color .25s ease;
+    }
+    .listado-search:focus-within {
+      box-shadow: 0 6px 20px rgba(79,70,229,0.15), 0 1px 2px rgba(0,0,0,0.04);
+      border-color: #a5b4fc;
+    }
+    .listado-search svg {
+      color: #94a3b8;
+      flex-shrink: 0;
     }
     .listado-search input {
       border: none;
       outline: none;
       width: 100%;
-      font-size: 1rem;
+      font-size: 0.95rem;
       background: transparent;
       color: #0f172a;
+      font-family: 'Inter', sans-serif;
+    }
+    .listado-search input::placeholder {
+      color: #94a3b8;
     }
     .listado-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .listado-card {
       background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+      transition: transform .3s cubic-bezier(0.4,0,0.2,1), box-shadow .3s cubic-bezier(0.4,0,0.2,1), border-color .3s ease;
+      animation: fadeInUp .5s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+    .listado-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+      opacity: 0;
+      transition: opacity .3s ease;
+      border-radius: 20px 20px 0 0;
+    }
+    .listado-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at top right, rgba(99,102,241,0.06), transparent 70%);
+      pointer-events: none;
     }
     .listado-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
-      border-color: #cbd5e1;
+      transform: translateY(-6px);
+      box-shadow: 0 24px 48px rgba(15,23,42,0.1), 0 8px 16px rgba(15,23,42,0.06);
+      border-color: #c7d2fe;
     }
+    .listado-card:hover::before {
+      opacity: 1;
+    }
+    .listado-card:nth-child(2) { animation-delay: .05s; }
+    .listado-card:nth-child(3) { animation-delay: .1s; }
+    .listado-card:nth-child(4) { animation-delay: .15s; }
+    .listado-card:nth-child(5) { animation-delay: .2s; }
+    .listado-card:nth-child(6) { animation-delay: .25s; }
     .listado-card-title {
       font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      margin-bottom: 14px;
       color: #0f172a;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      letter-spacing: -0.01em;
+    }
+    .listado-card-title svg {
+      color: #6366f1;
+      flex-shrink: 0;
     }
     .listado-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 10px;
-      background: #f1f5f9;
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
-      font-size: 0.85rem;
-      color: #334155;
+      font-size: 0.8rem;
+      color: #475569;
     }
     .listado-badge .badge-label {
       font-weight: 600;
-      color: #475569;
+      color: #334155;
     }
     .listado-badge .badge-code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -93,27 +172,43 @@
       border: 1px solid #e5e7eb;
     }
     .listado-section {
-      margin-top: 10px;
+      margin-top: 14px;
     }
     .listado-section-title {
-      font-size: 0.75rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #64748b;
-      margin-bottom: 6px;
-      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .listado-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, #e2e8f0, transparent);
     }
     .listado-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       font-size: 0.82rem;
       color: #334155;
-      margin: 0 6px 6px 0;
+      margin: 0 4px 6px 0;
+      transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
+      cursor: default;
+    }
+    .listado-chip:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
     }
     .listado-chip .chip-type {
       color: #475569;
@@ -122,12 +217,20 @@
     .listado-chip .chip-code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       color: #0f172a;
+      background: #ffffff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      font-weight: 700;
+      text-shadow: 0 0.5px 0 rgba(0,0,0,0.02);
+      letter-spacing: 0.02em;
     }
     .listado-empty {
       text-align: center;
-      color: #64748b;
-      padding: 40px 10px;
+      color: #94a3b8;
+      padding: 60px 10px;
       font-size: 1rem;
+      grid-column: 1 / -1;
     }
   </style>
 </head>
@@ -137,7 +240,7 @@
       <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
       <div class="logo-text">
         <div class="logo-title">TRAZABILIDAD</div>
-        <div class="logo-subtitle">Listado de Referencias</div>
+        <div class="logo-subtitle">LISTADO DE REFERENCIAS</div>
       </div>
     </div>
     <div class="header-actions">
@@ -162,9 +265,10 @@
 
   <section class="listado-container" id="seccionListado">
     <div class="listado-header">
-      <h1>Listado de Referencias</h1>
+      <h1>LISTADO DE REFERENCIAS</h1>
       <div class="listado-search">
-        <input type="text" id="listadoSearch" placeholder="Buscar referencia o código...">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="listadoSearch" placeholder="BUSCAR REFERENCIA O CÓDIGO...">
       </div>
     </div>
     <div id="listadoGrid" class="listado-grid"></div>
