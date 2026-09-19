@@ -74,6 +74,7 @@ function renderListado() {
               <span class="listado-chip">
                 <span class="chip-type">${escapeHtml(c.tipo || '')}</span>
                 <span class="chip-code">${escapeHtml(c.codigo || '')}</span>
+                ${c.cantidad_por_base ? `<span style="color:#64748b;font-size:0.82rem;">x${escapeHtml(String(c.cantidad_por_base))}</span>` : ''}
               </span>
             `).join('')}
           </div>

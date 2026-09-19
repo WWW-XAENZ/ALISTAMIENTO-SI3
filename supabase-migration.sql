@@ -192,7 +192,7 @@ INSERT INTO producto_componentes (producto_id, tipo, codigo, descripcion, cantid
   ('d2420000-0000-0000-0000-000000000001', 'Base', '70000077', '', 1, 'base', 0),
   ('d2420000-0000-0000-0000-000000000001', 'Forro', '10002198', '', 1, 'base', 1),
   ('d2420000-0000-0000-0000-000000000001', 'Pin', '30011473', '', 1, 'pin', 2),
-  ('d2420000-0000-0000-0000-000000000001', 'CAUCHO ANTIVIBRANTE SILLIN D24', '10003264', '', 5, 'anti_vibrante', 3);
+  ('d2420000-0000-0000-0000-000000000001', 'CAUCHO ANTIVIBRANTE SILLIN D24', '10003264', '', 4, 'anti_vibrante', 3);
 
 -- MRX 200: agregar Forro Gris-negro (10003273) si no existe
 DO $$
