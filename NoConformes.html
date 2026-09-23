@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registro de No Conformes - Alistamiento.">
+    <title>No Conformes - Alistamiento</title>
+    <link rel="stylesheet" href="Estilo.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
+            <div class="logo-text">
+                <div class="logo-title">No Conformes</div>
+                <div class="logo-subtitle">Juan Guillermo Escobar</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MENU OVERLAY -->
+    <nav class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel">
+            <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+            <h3 class="menu-title">MENÚ</h3>
+            <ul class="menu-list">
+                <li><a href="Alistamiento.html" id="menuInicio" class="menu-link">INICIO</a></li>
+                <li><a href="Alistamiento.html?seccion=trazabilidad" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+                <li><a href="NoConformes.html" id="menuNoConformes" class="menu-link">NO CONFORMES</a></li>
+                <li><a href="listado.html" id="menuListado" class="menu-link">LISTADO</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div class="container container-nc" id="seccionNoConformes">
+        <h1>Registro de No Conformes</h1>
+
+        <form id="formNoConformes">
+            <!-- PRIMERA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nc_fecha">Fecha</label>
+                    <div class="calendar-input-wrap">
+                        <input type="text" id="nc_fecha" name="nc_fecha" readonly placeholder="Seleccionar fecha">
+                        <span class="calendar-icon" data-for="nc_fecha">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nc_codigo">Código</label>
+                    <input type="text" id="nc_codigo" name="nc_codigo" placeholder="Código">
+                </div>
+
+                <div class="form-group">
+                    <label for="nc_tipo">Tipo</label>
+                    <select id="nc_tipo" name="nc_tipo">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="FORROS">Forros</option>
+                        <option value="BASES">Bases</option>
+                        <option value="USB">USB</option>
+                        <option value="MATERIA PRIMA">Materia Prima</option>
+                        <option value="IOT">IOT</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nc_proveedor">Proveedor</label>
+                    <input type="text" id="nc_proveedor" name="nc_proveedor" placeholder="Proveedor">
+                </div>
+            </div>
+
+            <!-- SEGUNDA FILA -->
+            <div class="form-row">
+                <div class="form-group form-group--full">
+                    <label for="nc_descripcion">Descripción</label>
+                    <textarea id="nc_descripcion" name="nc_descripcion" rows="3" placeholder="MATERIAL NO CONFORME..."></textarea>
+                </div>
+            </div>
+
+            <!-- TERCERA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nc_accion">Tipo No Conforme</label>
+                    <select id="nc_accion" name="nc_accion">
+                        <option value="">Seleccionar</option>
+                        <option value="CORTADO">Cortado</option>
+                        <option value="ROTO">Roto</option>
+                        <option value="PARTIDO">Partido</option>
+                        <option value="DEFECTO">Defecto</option>
+                        <option value="MANCHADO">Manchado</option>
+                        <option value="DESALINEADO">Desalineado</option>
+                        <option value="DETERIORADO">Deteriorado</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group nc-otro-wrap" id="nc_otro_group" style="display:none;">
+                    <label for="nc_otro">Especificar</label>
+                    <input type="text" id="nc_otro" name="nc_otro" placeholder="Especifique el tipo">
+                </div>
+
+                <div class="form-group">
+                    <label for="nc_cantidad">Cantidad</label>
+                    <input type="number" id="nc_cantidad" name="nc_cantidad" placeholder="Cantidad" min="0">
+                </div>
+            </div>
+
+            <!-- CUARTA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nc_responsable">Responsable</label>
+                    <select id="nc_responsable" name="nc_responsable">
+                        <option value="">Seleccionar</option>
+                        <option value="JUAN JOSE SAENZ">JUAN JOSÉ SÁENZ</option>
+                        <option value="DAVID VALENCIA">DAVID VALENCIA</option>
+                        <option value="JUAN GUILLERMO ESCOBAR">JUAN GUILLERMO ESCOBAR</option>
+                        
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nc_doc_bloqueado">Documento Bloqueado</label>
+                    <input type="text" id="nc_doc_bloqueado" name="nc_doc_bloqueado" placeholder="Digite el documento bloqueado">
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen</label>
+                    <div class="image-upload-group">
+                        <input type="file" id="nc_imagen" name="nc_imagen" accept="image/*" class="hidden-input">
+                        <input type="file" id="nc_imagen_camara" name="nc_imagen_camara" accept="image/*" capture="environment" class="hidden-input">
+                        <div class="image-upload-buttons">
+                            <button type="button" class="btn btn-outline" id="btnAdjuntarFotoNC">ADJUNTAR FOTO</button>
+                            <button type="button" class="btn btn-secondary" id="btnTomarFotoNC">TOMAR FOTO</button>
+                        </div>
+                        <img id="nc_preview" class="nc-preview" style="display:none;" alt="Vista previa">
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="btnGuardarNC">Guardar No Conforme</button>
+                <button type="button" class="btn-secondary" id="btnCancelarNC" style="display:none;">Cancelar</button>
+                <button type="button" class="btn-secondary" id="btnLimpiarNC">Limpiar</button>
+            </div>
+        </form>
+
+        <!-- TABLA -->
+        <div class="table-container">
+            <h2>No Conformes Registrados <span class="registro-count" id="nc_count">0</span>
+                <button type="button" class="btn btn-secondary btn-exportar-registros" id="btnExportarNC">Exportar Excel</button>
+            </h2>
+            <div class="table-wrapper">
+                <table id="tablaNoConformes">
+                    <thead>
+                        <tr>
+                            <th class="col-nc-num">N.º</th>
+                            <th class="col-nc-fecha">Fecha</th>
+                            <th class="col-nc-codigo">Código</th>
+                            <th class="col-nc-tipo">Tipo</th>
+                            <th class="col-nc-proveedor">Proveedor</th>
+                            <th class="col-nc-desc">Descripción</th>
+                            <th class="col-nc-accion">Tipo NC</th>
+                            <th class="col-nc-cant">Cant.</th>
+                            <th class="col-nc-resp">Responsable</th>
+                            <th class="col-nc-doc">Doc. Bloq.</th>
+                            <th class="col-nc-img">Img.</th>
+                            <th class="col-nc-actions">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaNC"></tbody>
+                </table>
+            </div>
+            <div class="registros-paginacion" id="nc_paginacion" aria-label="Páginas de no conformes"></div>
+        </div>
+    </div>
+
+    <!-- MODAL VER IMAGEN -->
+    <div class="modal-overlay" id="modalImagenNC" style="display:none;">
+        <div class="modal-content">
+            <button type="button" class="modal-close" id="modalCloseNC" aria-label="Cerrar">&times;</button>
+            <img id="modal_img_nc" src="" alt="Imagen ampliada">
+        </div>
+    </div>
+
+    <div id="calendarDropdown" class="calendar-dropdown"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="noconformes.js"></script>
+    <script src="calendario.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alistamiento</title>
+    <link rel="stylesheet" href="Estilo.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <img src="Logo-Web-SI3.png" alt="Logo" class="logo-img">
+            <div class="logo-text">
+                <div class="logo-title">ALISTAMIENTO</div>
+                <div class="logo-subtitle">Sistema de Registro</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MENU OVERLAY -->
+    <nav class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel">
+            <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+            <h3 class="menu-title">MENÚ</h3>
+            <ul class="menu-list">
+                <li><a href="#" id="menuInicio" class="menu-link">INICIO</a></li>
+                <li><a href="#" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+                <li><a href="NoConformes.html" id="menuNoConformes" class="menu-link">NO CONFORMES</a></li>
+                <li><a href="listado.html" id="menuListado" class="menu-link">LISTADO</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- TABLERO -->
+    <div class="board-banner">
+        <div class="board-banner-header">
+            <h2 id="boardFecha">TABLERO</h2>
+            <div class="board-actions">
+                <input type="file" id="inputFotoBoard" accept="image/*" class="hidden-input">
+                <input type="file" id="inputFotoCamara" accept="image/*" capture="environment" class="hidden-input">
+                <button type="button" class="btn btn-primary" id="btnAdicionarFoto">ADICIONAR FOTO</button>
+                <button type="button" class="btn btn-outline" id="btnTomarFoto">TOMAR FOTO</button>
+            </div>
+        </div>
+        <div id="tableroGrid" class="tablero-banner-grid"></div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="container" id="inicio">
+        <h1>Registro de Alistamiento</h1>
+
+        <form id="formAlistamiento">
+            <!-- PRIMERA FILA -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fecha">Fecha</label>
+                    <div class="calendar-input-wrap">
+                        <input type="text" id="fecha" name="fecha" readonly placeholder="Seleccionar fecha">
+                        <span class="calendar-icon" data-for="fecha">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="turno">Turno</label>
+                    <select id="turno" name="turno">
+                        <option value="">Seleccionar</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SEGUNDA FILA -->
+            <div class="form-row">
+                <div class="form-group form-group--relative">
+                    <label for="referencia">Referencia</label>
+                    <div class="search-input-wrap">
+                        <img src="Logo-Web-SI3.png" alt="" class="search-logo">
+                        <input type="text" id="referencia" name="referencia" list="listaReferencias" placeholder="Escribe una referencia..." autocomplete="off">
+                    </div>
+                    <div id="referenciaDropdown" class="referencia-dropdown hidden"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="base">Base</label>
+                    <input type="text" id="base" name="base" placeholder="Base">
+                </div>
+
+                <div class="form-group">
+                    <label for="fomi">Fomi</label>
+                    <input type="text" id="fomi" name="fomi" placeholder="Fomi">
+                </div>
+
+                <div class="form-group">
+                    <label for="forro">Forro</label>
+                    <input type="text" id="forro" name="forro" placeholder="Forro">
+                </div>
+            </div>
+
+            <!-- TERCERA FILA -->
+            <div class="form-row">
+                <div class="form-group form-group--full">
+                    <label for="componentes">Componentes</label>
+                    <textarea id="componentes" name="componentes" rows="4" placeholder="Componentes"></textarea>
+                </div>
+            </div>
+
+            <!-- CUARTA FILA -->
+            <div class="form-row">
+                <div class="form-group firma-group">
+                    <label class="firma-label">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.05a2.5 2.5 0 0 0-1.73 0h-.27a2 2 0 0 1-1.73-1L12 2 9.73 1a2 2 0 0 0-1.73 1 2.5 2.5 0 0 0 0 1.9V5.27a2 2 0 0 1 1.42 1.42L12 10l-1 1-1-1 1-4.4A2 2 0 0 1 12.86 4h.27a2.5 2.5 0 0 0 0 1.9z"/><path d="M6 18h12"/><path d="M6 18l6-6 6 6"/></svg>
+                        Firma
+                    </label>
+                    <div class="firma-sublabel">Firme en el recuadro, luego confirme</div>
+                    <div class="firma-card" id="firmaCard">
+                        <div class="firma-toolbar">
+                            <span class="firma-toolbar-title">Firma del responsable</span>
+                        </div>
+                        <div class="firma-wrap" id="firmaWrap">
+                            <canvas id="firmaRecibe" width="560" height="120" class="firma-canvas" tabindex="0" aria-label="Área para firmar"></canvas>
+                            <div class="firma-hint">
+                                <span class="firma-hint-text">Firme aquí</span>
+                            </div>
+                            <div class="firma-actions">
+                                <button type="button" class="btn-clear-signature" id="btnLimpiarFirma">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    Limpiar
+                                </button>
+                                <button type="button" class="btn-confirm-signature" id="btnConfirmarFirma">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-4-4"/></svg>
+                                    Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="recibe" name="recibe">
+                </div>
+
+                <div class="form-group">
+                    <label for="contabilizado">Contabilizado</label>
+                    <input type="number" id="contabilizado" name="contabilizado" placeholder="Contabilizado" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="responsable">Responsable</label>
+                    <select id="responsable" name="responsable">
+                        <option value="">Seleccionar</option>
+                        <option value="JUAN JOSE SAENZ">JUAN JOSÉ SÁENZ</option>
+                        <option value="DAVID VALENCIA">DAVID VALENCIA</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar Registro</button>
+                <button type="button" class="btn-secondary" id="btnCancelar" style="display:none;">Cancelar</button>
+                <button type="button" class="btn-secondary" id="btnLimpiar">Limpiar</button>
+            </div>
+        </form>
+
+        <!-- DATOS DE REFERENCIAS -->
+        <datalist id="listaReferencias"></datalist>
+
+        <!-- TABLA -->
+        <div class="table-container">
+            <h2>Registros Guardados <span class="registro-count" id="registroCount">0</span>
+                <button type="button" class="btn btn-secondary btn-exportar-registros" id="btnExportarExcel">Exportar Excel</button>
+            </h2>
+            <div class="table-wrapper">
+                <table id="tablaRegistros">
+                    <thead>
+                            <tr>
+                                <th>N.º</th>
+                            <th>Fecha</th>
+                            <th>Turno</th>
+                            <th>Referencia</th>
+                            <th>Base</th>
+                            <th>Fomi</th>
+                            <th>Componentes</th>
+                            <th>Forro</th>
+                            <th>Firma</th>
+                            <th>Contabilizado</th>
+                            <th>Responsable</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+            </div>
+            <div class="registros-paginacion" id="registrosPaginacion" aria-label="Páginas de registros"></div>
+        </div>
+    </div>
+
+    <!-- TRAZABILIDAD -->
+    <section class="trazabilidad" id="seccionTrazabilidad" style="display:none;">
+        <div class="container">
+            <h2>TRAZABILIDAD</h2>
+            <form id="formTrazabilidad" class="trazabilidad-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tz_fecha">FECHA</label>
+                        <div class="calendar-input-wrap">
+                            <input type="text" id="tz_fecha" name="fecha" readonly required placeholder="Seleccionar fecha">
+                            <span class="calendar-icon" data-for="tz_fecha">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_referencia">REFERENCIA</label>
+                        <input type="text" id="tz_referencia" name="referencia" placeholder="REFERENCIA">
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_ckd">CKD</label>
+                        <select id="tz_ckd" name="ckd">
+                            <option value="">SELECCIONAR</option>
+                            <option value="CARTAGENA">CARTAGENA</option>
+                            <option value="RIONEGRO">RIONEGRO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tz_responsable">RESPONSABLE</label>
+                        <select id="tz_responsable" name="responsable">
+                            <option value="">SELECCIONAR</option>
+                            <option value="JUAN JOSE SAENZ">JUAN JOSÉ SÁENZ</option>
+                            <option value="DAVID VALENCIA">DAVID VALENCIA</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tz_cantidad">CANTIDAD</label>
+                        <input type="number" id="tz_cantidad" name="cantidad" placeholder="CANTIDAD" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>FOTO / CAMARA</label>
+                        <input type="file" id="tz_foto" name="foto" accept="image/*" class="hidden-input">
+                        <input type="file" id="tz_foto_camara" name="foto_camara" accept="image/*" capture="environment" class="hidden-input">
+                        <button type="button" class="btn btn-outline" id="btnTomarFotoTz">TOMAR FOTO</button>
+                        <button type="button" class="btn btn-secondary" id="btnAdjuntarFotoTz">ADJUNTAR FOTO</button>
+                        <img id="tz_preview" class="tz-preview" style="display:none;" alt="Vista previa">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tz_novedades">NOVEDADES</label>
+                        <textarea id="tz_novedades" name="novedades" placeholder="Escribe novedades: bases no conformes, componentes faltantes, etc." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">ENVIAR TRAZABILIDAD</button>
+                    <button type="button" class="btn btn-secondary" id="btnVolverInicio">VOLVER</button>
+                </div>
+            </form>
+            <div class="table-container">
+                <h2>REGISTROS TRAZABILIDAD</h2>
+                <div class="table-wrapper">
+                    <table id="tablaTrazabilidad">
+                        <thead>
+                            <tr>
+                                <th>FECHA</th>
+                                <th>REFERENCIA</th>
+                                <th>CKD</th>
+                                <th>RESPONSABLE</th>
+                                <th>CANTIDAD</th>
+                                <th>FOTO</th>
+                                <th>NOVEDADES</th>
+                                <th>ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTablaTrazabilidad"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="admin" id="seccionAdmin" style="display:none;">
+        <div class="container">
+            <h2>ADMIN</h2>
+            <div class="admin-filters">
+                <div class="form-group">
+                    <label>Filtrar por fecha</label>
+                    <div class="calendar-input-wrap">
+                        <input type="text" id="admin_fecha" readonly placeholder="Seleccionar fecha">
+                        <span class="calendar-icon" data-for="admin_fecha">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" id="btnLimpiarFiltro">LIMPIAR FILTRO</button>
+            </div>
+            <div id="adminGrid" class="admin-grid"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="btnVolverInicioAdmin">VOLVER</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="calendarDropdown" class="calendar-dropdown"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script src="trazabilidad.js"></script>
+    <script src="app.js"></script>
+    <script src="calendario.js"></script>
+</body>
+</html>
+
+

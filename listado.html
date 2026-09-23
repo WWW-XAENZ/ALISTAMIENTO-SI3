@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Referencias</title>
+  <link rel="stylesheet" href="Estilo.css">
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
+      <div class="logo-text">
+        <div class="logo-title">TRAZABILIDAD</div>
+        <div class="logo-subtitle">Listado de Referencias</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+      <h3 class="menu-title">MENÚ</h3>
+      <ul class="menu-list">
+        <li><a href="Alistamiento.html" id="menuInicio" class="menu-link">INICIO</a></li>
+        <li><a href="Alistamiento.html?seccion=trazabilidad" id="menuTrazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+        <li><a href="admin.html" id="menuAdmin" class="menu-link">ADMIN</a></li>
+        <li><a href="listado.html" id="menuListado" class="menu-link">LISTADO</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="listado-container" id="seccionListado">
+    <div class="listado-header">
+      <h1>Listado de Referencias</h1>
+      <div class="listado-search">
+        <input type="text" id="listadoSearch" placeholder="Buscar referencia o código...">
+      </div>
+    </div>
+    <div id="listadoGrid" class="listado-grid"></div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="listado.js"></script>
+</body>
+</html>
