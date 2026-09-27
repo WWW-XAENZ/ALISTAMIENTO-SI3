@@ -322,8 +322,20 @@
     {
       "producto": "Hunk",
       "componentes": [
-        { "tipo": "Base", "codigo": "10001619" },
+        { "tipo": "Base", "codigo": "70000086" },
         { "tipo": "Forro", "codigo": "90006670" }
+      ],
+      "componentes_adicionales": [
+        {
+          "codigo": "10003276",
+          "descripcion": "RUBBER A SEAT SETTING HUNK",
+          "cantidad_por_base": 4
+        },
+        {
+          "codigo": "10003278",
+          "descripcion": "RUBBER A SEAT SETTING HUNK",
+          "cantidad_por_base": 4
+        }
       ]
     },
     {
@@ -364,7 +376,9 @@
     {
       "producto": "Fomi",
       "componentes": [
-        { "tipo": "Fomi", "codigo": "10001201" }
+        { "tipo": "FOMI MARIPOSA", "codigo": "10001201" },
+        { "tipo": "FOMI RIGIDO", "codigo": "10003279" }
+
       ]
     },
     {
