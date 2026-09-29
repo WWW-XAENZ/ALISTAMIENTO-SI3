@@ -3,252 +3,623 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALISTAMIENTO - INICIO</title>
+  <title>Centro de Operaciones Logísticas | SI3</title>
   <link rel="icon" type="image/png" href="Logo-Web-SI3.png">
   <link rel="stylesheet" href="Estilo.css">
   <style>
+    :root {
+      --landing-ink: var(--text-primary);
+      --landing-muted: var(--text-secondary);
+      --landing-line: var(--border-light);
+      --landing-paper: var(--bg-primary);
+      --landing-canvas: #f1f5f9;
+      --landing-green: var(--primary-600);
+      --landing-green-dark: var(--primary-700);
+      --landing-lime: var(--primary-200);
+      --landing-orange: var(--primary-500);
+    }
+    body {
+      color: var(--landing-ink);
+      background: var(--landing-canvas);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
     .landing {
-      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding: 28px clamp(18px, 5vw, 72px) 22px;
       background: linear-gradient(135deg, #f8fafc 0%, #ffffff 55%, #eff6ff 100%);
+    }
+    .landing-shell {
+      width: 100%;
+      max-width: 1220px;
+      min-height: calc(100svh - 50px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+      animation: shell-enter 0.75s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .landing-topbar {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 4px 0 18px;
+      border-bottom: 1px solid var(--landing-line);
+    }
+    .landing-brand {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 460px;
+      padding: 0;
+      animation: brand-enter 0.65s 0.08s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .landing-brand-logo {
+      width: 220px;
+      height: auto;
+      aspect-ratio: 1536 / 784;
+      flex: 0 0 auto;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.4));
+    }
+    .landing-brand-copy {
+      display: grid;
+      gap: 4px;
+      line-height: 1.2;
+    }
+    .landing-brand-copy::before {
+      content: 'PLATAFORMA DE OPERACIONES';
+      color: var(--primary-600);
+      font: 10px/1.4 'Consolas', monospace;
+      font-weight: 700;
+    }
+    .landing-brand-name {
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: 0.03em;
+    }
+    .landing-brand-caption {
+      color: var(--landing-muted);
+      font: 11px/1.4 'Consolas', monospace;
+      letter-spacing: 0.08em;
+    }
+    .landing-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      color: #166534;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-xs);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .landing-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #51a77f;
+      box-shadow: 0 0 0 4px rgba(81, 167, 127, 0.14);
+      animation: status-pulse 2.4s ease-in-out infinite;
+    }
+    .landing-layout {
+      flex: 1;
+      min-height: 610px;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(450px, 1.1fr);
+      align-items: center;
+      gap: clamp(38px, 7vw, 104px);
+      padding: 48px 0 42px;
+    }
+    .landing-intro {
+      max-width: 485px;
+      min-width: 0;
+      animation: intro-enter 0.75s 0.18s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .landing-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: var(--landing-green);
+      font: 11px/1.4 'Consolas', monospace;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+    .landing-eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 2px;
+      background: var(--landing-orange);
+    }
+    .landing-headline {
+      max-width: 520px;
+      margin: 0;
+      color: var(--landing-ink);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(42px, 5.4vw, 70px);
+      font-weight: 500;
+      line-height: 0.99;
+      letter-spacing: 0;
+    }
+    .landing-headline em {
+      color: var(--landing-green);
+      font-weight: 500;
+    }
+    .landing-description {
+      max-width: 390px;
+      margin-top: 22px;
+      color: var(--landing-muted);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+    .landing-divider {
+      width: min(100%, 390px);
+      height: 1px;
+      margin: 32px 0 22px;
+      background: var(--landing-line);
+    }
+    .landing-summary {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .landing-summary-item {
+      display: grid;
+      gap: 3px;
+    }
+    .landing-summary-value {
+      color: var(--landing-ink);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 23px;
+      line-height: 1.1;
+    }
+    .landing-summary-label {
+      color: var(--landing-muted);
+      font: 10px/1.4 'Consolas', monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .landing-summary-rule {
+      width: 1px;
+      height: 36px;
+      background: var(--landing-line);
+    }
+    .landing-route {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: min(100%, 440px);
+      margin-top: 28px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .landing-route::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 38px;
+      right: 38px;
+      height: 2px;
+      background: var(--primary-100);
+    }
+    .landing-route::after {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 38px;
+      width: calc((100% - 76px) / 2);
+      height: 2px;
+      background: var(--primary-500);
+      transform-origin: left;
+      animation: route-progress 1.1s 0.55s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .landing-route-stop {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      justify-items: start;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      animation: route-stop-enter 0.45s cubic-bezier(.2,.75,.25,1) both;
+    }
+    .landing-route-stop:nth-child(2) { animation-delay: 0.12s; }
+    .landing-route-stop:nth-child(3) { animation-delay: 0.24s; }
+    .landing-route-marker {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      color: var(--primary-700);
+      background: var(--primary-50);
+      border: 2px solid var(--primary-300);
+      border-radius: 50%;
+      font: 9px 'Consolas', monospace;
+      box-shadow: 0 0 0 4px #fff;
+    }
+    .landing-route-stop:last-child .landing-route-marker {
+      color: #fff;
+      background: var(--success);
+      border-color: var(--success);
     }
     .landing-grid {
       width: 100%;
-      max-width: 620px;
+      max-width: 570px;
+      justify-self: end;
       position: relative;
-      perspective: 1400px;
-      padding: 28px 0 10px;
+      padding: 23px 0 0;
+      animation: panel-enter 0.9s 0.18s cubic-bezier(.2,.75,.25,1) both;
     }
     .landing-track {
       width: 100%;
-      min-height: 500px;
+      min-height: 490px;
       position: relative;
-      transform: translateX(0);
-      transform-style: preserve-3d;
     }
     .landing-card {
       position: absolute;
       inset: 0;
       width: 100%;
-      background: #ffffff;
-      border: 1px solid rgba(203, 213, 225, 0.9);
-      border-radius: 24px;
-      padding: 42px 34px;
-      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.1), 0 3px 8px rgba(15, 23, 42, 0.06);
-      text-align: center;
+      padding: 42px clamp(27px, 4vw, 48px) 32px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      text-decoration: none;
-      color: inherit;
-      min-width: 0;
-      opacity: 0.45;
-      transform: translateX(0) translateZ(-80px) rotateY(0deg) scale(0.9);
-      transform-origin: center center;
-      backface-visibility: hidden;
-      transition: opacity 0.7s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
-      will-change: transform, opacity;
+      align-items: flex-start;
+      text-align: left;
+      color: var(--landing-ink);
+      background: var(--landing-paper);
+      border: 1px solid var(--landing-line);
+      border-radius: 6px 24px 6px 24px;
+      box-shadow: 0 24px 70px rgba(23, 42, 49, 0.12), 0 3px 10px rgba(23, 42, 49, 0.05);
+      visibility: hidden;
+      pointer-events: none;
+      transform: none;
+    }
+    .landing-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 32px;
+      width: 54px;
+      height: 4px;
+      background: var(--landing-orange);
     }
     .landing-card.is-visible {
-      opacity: 1;
-      transform: translateX(0) translateZ(60px) rotateY(0deg) scale(1);
       z-index: 3;
-      box-shadow: 0 28px 55px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(37, 99, 235, 0.12);
+      visibility: visible;
+      pointer-events: auto;
+      animation: card-enter 0.28s cubic-bezier(.2,.75,.25,1) both;
+      transition-delay: 0s;
     }
     .landing-card.is-prev,
     .landing-card.is-next {
-      opacity: 0.72;
       z-index: 2;
+      visibility: hidden;
+      pointer-events: none;
     }
-    .landing-card.is-prev {
-      transform: translateX(-18%) translateZ(-20px) rotateY(18deg) rotateZ(-3deg) scale(0.9);
-    }
-    .landing-card.is-next {
-      transform: translateX(18%) translateZ(-20px) rotateY(-18deg) rotateZ(3deg) scale(0.9);
-    }
-    .landing-controls {
+    .landing-card-top {
+      width: 100%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .carousel-arrow {
-      width: 40px;
-      height: 40px;
-      border: 1px solid var(--border-default);
-      border-radius: var(--radius-full);
-      background: #ffffff;
-      color: var(--text-primary);
-      font-size: 1.25rem;
-      line-height: 1;
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-    }
-    .carousel-arrow:hover {
-      background: var(--primary-600);
-      color: var(--text-inverse);
-      transform: scale(1.08);
-    }
-    .carousel-dots {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .carousel-dot {
-      width: 9px;
-      height: 9px;
-      padding: 0;
-      border: 0;
-      border-radius: var(--radius-full);
-      background: var(--border-default);
-      cursor: pointer;
-      transition: width 0.25s ease, background 0.25s ease;
-    }
-    .carousel-dot.active {
-      width: 26px;
-      background: var(--primary-600);
-    }
-    .landing-card:hover {
-      box-shadow: var(--shadow-2xl), 0 0 0 2px var(--primary-300);
-      border-color: var(--primary-400);
-    }
-    .landing-card.is-visible:hover {
-      transform: translateX(0) translateZ(60px) rotateY(0deg) scale(1.01) translateY(-6px);
-    }
-    .landing-card.is-prev:hover {
-      transform: translateX(-18%) translateZ(-20px) rotateY(18deg) rotateZ(-3deg) scale(0.9) translateY(-4px);
-    }
-    .landing-card.is-next:hover {
-      transform: translateX(18%) translateZ(-20px) rotateY(-18deg) rotateZ(3deg) scale(0.9) translateY(-4px);
+      justify-content: space-between;
+      margin-bottom: 36px;
     }
     .landing-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: var(--radius-xl);
-      background: var(--bg-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--text-primary);
-      border: 1px solid var(--border-light);
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      color: var(--landing-green-dark);
+      background: #eaf3ed;
+      border: 1px solid #d8e8dc;
+      border-radius: 16px 16px 16px 4px;
+      font-size: 19px;
+      font-weight: 850;
+    }
+    .landing-index {
+      color: #9ca9a9;
+      font: 11px/1.4 'Consolas', monospace;
+      letter-spacing: 0.08em;
+    }
+    .landing-module-label {
+      margin-bottom: 9px;
+      color: var(--landing-green);
+      font: 10px/1.4 'Consolas', monospace;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
     .landing-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-primary);
+      color: var(--landing-ink);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(32px, 3vw, 43px);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: 0;
     }
     .landing-subtitle {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
+      margin-top: 10px;
+      color: var(--landing-muted);
+      font-size: 14px;
+      line-height: 1.6;
     }
     .landing-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
       width: 100%;
-      max-width: 320px;
+      margin-top: 29px;
+      display: grid;
+      gap: 10px;
     }
     .landing-input {
       width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border-default);
-      border-radius: var(--radius-lg);
-      font-size: 1rem;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      box-shadow: var(--shadow-sm);
-      text-align: center;
-      letter-spacing: 0.08em;
+      min-height: 52px;
+      padding: 13px 16px;
+      color: var(--landing-ink);
+      background: #fbfcfa;
+      border: 1px solid #d8e1df;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 2px rgba(23, 42, 49, 0.03);
+      font: 13px 'Consolas', monospace;
+      letter-spacing: 0.04em;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .landing-input:focus {
+      outline: none;
+      border-color: var(--landing-green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.12);
     }
     .landing-input::placeholder {
+      color: #8c9b9d;
       text-transform: uppercase;
-      color: var(--text-tertiary);
-      letter-spacing: 0.08em;
-    }
-    .landing-btn {
-      width: 100%;
-      padding: 12px 18px;
-      border: none;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
-      color: var(--text-inverse);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-size: 0.9375rem;
-      box-shadow: var(--shadow-md);
-      cursor: pointer;
-    }
-    .landing-btn:hover {
-      background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 100%);
     }
     .landing-error {
-      font-size: 0.875rem;
-      color: #dc2626;
+      min-height: 17px;
+      color: #bd4535;
+      font-size: 12px;
       font-weight: 700;
+    }
+    .landing-btn {
+      min-height: 52px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      color: #fff;
+      background: var(--landing-green);
+      border: 0;
+      border-radius: 4px 12px 4px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      min-height: 20px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .landing-btn::after {
+      content: '\2192';
+      color: var(--landing-lime);
+      font-size: 19px;
+      font-weight: 400;
+      transition: transform 0.2s ease;
+    }
+    .landing-btn:hover {
+      background: var(--landing-green-dark);
+      transform: translateY(-2px);
+    }
+    .landing-btn:hover::after { transform: translateX(4px); }
+    .landing-btn:disabled { opacity: 0.65; cursor: wait; }
+    .landing-card-foot {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 21px;
+      color: #92a0a0;
+      border-top: 1px solid #edf1ef;
+      font: 9px/1.4 'Consolas', monospace;
+      letter-spacing: 0.08em;
+    }
+    .landing-card-foot span:first-child { color: var(--landing-green); }
+    .landing-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 18px;
+      padding-left: 4px;
+    }
+    .carousel-arrow {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      color: var(--landing-ink);
+      background: rgba(255,255,255,.65);
+      border: 1px solid #d4dfdc;
+      border-radius: 50%;
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+    .carousel-arrow:hover {
+      color: #fff;
+      background: var(--landing-green);
+      transform: translateY(-2px);
+    }
+    .carousel-dots { display: flex; align-items: center; gap: 7px; padding: 0 3px; }
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      background: #b8c5c2;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: width 0.25s ease, background 0.25s ease;
+    }
+    .carousel-dot.active { width: 25px; background: var(--landing-orange); }
+    .landing-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 15px;
+      color: #81908f;
+      border-top: 1px solid rgba(23, 42, 49, 0.13);
+      font: 9px/1.4 'Consolas', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    @keyframes shell-enter {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes brand-enter {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes route-progress {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    @keyframes card-enter {
+      from { transform: translateY(8px); }
+      to { transform: translateY(0); }
+    }
+    @keyframes route-stop-enter {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes intro-enter {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes panel-enter {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes status-pulse {
+      50% { box-shadow: 0 0 0 7px rgba(81, 167, 127, 0.04); }
     }
     @media (max-width: 900px) {
-      .landing-grid {
-        max-width: min(520px, 100%);
+      .landing-layout {
+        grid-template-columns: minmax(0, 0.8fr) minmax(390px, 1.2fr);
+        gap: 32px;
       }
-      .landing-card {
-        padding: 36px 24px;
-      }
-      .landing-title {
-        font-size: 1.3rem;
-      }
-      .landing-card.is-prev {
-        transform: translateX(-12%) translateZ(-20px) rotateY(14deg) rotateZ(-2deg) scale(0.92);
-      }
-      .landing-card.is-next {
-        transform: translateX(12%) translateZ(-20px) rotateY(-14deg) rotateZ(2deg) scale(0.92);
-      }
-      .landing-card.is-prev:hover {
-        transform: translateX(-12%) translateZ(-20px) rotateY(14deg) rotateZ(-2deg) scale(0.92) translateY(-4px);
-      }
-      .landing-card.is-next:hover {
-        transform: translateX(12%) translateZ(-20px) rotateY(-14deg) rotateZ(2deg) scale(0.92) translateY(-4px);
-      }
+      .landing-headline { font-size: clamp(40px, 6vw, 56px); }
+      .landing-grid { max-width: 510px; }
+      .landing-track { min-height: 455px; }
+      .landing-card { padding: 34px 30px 25px; }
+      .landing-card-top { margin-bottom: 27px; }
     }
-    @media (max-width: 600px) {
-      .landing {
-        padding: 16px 10px;
+    @media (max-width: 680px) {
+      .landing { padding: 18px 18px 14px; }
+      .landing-shell { min-height: calc(100svh - 32px); }
+      .landing-topbar { flex-wrap: nowrap; gap: 8px; padding-bottom: 12px; }
+      .landing-status { gap: 6px; padding: 5px 8px; font-size: 8px; }
+      .landing-status-dot { width: 7px; height: 7px; flex: 0 0 auto; }
+      .landing-brand { width: auto; min-width: 0; gap: 7px; }
+      .landing-brand-logo { width: clamp(64px, 20vw, 82px); }
+      .landing-brand-copy { gap: 2px; }
+      .landing-brand-copy::before { display: none; }
+      .landing-brand-name { font-size: 10px; white-space: nowrap; }
+      .landing-brand-caption { font-size: 8px; white-space: nowrap; }
+      .landing-layout {
+        flex: 1;
+        min-height: 0;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        align-content: center;
+        padding: 12px 0 10px;
       }
-      .landing-grid {
-        padding-top: 12px;
-      }
-      .landing-track {
-        min-height: 450px;
-      }
-      .landing-card {
-        border-radius: 20px;
-        padding: 30px 18px;
-      }
-      .landing-icon {
-        width: 68px;
-        height: 68px;
-        font-size: 28px;
-      }
-      .landing-form {
-        max-width: 290px;
-      }
+      .landing-intro { max-width: 100%; }
+      .landing-eyebrow { margin-bottom: 13px; font-size: 9px; }
+      .landing-headline { max-width: 460px; font-size: clamp(38px, 10vw, 53px); }
+      .landing-description { margin-top: 12px; font-size: 13px; line-height: 1.55; }
+      .landing-divider, .landing-summary { display: none; }
+      .landing-grid { max-width: 500px; justify-self: center; padding-top: 8px; }
+      .landing-route { display: none; }
+      .landing-track { min-height: 390px; }
+      .landing-card { padding: 22px 20px 16px; border-radius: var(--radius-2xl); }
+      .landing-card::before { left: 24px; }
+      .landing-card-top { margin-bottom: 14px; }
+      .landing-icon { width: 48px; height: 48px; font-size: 17px; }
+      .landing-title { font-size: 34px; }
+      .landing-subtitle { font-size: 13px; }
+      .landing-form { margin-top: 15px; gap: 8px; }
+      .landing-input, .landing-btn { min-height: 48px; }
+      .landing-card-foot { padding-top: 10px; }
+      .landing-controls { margin-top: 13px; }
+      .landing-footer { font-size: 8px; }
     }
+    @media (max-width: 380px) {
+      .landing { padding-right: 13px; padding-left: 13px; }
+      .landing-brand-logo { width: 62px; }
+      .landing-brand-name { font-size: 9px; }
+      .landing-brand-caption { font-size: 7px; }
+      .landing-status { gap: 5px; padding-right: 6px; padding-left: 6px; font-size: 7px; }
+      .landing-track { min-height: 400px; }
+      .landing-card { padding-right: 19px; padding-left: 19px; }
+      .landing-footer { letter-spacing: 0.03em; }
+    }
+    .landing * { letter-spacing: 0; }
+    .landing-headline,
+    .landing-summary-value,
+    .landing-title { font-family: inherit; }
+    .landing-headline,
+    .landing-title { font-weight: 800; }
+    .landing-card {
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-xl);
+    }
+    .landing-card:nth-child(3) {
+      --landing-green: var(--danger-600);
+      --landing-green-dark: var(--danger-700);
+      --landing-lime: var(--danger-100);
+      --landing-orange: var(--danger-500);
+    }
+    .landing-icon {
+      background: var(--primary-50);
+      border-color: var(--primary-100);
+      border-radius: var(--radius-xl);
+    }
+    .landing-card:nth-child(3) .landing-icon {
+      color: var(--danger-700);
+      background: var(--danger-50);
+      border-color: var(--danger-100);
+    }
+    .landing-input {
+      background: var(--bg-primary);
+      border-color: var(--border-default);
+      border-radius: var(--radius-lg);
+    }
+    .landing-btn,
+    .carousel-arrow { border-radius: var(--radius-lg); }
+    .landing-card-foot { color: var(--text-tertiary); }
+    .landing-footer { border-color: var(--border-light); }
     @media (prefers-reduced-motion: reduce) {
-      .landing-track,
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
       .landing-card {
         transition: none;
       }
@@ -257,38 +628,67 @@
 </head>
 <body>
   <div class="landing">
-    <div class="landing-grid">
-      <div class="landing-track">
-        <div class="landing-card is-visible">
-        <div class="landing-icon">A</div>
-        <div class="landing-title">Alistamiento</div>
-        <div class="landing-subtitle">Sistema de registro principal</div>
-        <form class="landing-form" data-module="alistamiento">
-          <input type="password" class="landing-input" placeholder="CONTRASENA" autocomplete="off" required>
-          <div class="landing-error"></div>
-          <button type="submit" class="landing-btn">INGRESAR</button>
-        </form>
+    <div class="landing-shell">
+      <header class="landing-topbar">
+        <div class="landing-brand">
+          <img src="Logo-Web-SI3.png" alt="Logo SI3" class="landing-brand-logo">
+          <div class="landing-brand-copy">
+            <div class="landing-brand-name">SISTEMA INTEGRADO</div>
+            <div class="landing-brand-caption">OPERACIONES · CEDI</div>
+          </div>
         </div>
-        <div class="landing-card">
-        <div class="landing-icon">AD</div>
-        <div class="landing-title">Admin</div>
-        <div class="landing-subtitle">Panel de trazabilidad y fotos</div>
-        <form class="landing-form" data-module="admin">
-          <input type="password" class="landing-input" placeholder="CONTRASENA" autocomplete="off" required>
-          <div class="landing-error"></div>
-          <button type="submit" class="landing-btn">INGRESAR</button>
-        </form>
-        </div>
-        <div class="landing-card">
-        <div class="landing-icon">NC</div>
-        <div class="landing-title">No Conformes</div>
-        <div class="landing-subtitle">Sistema de registro de no conformes</div>
-        <form class="landing-form" data-module="NoConformes">
-          <input type="password" class="landing-input" placeholder="CONTRASENA" autocomplete="off" required>
-          <div class="landing-error"></div>
-          <button type="submit" class="landing-btn">INGRESAR</button>
-        </form>
-        </div>
+        <div class="landing-status"><span class="landing-status-dot"></span>SISTEMA EN LÍNEA</div>
+      </header>
+      <main class="landing-layout">
+        <section class="landing-intro" aria-labelledby="landing-headline">
+          <div class="landing-eyebrow">CENTRO DE CONTROL · LOGÍSTICA</div>
+          <h1 class="landing-headline" id="landing-headline">La operación<br>en <em>movimiento.</em></h1>
+          <p class="landing-description">Coordina el alistamiento, sigue cada despacho y mantén la calidad bajo control desde un solo lugar.</p>
+          <div class="landing-divider"></div>
+          <div class="landing-route" aria-label="Flujo logístico: recepción, alistamiento y despacho">
+            <div class="landing-route-stop"><span class="landing-route-marker">01</span><span>Recepción</span></div>
+            <div class="landing-route-stop"><span class="landing-route-marker">02</span><span>Alistamiento</span></div>
+            <div class="landing-route-stop"><span class="landing-route-marker">03</span><span>Despacho</span></div>
+          </div>
+        </section>
+        <section class="landing-grid" aria-label="Acceso a módulos">
+          <div class="landing-track">
+            <article class="landing-card is-visible">
+              <div class="landing-card-top"><div class="landing-icon">A</div><span class="landing-index">MÓDULO 01 / 03</span></div>
+              <div class="landing-module-label">Operación principal</div>
+              <h2 class="landing-title">Alistamiento</h2>
+              <p class="landing-subtitle">Registro, preparación y control de pedidos.</p>
+              <form class="landing-form" data-module="alistamiento">
+                <input type="password" class="landing-input" placeholder="CONTRASEÑA DE ACCESO" aria-label="Contraseña de Alistamiento" autocomplete="off" required>
+                <div class="landing-error" aria-live="polite"></div>
+                <button type="submit" class="landing-btn"><span>Ingresar al módulo</span></button>
+              </form>
+              <div class="landing-card-foot"><span>●</span><span>ACCESO PROTEGIDO</span><span>·</span><span>SI3 LOGÍSTICA</span></div>
+            </article>
+            <article class="landing-card">
+              <div class="landing-card-top"><div class="landing-icon">AD</div><span class="landing-index">MÓDULO 02 / 03</span></div>
+              <div class="landing-module-label">Seguimiento de operación</div>
+              <h2 class="landing-title">Trazabilidad</h2>
+              <p class="landing-subtitle">Consulta evidencias, fotografías y estado de los despachos.</p>
+              <form class="landing-form" data-module="admin">
+                <input type="password" class="landing-input" placeholder="CONTRASEÑA DE ACCESO" aria-label="Contraseña de Administración" autocomplete="off" required>
+                <div class="landing-error" aria-live="polite"></div>
+                <button type="submit" class="landing-btn"><span>Ingresar al módulo</span></button>
+              </form>
+              <div class="landing-card-foot"><span>●</span><span>ACCESO PROTEGIDO</span><span>·</span><span>SI3 LOGÍSTICA</span></div>
+            </article>
+            <article class="landing-card">
+              <div class="landing-card-top"><div class="landing-icon">NC</div><span class="landing-index">MÓDULO 03 / 03</span></div>
+              <div class="landing-module-label">Control de calidad</div>
+              <h2 class="landing-title">No conformes</h2>
+              <p class="landing-subtitle">Reporta novedades y haz seguimiento al material no conforme.</p>
+              <form class="landing-form" data-module="NoConformes">
+                <input type="password" class="landing-input" placeholder="CONTRASEÑA DE ACCESO" aria-label="Contraseña de No Conformes" autocomplete="off" required>
+                <div class="landing-error" aria-live="polite"></div>
+                <button type="submit" class="landing-btn"><span>Ingresar al módulo</span></button>
+              </form>
+              <div class="landing-card-foot"><span>●</span><span>ACCESO PROTEGIDO</span><span>·</span><span>SI3 LOGÍSTICA</span></div>
+            </article>
       </div>
       <div class="landing-controls" aria-label="Controles del carrusel">
         <button type="button" class="carousel-arrow" id="carousel-prev" aria-label="Tarjeta anterior">&#8592;</button>
@@ -299,6 +699,9 @@
         </div>
         <button type="button" class="carousel-arrow" id="carousel-next" aria-label="Siguiente tarjeta">&#8594;</button>
       </div>
+        </section>
+      </main>
+      <footer class="landing-footer"><span>SI3 · Gestión logística</span><span>ALISTAMIENTO / TRAZABILIDAD / CALIDAD</span></footer>
     </div>
   </div>
 

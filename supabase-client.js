@@ -152,6 +152,154 @@ const DB = {
     return data;
   },
 
+  async getCatalogoProductos() {
+    if (!isSupabaseEnabled()) {
+      throw new Error('Supabase no está conectado para administrar el catálogo.');
+    }
+
+    const { data, error } = await supabaseClient
+      .from('productos')
+      .select('*, producto_componentes(*)')
+      .order('nombre');
+
+    if (error) {
+      console.error('Error obteniendo catálogo:', error);
+      throw error;
+    }
+
+    return Array.isArray(data) ? data : [];
+  },
+
+  async guardarProductoCatalogo(producto) {
+    if (!isSupabaseEnabled()) {
+      throw new Error('Supabase no está conectado para guardar productos.');
+    }
+
+    const { data, error } = await supabaseClient.rpc('catalogo_guardar_producto', {
+      p_id: producto.id || null,
+      p_nombre: producto.nombre,
+      p_referencia: producto.referencia || null,
+      p_componentes: producto.componentes || []
+    });
+
+    if (error) {
+      if (error.code === 'PGRST202') {
+        console.warn('RPC de catálogo no instalada; usando escritura directa en las tablas.');
+        return this.guardarProductoCatalogoDirecto(producto);
+      }
+      console.error('Error guardando producto del catálogo:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async guardarProductoCatalogoDirecto(producto) {
+    const componentRows = (producto.componentes || []).map(componente => ({
+      tipo: componente.tipo,
+      codigo: componente.codigo,
+      descripcion: componente.descripcion || null,
+      cantidad_por_base: componente.cantidad_por_base ?? 1,
+      categoria: componente.categoria || 'base',
+      orden: componente.orden || 0
+    }));
+
+    if (!producto.id) {
+      const { data: inserted, error: insertError } = await supabaseClient
+        .from('productos')
+        .insert({ nombre: producto.nombre, referencia: producto.referencia || null })
+        .select('id')
+        .single();
+
+      if (insertError) throw insertError;
+
+      try {
+        if (componentRows.length) {
+          const { error: componentError } = await supabaseClient
+            .from('producto_componentes')
+            .insert(componentRows.map(componente => ({ ...componente, producto_id: inserted.id })));
+          if (componentError) throw componentError;
+        }
+        return inserted.id;
+      } catch (error) {
+        await supabaseClient.from('productos').delete().eq('id', inserted.id);
+        throw error;
+      }
+    }
+
+    const { data: currentProduct, error: productReadError } = await supabaseClient
+      .from('productos')
+      .select('id, nombre, referencia')
+      .eq('id', producto.id)
+      .single();
+    if (productReadError) throw productReadError;
+
+    const { data: currentComponents, error: componentReadError } = await supabaseClient
+      .from('producto_componentes')
+      .select('id')
+      .eq('producto_id', producto.id);
+    if (componentReadError) throw componentReadError;
+
+    let insertedComponents = [];
+    try {
+      if (componentRows.length) {
+        const { data, error: insertError } = await supabaseClient
+          .from('producto_componentes')
+          .insert(componentRows.map(componente => ({ ...componente, producto_id: producto.id })))
+          .select('id');
+        if (insertError) throw insertError;
+        insertedComponents = data || [];
+      }
+
+      const { error: updateError } = await supabaseClient
+        .from('productos')
+        .update({ nombre: producto.nombre, referencia: producto.referencia || null })
+        .eq('id', producto.id);
+      if (updateError) throw updateError;
+
+      const oldIds = (currentComponents || []).map(componente => componente.id);
+      if (oldIds.length) {
+        const { error: deleteError } = await supabaseClient
+          .from('producto_componentes')
+          .delete()
+          .in('id', oldIds);
+        if (deleteError) throw deleteError;
+      }
+
+      return producto.id;
+    } catch (error) {
+      const insertedIds = insertedComponents.map(componente => componente.id);
+      if (insertedIds.length) {
+        await supabaseClient.from('producto_componentes').delete().in('id', insertedIds);
+      }
+      await supabaseClient
+        .from('productos')
+        .update({ nombre: currentProduct.nombre, referencia: currentProduct.referencia })
+        .eq('id', producto.id);
+      throw error;
+    }
+  },
+
+  async eliminarProductoCatalogo(id) {
+    if (!isSupabaseEnabled()) {
+      throw new Error('Supabase no está conectado para eliminar productos.');
+    }
+
+    const { error } = await supabaseClient.rpc('catalogo_eliminar_producto', { p_id: id });
+    if (error) {
+      if (error.code === 'PGRST202') {
+        const { error: deleteError } = await supabaseClient
+          .from('productos')
+          .delete()
+          .eq('id', id);
+        if (deleteError) throw deleteError;
+        return;
+      }
+      console.error('Error eliminando producto del catálogo:', error);
+      throw error;
+    }
+  },
+
   async getTrazabilidad() {
     if (!isSupabaseEnabled()) return [];
     

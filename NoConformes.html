@@ -65,14 +65,40 @@
 
                 <div class="form-group">
                     <label for="nc_tipo">Tipo</label>
-                    <select id="nc_tipo" name="nc_tipo">
-                        <option value="">Seleccionar tipo</option>
-                        <option value="FORROS">Forros</option>
-                        <option value="BASES">Bases</option>
-                        <option value="USB">USB</option>
-                        <option value="MATERIA PRIMA">Materia Prima</option>
-                        <option value="IOT">IOT</option>
-                    </select>
+                    <div class="custom-select" id="nc_tipo_wrapper">
+                        <input type="hidden" id="nc_tipo" name="nc_tipo" value="">
+                        <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-select-icon" id="nc_tipo_icon"></span>
+                            <span class="custom-select-text" id="nc_tipo_text">Seleccionar tipo</span>
+                            <svg class="custom-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="custom-select-options" role="listbox" aria-label="Seleccionar tipo">
+                            <div class="custom-select-option" role="option" data-value="" aria-selected="true">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                                <span>Seleccionar tipo</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="FORROS">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                <span>Forros</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="BASES">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                <span>Bases</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="USB">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13V7a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v6"/><polyline points="14 7 14 17 10 17 10 7"/></svg>
+                                <span>USB</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="MATERIA PRIMA">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                                <span>Materia Prima</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="IOT">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                <span>IOT (Cables eléctricos)</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -162,6 +188,73 @@
             <h2>No Conformes Registrados <span class="registro-count" id="nc_count">0</span>
                 <button type="button" class="btn btn-secondary btn-exportar-registros" id="btnExportarNC">Exportar Excel</button>
             </h2>
+
+            <div class="nc-filtros" id="ncFiltros">
+                <div class="filtro-grupo">
+                    <label for="filtro_fecha_desde">Desde</label>
+                    <div class="calendar-input-wrap">
+                        <input type="text" id="filtro_fecha_desde" name="filtro_fecha_desde" readonly placeholder="Fecha inicio">
+                        <span class="calendar-icon" data-for="filtro_fecha_desde">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtro_fecha_hasta">Hasta</label>
+                    <div class="calendar-input-wrap">
+                        <input type="text" id="filtro_fecha_hasta" name="filtro_fecha_hasta" readonly placeholder="Fecha fin">
+                        <span class="calendar-icon" data-for="filtro_fecha_hasta">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V4"/><path d="M16 8V4"/><path d="M3 12h18"/></svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtro_tipo">Tipo</label>
+                    <div class="custom-select" id="filtro_tipo_wrapper">
+                        <input type="hidden" id="filtro_tipo" name="filtro_tipo" value="">
+                        <button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-select-icon" id="filtro_tipo_icon"></span>
+                            <span class="custom-select-text" id="filtro_tipo_text">Todos los tipos</span>
+                            <svg class="custom-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="custom-select-options" role="listbox" aria-label="Seleccionar tipo">
+                            <div class="custom-select-option" role="option" data-value="" aria-selected="true">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                                <span>Todos los tipos</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="FORROS">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                <span>Forros</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="BASES">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                <span>Bases</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="USB">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13V7a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v6"/><polyline points="14 7 14 17 10 17 10 7"/></svg>
+                                <span>USB</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="MATERIA PRIMA">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                                <span>Materia Prima</span>
+                            </div>
+                            <div class="custom-select-option" role="option" data-value="IOT">
+                                <svg class="option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                <span>IOT (Cables eléctricos)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="filtro_proveedor">Proveedor</label>
+                    <input type="text" id="filtro_proveedor" name="filtro_proveedor" placeholder="Filtrar proveedor...">
+                </div>
+                <div class="filtro-grupo filtro-grupo--acciones">
+                    <button type="button" class="btn btn-secondary" id="btnLimpiarFiltros">Limpiar filtros</button>
+                    <button type="button" class="btn btn-primary" id="btnMostrarTodos">Mostrar todos</button>
+                </div>
+            </div>
+
             <div class="table-wrapper">
                 <table id="tablaNoConformes">
                     <thead>

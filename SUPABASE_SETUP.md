@@ -18,7 +18,16 @@
 2. Ejecuta el script
 3. Verifica en **Table Editor** que aparezcan los 33 productos
 
-## 4. Configurar la aplicación
+## 4. Habilitar edición del catálogo
+
+1. En SQL Editor, copia y pega el contenido de `catalogo-crud.sql`
+2. Ejecuta el script después de `supabase-schema.sql` y `supabase-migration.sql`
+3. El script consolida productos duplicados, conserva componentes, repone componentes faltantes e impone unicidad por nombre
+4. Abre `listado.html` para administrar el catálogo. Si las RPC todavía no están instaladas, la página usa escritura directa sobre las tablas existentes.
+
+> **Seguridad:** las políticas actuales permiten escrituras con la clave anónima. Cualquier persona que pueda abrir la aplicación podría modificar el catálogo. Antes de publicar el sistema fuera de una red interna, configura Supabase Auth y restringe las políticas RLS.
+
+## 5. Configurar la aplicación
 
 Edita `supabase-client.js` y reemplaza:
 
@@ -29,7 +38,7 @@ const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
 
 Con tus credenciales reales.
 
-## 5. Agregar Supabase a tu HTML
+## 6. Agregar Supabase a tu HTML
 
 En `Alistamiento.html`, antes de `app.js`, agrega:
 
@@ -38,7 +47,7 @@ En `Alistamiento.html`, antes de `app.js`, agrega:
 <script src="supabase-client.js"></script>
 ```
 
-## 6. Modificar app.js para usar Supabase
+## 7. Modificar app.js para usar Supabase
 
 Reemplaza las llamadas a `localStorage` con las funciones de `SupabaseDB`:
 
@@ -52,13 +61,13 @@ const registros = await DB.getRegistros();
 await DB.saveRegistro(registro);
 ```
 
-## 7. Habilitar Realtime
+## 8. Habilitar Realtime
 
 En Supabase Dashboard:
 1. Ve a **Database** → **Replication**
 2. Habilita **realtime** para las tablas `registros` y `trazabilidad`
 
-## 8. Probar
+## 9. Probar
 
 1. Abre la aplicación
 2. Verifica en consola que diga "Supabase conectado"

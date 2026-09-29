@@ -6,6 +6,13 @@ const NC_POR_PAGINA = 34;
 let guardandoNC = false;
 let previewNCDataUrl = '';
 let ncSupabaseReady = null;
+let ncFiltros = {
+    fechaDesde: '',
+    fechaHasta: '',
+    tipo: '',
+    proveedor: ''
+};
+let ncTodosLosRegistros = [];
 
 const NC_BADGES = {
   CORTADO: 'nc-badge-cortado',
@@ -18,12 +25,12 @@ const NC_BADGES = {
   OTRO: 'nc-badge-otro',
 };
 
-const NC_TIPO_BADGES = {
-  FORROS: 'nc-tipo-badge',
-  BASES: 'nc-tipo-badge',
-  USB: 'nc-tipo-badge',
-  'MATERIA PRIMA': 'nc-tipo-badge',
-  IOT: 'nc-tipo-badge',
+const TIPO_ICONS = {
+    FORROS: '<svg class="tipo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+    BASES: '<svg class="tipo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+    USB: '<svg class="tipo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13V7a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v6"/><polyline points="14 7 14 17 10 17 10 7"/></svg>',
+    'MATERIA PRIMA': '<svg class="tipo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+    IOT: '<svg class="tipo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
 };
 
 function getTodayString() {
@@ -111,26 +118,27 @@ function getNCFormData() {
 }
 
 function limpiarFormularioNC() {
-  document.getElementById('nc_fecha').value = '';
-  document.getElementById('nc_codigo').value = '';
-  document.getElementById('nc_tipo').value = '';
-  document.getElementById('nc_proveedor').value = '';
-  document.getElementById('nc_descripcion').value = '';
-  document.getElementById('nc_cantidad').value = '';
-  document.getElementById('nc_responsable').value = '';
-  document.getElementById('nc_accion').value = '';
-  document.getElementById('nc_otro').value = '';
-  document.getElementById('nc_otro_group').style.display = 'none';
-  document.getElementById('nc_doc_bloqueado').value = '';
-  const preview = document.getElementById('nc_preview');
-  if (preview) { preview.src = ''; preview.style.display = 'none'; }
-  previewNCDataUrl = '';
-  const imagenInput = document.getElementById('nc_imagen');
-  if (imagenInput) imagenInput.value = '';
-  editNCId = null;
-  document.getElementById('btnGuardarNC').textContent = 'GUARDAR NO CONFORME';
-  document.getElementById('btnGuardarNC').className = 'btn-primary';
-  document.getElementById('btnCancelarNC').style.display = 'none';
+    document.getElementById('nc_fecha').value = '';
+    document.getElementById('nc_codigo').value = '';
+    document.getElementById('nc_tipo').value = '';
+    updateSelectIcon(document.getElementById('nc_tipo_wrapper'), '');
+    document.getElementById('nc_proveedor').value = '';
+    document.getElementById('nc_descripcion').value = '';
+    document.getElementById('nc_cantidad').value = '';
+    document.getElementById('nc_responsable').value = '';
+    document.getElementById('nc_accion').value = '';
+    document.getElementById('nc_otro').value = '';
+    document.getElementById('nc_otro_group').style.display = 'none';
+    document.getElementById('nc_doc_bloqueado').value = '';
+    const preview = document.getElementById('nc_preview');
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    previewNCDataUrl = '';
+    const imagenInput = document.getElementById('nc_imagen');
+    if (imagenInput) imagenInput.value = '';
+    editNCId = null;
+    document.getElementById('btnGuardarNC').textContent = 'GUARDAR NO CONFORME';
+    document.getElementById('btnGuardarNC').className = 'btn-primary';
+    document.getElementById('btnCancelarNC').style.display = 'none';
 }
 
 function escapeHtml(text) {
@@ -141,31 +149,35 @@ function escapeHtml(text) {
 }
 
 async function renderTablaNC() {
-  const registros = await getNoConformes();
-  const tbody = document.getElementById('cuerpoTablaNC');
-  if (!tbody) return;
-  tbody.innerHTML = '';
+    const registros = await getNoConformes();
+    const tbody = document.getElementById('cuerpoTablaNC');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-  let totalRows = 0;
+    let totalRows = 0;
 
-  if (registros.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="12" class="tabla-empty">Sin no conformes registrados</td>';
-    tbody.appendChild(tr);
-    const countEl = document.getElementById('nc_count');
-    if (countEl) countEl.textContent = 0;
-    actualizarPaginacionNC(0);
-    return;
-  }
+    const filtrados = aplicarFiltrosNC(registros);
+    ncTodosLosRegistros = filtrados;
 
-  registros.forEach((registro) => {
+    if (filtrados.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="12" class="tabla-empty">Sin no conformes registrados</td>';
+        tbody.appendChild(tr);
+        const countEl = document.getElementById('nc_count');
+        if (countEl) countEl.textContent = 0;
+        actualizarPaginacionNC(0);
+        return;
+    }
+
+    filtrados.forEach((registro) => {
     totalRows++;
     const numeroRegistro = totalRows;
     const tr = document.createElement('tr');
 
     const tipoClass = getTipoClass(registro.accion);
     const tipoBadge = registro.accion ? '<span class="nc-badge ' + tipoClass + '">' + escapeHtml(registro.accion) + '</span>' : '—';
-    const tipoNcBadge = registro.tipo ? '<span class="nc-tipo-badge">' + escapeHtml(registro.tipo) + '</span>' : '—';
+    const tipoIcon = registro.tipo && TIPO_ICONS[registro.tipo] ? TIPO_ICONS[registro.tipo] : '';
+    const tipoNcBadge = registro.tipo ? '<span class="nc-tipo-badge">' + tipoIcon + escapeHtml(registro.tipo) + '</span>' : '—';
     const docBloqueadoHtml = registro.doc_bloqueado ? '<span class="nc-doc-blocked">' + escapeHtml(registro.doc_bloqueado) + '</span>' : '—';
     const rowBg = registro.doc_bloqueado ? 'style="background:var(--danger-50);"' : '';
 
@@ -201,9 +213,9 @@ async function renderTablaNC() {
     });
   });
 
-  const countEl = document.getElementById('nc_count');
-  if (countEl) countEl.textContent = totalRows;
-  actualizarPaginacionNC(totalRows);
+const countEl = document.getElementById('nc_count');
+    if (countEl) countEl.textContent = filtrados.length;
+    actualizarPaginacionNC(filtrados.length);
 }
 
 function openModalImagen(src) {
@@ -222,36 +234,39 @@ function closeModalImagen() {
 }
 
 function actualizarPaginacionNC(totalFilas) {
-  const paginacion = document.getElementById('nc_paginacion');
-  const tbody = document.getElementById('cuerpoTablaNC');
-  if (!paginacion || !tbody) return;
+    const paginacion = document.getElementById('nc_paginacion');
+    const tbody = document.getElementById('cuerpoTablaNC');
+    if (!paginacion || !tbody) return;
 
-  const totalPaginas = Math.max(1, Math.ceil(totalFilas / NC_POR_PAGINA));
-  paginaNCActual = Math.min(Math.max(paginaNCActual, 1), totalPaginas);
+    const totalPaginas = Math.max(1, Math.ceil(totalFilas / NC_POR_PAGINA));
+    paginaNCActual = Math.min(Math.max(paginaNCActual, 1), totalPaginas);
 
-  tbody.querySelectorAll('tr[data-pagina]').forEach((fila) => {
-    const pagina = Number(fila.dataset.pagina);
-    fila.hidden = pagina !== paginaNCActual;
-  });
+    const filas = tbody.querySelectorAll('tr:not(.tabla-empty)');
+    const inicio = (paginaNCActual - 1) * NC_POR_PAGINA;
+    const fin = inicio + NC_POR_PAGINA;
 
-  if (totalFilas <= NC_POR_PAGINA) {
-    paginacion.innerHTML = '';
-    return;
-  }
-
-  const botones = [];
-  botones.push('<button type="button" class="pagina-btn pagina-anterior" data-pagina="' + (paginaNCActual - 1) + '" ' + (paginaNCActual === 1 ? 'disabled' : '') + '>‹</button>');
-  for (let p = 1; p <= totalPaginas; p++) {
-    botones.push('<button type="button" class="pagina-btn' + (p === paginaNCActual ? ' activa' : '') + '" data-pagina="' + p + '" aria-current="' + (p === paginaNCActual ? 'page' : 'false') + '">' + p + '</button>');
-  }
-  botones.push('<button type="button" class="pagina-btn pagina-siguiente" data-pagina="' + (paginaNCActual + 1) + '" ' + (paginaNCActual === totalPaginas ? 'disabled' : '') + '>›</button>');
-  paginacion.innerHTML = botones.join('');
-  paginacion.querySelectorAll('[data-pagina]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      paginaNCActual = Number(btn.dataset.pagina);
-      actualizarPaginacionNC(totalFilas);
+    filas.forEach((fila, index) => {
+        fila.hidden = index < inicio || index >= fin;
     });
-  });
+
+    if (totalFilas <= NC_POR_PAGINA) {
+        paginacion.innerHTML = '';
+        return;
+    }
+
+    const botones = [];
+    botones.push('<button type="button" class="pagina-btn pagina-anterior" data-pagina="' + (paginaNCActual - 1) + '" ' + (paginaNCActual === 1 ? 'disabled' : '') + '>‹</button>');
+    for (let p = 1; p <= totalPaginas; p++) {
+        botones.push('<button type="button" class="pagina-btn' + (p === paginaNCActual ? ' activa' : '') + '" data-pagina="' + p + '" aria-current="' + (p === paginaNCActual ? 'page' : 'false') + '">' + p + '</button>');
+    }
+    botones.push('<button type="button" class="pagina-btn pagina-siguiente" data-pagina="' + (paginaNCActual + 1) + '" ' + (paginaNCActual === totalPaginas ? 'disabled' : '') + '>›</button>');
+    paginacion.innerHTML = botones.join('');
+    paginacion.querySelectorAll('[data-pagina]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            paginaNCActual = Number(btn.dataset.pagina);
+            actualizarPaginacionNC(totalFilas);
+        });
+    });
 }
 
 async function agregarNoConforme(e) {
@@ -325,6 +340,7 @@ async function editarNoConforme(id) {
   document.getElementById('nc_fecha').value = registro.fecha || '';
   document.getElementById('nc_codigo').value = registro.codigo || '';
   document.getElementById('nc_tipo').value = registro.tipo || '';
+    updateSelectIcon(document.getElementById('nc_tipo_wrapper'), registro.tipo || '');
   document.getElementById('nc_proveedor').value = registro.proveedor || '';
   document.getElementById('nc_descripcion').value = registro.descripcion || '';
   document.getElementById('nc_cantidad').value = registro.cantidad || '';
@@ -464,19 +480,191 @@ function initImagenNC() {
 }
 
 function initAccionSelect() {
-  const accionSelect = document.getElementById('nc_accion');
-  const otroGroup = document.getElementById('nc_otro_group');
-  if (!accionSelect || !otroGroup) return;
+    const accionSelect = document.getElementById('nc_accion');
+    const otroGroup = document.getElementById('nc_otro_group');
+    if (!accionSelect || !otroGroup) return;
 
-  accionSelect.addEventListener('change', () => {
-    if (accionSelect.value === 'OTRO') {
-      otroGroup.style.display = '';
-      document.getElementById('nc_otro').focus();
-    } else {
-      otroGroup.style.display = 'none';
-      document.getElementById('nc_otro').value = '';
+    accionSelect.addEventListener('change', () => {
+        if (accionSelect.value === 'OTRO') {
+            otroGroup.style.display = '';
+            document.getElementById('nc_otro').focus();
+        } else {
+            otroGroup.style.display = 'none';
+            document.getElementById('nc_otro').value = '';
+        }
+    });
+}
+
+function initFiltrosNC() {
+    const fechaDesde = document.getElementById('filtro_fecha_desde');
+    const fechaHasta = document.getElementById('filtro_fecha_hasta');
+    const tipo = document.getElementById('filtro_tipo');
+    const proveedor = document.getElementById('filtro_proveedor');
+    const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+    const btnMostrarTodos = document.getElementById('btnMostrarTodos');
+
+    if (fechaDesde) {
+        fechaDesde.addEventListener('change', () => {
+            ncFiltros.fechaDesde = fechaDesde.value;
+            paginaNCActual = 1;
+            renderTablaNC();
+        });
     }
-  });
+    if (fechaHasta) {
+        fechaHasta.addEventListener('change', () => {
+            ncFiltros.fechaHasta = fechaHasta.value;
+            paginaNCActual = 1;
+            renderTablaNC();
+        });
+    }
+    if (tipo) {
+        tipo.addEventListener('change', () => {
+            ncFiltros.tipo = tipo.value;
+            paginaNCActual = 1;
+            renderTablaNC();
+        });
+    }
+    if (proveedor) {
+        let proveedorTimeout;
+        proveedor.addEventListener('input', () => {
+            clearTimeout(proveedorTimeout);
+            proveedorTimeout = setTimeout(() => {
+                ncFiltros.proveedor = proveedor.value.trim().toUpperCase();
+                paginaNCActual = 1;
+                renderTablaNC();
+            }, 300);
+        });
+    }
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', limpiarFiltrosNC);
+    }
+    if (btnMostrarTodos) {
+        btnMostrarTodos.addEventListener('click', mostrarTodosNC);
+    }
+}
+
+function initCustomSelects() {
+    document.querySelectorAll('.custom-select').forEach(select => {
+        const trigger = select.querySelector('.custom-select-trigger');
+        const options = select.querySelector('.custom-select-options');
+        const hiddenInput = select.querySelector('input[type="hidden"]');
+        const iconEl = select.querySelector('.custom-select-icon');
+        const textEl = select.querySelector('.custom-select-text');
+        const optionEls = options.querySelectorAll('.custom-select-option');
+
+        if (!trigger || !options || !hiddenInput) return;
+
+        // Set initial icon for filtro_tipo
+        if (select.id === 'filtro_tipo_wrapper' || select.id === 'nc_tipo_wrapper') {
+            updateSelectIcon(select, hiddenInput.value);
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = select.classList.toggle('open');
+            trigger.setAttribute('aria-expanded', isOpen);
+
+            // Close other selects
+            document.querySelectorAll('.custom-select').forEach(other => {
+                if (other !== select) {
+                    other.classList.remove('open');
+                    other.querySelector('.custom-select-trigger')?.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+
+        optionEls.forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.dataset.value;
+                const text = option.querySelector('span').textContent;
+                const iconSVG = option.querySelector('.option-icon').innerHTML;
+
+                hiddenInput.value = value;
+                textEl.textContent = text;
+                iconEl.innerHTML = iconSVG;
+                select.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+
+                // Update aria-selected
+                optionEls.forEach(opt => opt.setAttribute('aria-selected', 'false'));
+                option.setAttribute('aria-selected', 'true');
+
+                // Dispatch change event
+                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            option.addEventListener('mouseenter', () => {
+                optionEls.forEach(opt => opt.classList.remove('highlighted'));
+                option.classList.add('highlighted');
+            });
+        });
+    });
+
+    // Close on click outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select').forEach(select => {
+            select.classList.remove('open');
+            const trigger = select.querySelector('.custom-select-trigger');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.custom-select').forEach(select => {
+                select.classList.remove('open');
+                const trigger = select.querySelector('.custom-select-trigger');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+}
+
+function updateSelectIcon(select, value) {
+    const iconEl = select.querySelector('.custom-select-icon');
+    const textEl = select.querySelector('.custom-select-text');
+    const options = select.querySelector('.custom-select-options');
+    if (!iconEl || !options) return;
+
+    const option = options.querySelector(`.custom-select-option[data-value="${value}"]`);
+    if (option) {
+        const iconSVG = option.querySelector('.option-icon').innerHTML;
+        const text = option.querySelector('span').textContent;
+        iconEl.innerHTML = iconSVG;
+        if (textEl) textEl.textContent = text;
+    }
+}
+
+function limpiarFiltrosNC() {
+    ncFiltros = { fechaDesde: '', fechaHasta: '', tipo: '', proveedor: '' };
+    const fechaDesde = document.getElementById('filtro_fecha_desde');
+    const fechaHasta = document.getElementById('filtro_fecha_hasta');
+    const tipo = document.getElementById('filtro_tipo');
+    const proveedor = document.getElementById('filtro_proveedor');
+    if (fechaDesde) fechaDesde.value = '';
+    if (fechaHasta) fechaHasta.value = '';
+    if (tipo) {
+        tipo.value = '';
+        updateSelectIcon(document.getElementById('filtro_tipo_wrapper'), '');
+    }
+    if (proveedor) proveedor.value = '';
+    paginaNCActual = 1;
+    renderTablaNC();
+}
+
+function mostrarTodosNC() {
+    limpiarFiltrosNC();
+}
+
+function aplicarFiltrosNC(registros) {
+    return registros.filter(r => {
+        if (ncFiltros.fechaDesde && r.fecha && r.fecha < ncFiltros.fechaDesde) return false;
+        if (ncFiltros.fechaHasta && r.fecha && r.fecha > ncFiltros.fechaHasta) return false;
+        if (ncFiltros.tipo && r.tipo && r.tipo !== ncFiltros.tipo) return false;
+        if (ncFiltros.proveedor && r.proveedor && !r.proveedor.toUpperCase().includes(ncFiltros.proveedor)) return false;
+        return true;
+    });
 }
 
 function exportarNoConformesExcel() {
@@ -616,6 +804,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
 initImagenNC();
 initAccionSelect();
 initMenuNoConformes();
+initFiltrosNC();
+initCustomSelects();
 
 async function initNoConformes() {
   const btnGuardar = document.getElementById('btnGuardarNC');

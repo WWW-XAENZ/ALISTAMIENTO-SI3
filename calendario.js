@@ -73,19 +73,49 @@
 
     dropdown.innerHTML = `
       <div class="calendar-header">
-        <button type="button" class="calendar-nav-btn" data-action="prev">
+        <button type="button" class="calendar-nav-btn" data-action="prev" aria-label="Mes anterior">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15.5 19 8.5 12 15.5 5"/></svg>
         </button>
         <span class="calendar-title">${MONTH_NAMES[month]} ${year}</span>
-        <button type="button" class="calendar-nav-btn" data-action="next">
+        <button type="button" class="calendar-nav-btn" data-action="next" aria-label="Mes siguiente">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8.5 5 15.5 12 8.5 19"/></svg>
         </button>
       </div>
       <div class="calendar-grid">${html}</div>
       <div class="calendar-footer">
         <button type="button" class="btn-clear-date" data-action="clear">LIMPIAR</button>
+        <button type="button" class="btn-today-date" data-action="today">HOY</button>
       </div>
     `;
+  }
+
+  function positionDropdown(input) {
+    const rect = input.getBoundingClientRect();
+    const dropdownWidth = 320;
+    const dropdownHeight = 340;
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let left = rect.left;
+    let top = rect.bottom + 8;
+
+    if (left + dropdownWidth > viewportWidth - 16) {
+      left = viewportWidth - dropdownWidth - 16;
+    }
+    if (left < 16) {
+      left = 16;
+    }
+
+    if (top + dropdownHeight > viewportHeight - 16) {
+      top = rect.top - dropdownHeight - 8;
+      if (top < 16) {
+        top = 16;
+      }
+    }
+
+    dropdown.style.top = top + 'px';
+    dropdown.style.left = left + 'px';
   }
 
   function showCalendar(input) {
@@ -104,15 +134,7 @@
     }
 
     renderCalendar();
-
-    const rect = input.getBoundingClientRect();
-
-    const dropdownWidth = 320;
-    const spaceRight = window.innerWidth - rect.right;
-    const left = spaceRight < dropdownWidth ? rect.right - dropdownWidth : rect.left;
-
-    dropdown.style.top = (rect.bottom + 8) + 'px';
-    dropdown.style.left = left + 'px';
+    positionDropdown(input);
     dropdown.classList.add('show');
 
     if (dropdown._handleClick) {
@@ -149,6 +171,17 @@
         dropdown.classList.remove('show');
         selectedInput = null;
         input.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+
+      const todayBtn = e.target.closest('.btn-today-date');
+      if (todayBtn) {
+        const today = new Date();
+        input.value = formatDate(today);
+        dropdown.classList.remove('show');
+        selectedInput = null;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
       }
     };
 
@@ -182,10 +215,11 @@
 
       const openCalendar = function (e) {
         e.stopPropagation();
-        if (dropdown.classList.contains('show')) {
+        if (dropdown.classList.contains('show') && selectedInput === input) {
           hideCalendar();
+        } else {
+          showCalendar(input);
         }
-        showCalendar(input);
       };
 
       icon.addEventListener('click', openCalendar);
@@ -203,6 +237,18 @@
         hideCalendar();
       }
     });
+
+    window.addEventListener('resize', function () {
+      if (dropdown && dropdown.classList.contains('show') && selectedInput) {
+        positionDropdown(selectedInput);
+      }
+    });
+
+    window.addEventListener('scroll', function () {
+      if (dropdown && dropdown.classList.contains('show') && selectedInput) {
+        positionDropdown(selectedInput);
+      }
+    }, true);
   }
 
   if (document.readyState === 'loading') {
