@@ -14,10 +14,18 @@ CREATE TABLE IF NOT EXISTS public.documentos_archivos (
   nombre TEXT NOT NULL,
   ruta_storage TEXT NOT NULL UNIQUE,
   url_publica TEXT NOT NULL,
-  tipo_mime TEXT NOT NULL CHECK (tipo_mime IN ('image/png', 'image/jpeg', 'application/pdf')),
-  tamano_bytes BIGINT NOT NULL CHECK (tamano_bytes > 0 AND tamano_bytes <= 20971520),
+  tipo_mime TEXT NOT NULL CHECK (tipo_mime IN ('image/png', 'image/jpeg', 'application/pdf', 'text/plain')),
+  tamano_bytes BIGINT NOT NULL CHECK (tamano_bytes > 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.documentos_archivos DROP CONSTRAINT IF EXISTS documentos_archivos_tipo_mime_check;
+ALTER TABLE public.documentos_archivos
+  ADD CONSTRAINT documentos_archivos_tipo_mime_check
+  CHECK (tipo_mime IN ('image/png', 'image/jpeg', 'application/pdf', 'text/plain'));
+ALTER TABLE public.documentos_archivos DROP CONSTRAINT IF EXISTS documentos_archivos_tamano_bytes_check;
+ALTER TABLE public.documentos_archivos
+  ADD CONSTRAINT documentos_archivos_tamano_bytes_check CHECK (tamano_bytes > 0);
 
 CREATE INDEX IF NOT EXISTS idx_documentos_archivos_libro
   ON public.documentos_archivos(libro_id, created_at DESC);
@@ -44,8 +52,8 @@ VALUES (
   'documentos-netoncrea',
   'documentos-netoncrea',
   true,
-  20971520,
-  ARRAY['image/png', 'image/jpeg', 'application/pdf']
+  NULL,
+  ARRAY['image/png', 'image/jpeg', 'application/pdf', 'text/plain']
 )
 ON CONFLICT (id) DO UPDATE SET
   public = EXCLUDED.public,

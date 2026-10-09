@@ -77,11 +77,14 @@
               <p id="libroDescripcion" class="documentos-libro-descripcion"></p>
             </div>
             <div class="documentos-libro-acciones">
-              <input type="file" id="inputArchivos" accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf" multiple hidden>
+              <input type="file" id="inputArchivos" accept="image/png,image/jpeg,application/pdf,text/plain,.png,.jpg,.jpeg,.pdf,.txt" multiple hidden>
+              <input type="file" id="inputEscaneo" accept="image/png,image/jpeg" capture="environment" hidden>
+              <button type="button" class="btn btn-outline" id="btnAgregarTexto">+ Agregar texto</button>
+              <button type="button" class="btn btn-outline" id="btnEscanear">Escanear y transcribir</button>
               <button type="button" class="btn btn-primary" id="btnAgregarArchivos">+ Adjuntar archivos</button>
             </div>
           </div>
-          <div class="documentos-archivos-meta"><span id="archivosCount">0 archivos</span><span>PNG, JPG o PDF · Máximo 20 MB por archivo</span></div>
+          <div class="documentos-archivos-meta"><span id="archivosCount">0 archivos</span><span>PNG, JPG, PDF o TXT · Sujeto al límite de Supabase Storage</span></div>
           <div class="documentos-archivos-grid" id="archivosGrid"></div>
         </div>
       </section>
@@ -111,7 +114,53 @@
     </form>
   </dialog>
 
+  <dialog class="documentos-dialog" id="textoDialog" aria-labelledby="textoDialogTitulo">
+    <form id="textoForm">
+      <div class="documentos-dialog-header">
+        <div>
+          <p class="documentos-kicker">DOCUMENTO DE TEXTO</p>
+          <h2 id="textoDialogTitulo">Agregar texto</h2>
+        </div>
+        <button type="button" class="documentos-dialog-close" id="btnCerrarTexto" aria-label="Cerrar">×</button>
+      </div>
+      <label>Nombre del documento
+        <input type="text" id="textoNombre" maxlength="120" required placeholder="Ej. Notas de inspección">
+      </label>
+      <label>Texto
+        <textarea id="textoContenido" rows="10" required placeholder="Escribe o pega el contenido aquí"></textarea>
+      </label>
+      <div class="documentos-dialog-error" id="textoError" role="alert"></div>
+      <div class="documentos-dialog-actions">
+        <button type="button" class="btn btn-outline" id="btnCancelarTexto">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnGuardarTexto">Guardar texto</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="documentos-dialog documentos-escaner-dialog" id="escanerDialog" aria-labelledby="escanerDialogTitulo">
+    <div class="documentos-escaner-contenido">
+      <div class="documentos-dialog-header">
+        <div>
+          <p class="documentos-kicker">ESCANEO</p>
+          <h2 id="escanerDialogTitulo">Revisar documento</h2>
+        </div>
+        <button type="button" class="documentos-dialog-close" id="btnCerrarEscaneo" aria-label="Cerrar">×</button>
+      </div>
+      <p class="documentos-escaner-ayuda">Revisa los bordes detectados y la corrección de perspectiva antes de transcribir.</p>
+      <div class="documentos-escaner-vista">
+        <canvas id="escaneoPreview" aria-label="Vista previa del documento escaneado"></canvas>
+      </div>
+      <p class="documentos-escaner-estado" id="escaneoEstado" role="status" aria-live="polite"></p>
+      <div class="documentos-escaner-acciones">
+        <button type="button" class="btn btn-outline" id="btnCancelarEscaneo">Cancelar</button>
+        <button type="button" class="btn btn-outline" id="btnAlternarEscaneo" hidden>Ver foto original</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarEscaneo">Guardar y transcribir</button>
+      </div>
+    </div>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
   <script src="supabase-client.js"></script>
   <script src="documentos.js"></script>
 </body>
