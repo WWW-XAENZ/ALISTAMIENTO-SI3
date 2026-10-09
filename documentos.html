@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Biblioteca de documentos organizados en libros.">
+  <meta name="description" content="Carpetas de documentos organizadas para consulta.">
   <title>Documentos | SI3</title>
   <link rel="stylesheet" href="Estilo.css">
 </head>
@@ -13,7 +13,7 @@
       <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
       <div class="logo-text">
         <div class="logo-title">DOCUMENTOS</div>
-        <div class="logo-subtitle">Biblioteca de libros</div>
+        <div class="logo-subtitle">Carpetas de documentos</div>
       </div>
     </div>
     <div class="header-actions">
@@ -42,23 +42,23 @@
     <header class="documentos-heading">
       <div>
         <p class="documentos-kicker">ARCHIVO SI3</p>
-        <h1>Libros de documentos</h1>
-        <p class="documentos-intro">Organiza imágenes y archivos de consulta por libro.</p>
+        <h1>Carpetas de documentos</h1>
+        <p class="documentos-intro">Organiza imágenes y archivos de consulta por carpeta.</p>
       </div>
-      <button type="button" class="btn btn-primary" id="btnCrearLibro">+ Crear libro</button>
+      <button type="button" class="btn btn-primary" id="btnCrearLibro">+ Crear carpeta</button>
     </header>
 
     <div class="documentos-status" id="documentosStatus" role="status" aria-live="polite"></div>
 
     <div class="documentos-layout">
-      <aside class="documentos-sidebar" aria-label="Libros">
+      <aside class="documentos-sidebar" aria-label="Carpetas">
         <div class="documentos-sidebar-heading">
-          <h2>Mis libros</h2>
+          <h2>Mis carpetas</h2>
           <span id="librosCount">0</span>
         </div>
         <label class="documentos-search">
-          <span class="sr-only">Buscar libro</span>
-          <input type="search" id="buscarLibro" placeholder="Buscar libro..." autocomplete="off">
+          <span class="sr-only">Buscar carpeta</span>
+          <input type="search" id="buscarLibro" placeholder="Buscar carpeta..." autocomplete="off">
         </label>
         <div class="documentos-libros-lista" id="librosLista"></div>
       </aside>
@@ -66,26 +66,35 @@
       <section class="documentos-workspace" aria-live="polite">
         <div class="documentos-vacio" id="documentosVacio">
           <span class="documentos-vacio-icon" aria-hidden="true"><span class="documentos-folder-empty"></span></span>
-          <h2>Selecciona un libro</h2>
-          <p>O crea uno para empezar a reunir sus documentos.</p>
+          <h2>Selecciona una carpeta</h2>
+          <p>O crea una para empezar a reunir documentos.</p>
         </div>
         <div class="documentos-libro-detalle" id="libroDetalle" hidden>
           <div class="documentos-libro-header">
             <div>
-              <p class="documentos-kicker">LIBRO</p>
+              <p class="documentos-kicker">CARPETA</p>
               <h2 id="libroTitulo"></h2>
               <p id="libroDescripcion" class="documentos-libro-descripcion"></p>
             </div>
             <div class="documentos-libro-acciones">
               <input type="file" id="inputArchivos" accept="image/png,image/jpeg,application/pdf,text/plain,.png,.jpg,.jpeg,.pdf,.txt" multiple hidden>
-              <input type="file" id="inputEscaneo" accept="image/png,image/jpeg" capture="environment" hidden>
+              <button type="button" class="btn btn-outline documentos-abrir-lector" id="btnAbrirLector" disabled>Visualizar carpeta</button>
               <button type="button" class="btn btn-outline" id="btnAgregarTexto">+ Agregar texto</button>
-              <button type="button" class="btn btn-outline" id="btnEscanear">Escanear y transcribir</button>
               <button type="button" class="btn btn-primary" id="btnAgregarArchivos">+ Adjuntar archivos</button>
             </div>
           </div>
           <div class="documentos-archivos-meta"><span id="archivosCount">0 archivos</span><span>PNG, JPG, PDF o TXT · Sujeto al límite de Supabase Storage</span></div>
-          <div class="documentos-archivos-grid" id="archivosGrid"></div>
+          <div class="documentos-dropzone" id="documentosDropzone">
+            <p class="documentos-dropzone-ayuda">Arrastra archivos aquí o pega una imagen copiada con Ctrl+V</p>
+            <div class="documentos-upload-progress" id="documentosUploadProgress" role="status" aria-live="polite" hidden>
+              <span class="documentos-upload-spinner" aria-hidden="true"></span>
+              <div class="documentos-upload-progress-contenido">
+                <span class="documentos-upload-progress-texto" id="documentosUploadProgressTexto"></span>
+                <progress id="documentosUploadProgressBar" max="1" value="0"></progress>
+              </div>
+            </div>
+            <div class="documentos-archivos-grid" id="archivosGrid"></div>
+          </div>
         </div>
       </section>
     </div>
@@ -96,20 +105,20 @@
       <div class="documentos-dialog-header">
         <div>
           <p class="documentos-kicker">BIBLIOTECA</p>
-          <h2 id="libroDialogTitulo">Crear libro</h2>
+          <h2 id="libroDialogTitulo">Crear carpeta</h2>
         </div>
         <button type="button" class="documentos-dialog-close" id="btnCerrarLibro" aria-label="Cerrar">×</button>
       </div>
-      <label>Nombre del libro
-        <input type="text" id="nuevoLibroNombre" maxlength="120" required placeholder="Ej. Manuales de operación">
+      <label>Nombre de la carpeta
+        <input type="text" id="nuevoLibroNombre" maxlength="120" required placeholder="Ej. Procedimientos de producción">
       </label>
       <label>Descripción <span class="documentos-opcional">Opcional</span>
-        <textarea id="nuevoLibroDescripcion" maxlength="500" rows="3" placeholder="Describe el contenido de este libro"></textarea>
+        <textarea id="nuevoLibroDescripcion" maxlength="500" rows="3" placeholder="Describe el contenido de esta carpeta"></textarea>
       </label>
       <div class="documentos-dialog-error" id="libroError" role="alert"></div>
       <div class="documentos-dialog-actions">
         <button type="button" class="btn btn-outline" id="btnCancelarLibro">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btnGuardarLibro">Crear libro</button>
+        <button type="submit" class="btn btn-primary" id="btnGuardarLibro">Crear carpeta</button>
       </div>
     </form>
   </dialog>
@@ -137,30 +146,70 @@
     </form>
   </dialog>
 
-  <dialog class="documentos-dialog documentos-escaner-dialog" id="escanerDialog" aria-labelledby="escanerDialogTitulo">
-    <div class="documentos-escaner-contenido">
+  <dialog class="documentos-dialog" id="archivoDialog" aria-labelledby="archivoDialogTitulo">
+    <form id="archivoForm">
       <div class="documentos-dialog-header">
         <div>
-          <p class="documentos-kicker">ESCANEO</p>
-          <h2 id="escanerDialogTitulo">Revisar documento</h2>
+          <p class="documentos-kicker">ARCHIVO DE CARPETA</p>
+          <h2 id="archivoDialogTitulo">Editar página</h2>
         </div>
-        <button type="button" class="documentos-dialog-close" id="btnCerrarEscaneo" aria-label="Cerrar">×</button>
+        <button type="button" class="documentos-dialog-close" id="btnCerrarArchivo" aria-label="Cerrar">×</button>
       </div>
-      <p class="documentos-escaner-ayuda">Revisa los bordes detectados y la corrección de perspectiva antes de transcribir.</p>
-      <div class="documentos-escaner-vista">
-        <canvas id="escaneoPreview" aria-label="Vista previa del documento escaneado"></canvas>
+      <label>Nombre
+        <input type="text" id="archivoNombre" maxlength="180" required placeholder="Ej. Índice, 3.3 o 1">
+      </label>
+      <label id="archivoContenidoLabel" hidden>Texto
+        <textarea id="archivoContenido" rows="10"></textarea>
+      </label>
+      <label>Reemplazar archivo <span class="documentos-opcional">Opcional</span>
+        <input type="file" id="archivoReemplazo" accept="image/png,image/jpeg,application/pdf,text/plain,.png,.jpg,.jpeg,.pdf,.txt">
+      </label>
+      <p class="documentos-opcional">Al reemplazar, este archivo conserva su posición en la carpeta.</p>
+      <div class="documentos-dialog-error" id="archivoError" role="alert"></div>
+      <div class="documentos-dialog-actions">
+        <button type="button" class="btn btn-outline" id="btnCancelarArchivo">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnGuardarArchivo">Guardar cambios</button>
       </div>
-      <p class="documentos-escaner-estado" id="escaneoEstado" role="status" aria-live="polite"></p>
-      <div class="documentos-escaner-acciones">
-        <button type="button" class="btn btn-outline" id="btnCancelarEscaneo">Cancelar</button>
-        <button type="button" class="btn btn-outline" id="btnAlternarEscaneo" hidden>Ver foto original</button>
-        <button type="button" class="btn btn-primary" id="btnGuardarEscaneo">Guardar y transcribir</button>
+    </form>
+  </dialog>
+
+  <dialog class="documentos-lector" id="lectorDialog" aria-labelledby="lectorTitulo">
+    <header class="documentos-lector-header">
+      <h2 id="lectorTitulo"></h2>
+      <div class="documentos-lector-header-acciones">
+        <span id="lectorContador" aria-live="polite"></span>
+        <button type="button" class="documentos-dialog-close" id="btnCerrarLector" aria-label="Cerrar visualizador">×</button>
       </div>
+    </header>
+    <div class="documentos-lector-escena" id="lectorEscena">
+      <button type="button" class="documentos-lector-flecha" id="btnPaginaAnterior" aria-label="Página anterior" title="Anterior">‹</button>
+      <div class="documentos-lector-centro">
+        <article class="documentos-lector-portada" id="lectorPortada">
+          <div class="documentos-lector-portada-lomo" aria-hidden="true"></div>
+          <div class="documentos-lector-portada-contenido">
+            <p class="documentos-lector-portada-sello">BIBLIOTECA SI3 <span>·</span> CARPETAS</p>
+            <div class="documentos-lector-portada-regla" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h1 class="documentos-lector-portada-titulo" id="lectorPortadaTitulo"></h1>
+            <p class="documentos-lector-portada-descripcion" id="lectorPortadaDescripcion"></p>
+            <div class="documentos-lector-portada-pie">
+              <span id="lectorPortadaCantidad"></span>
+              <button type="button" class="documentos-lector-portada-boton" id="btnAbrirLibro">
+                <span>Abrir carpeta</span><span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+        </article>
+        <div class="documentos-lector-abierto" id="lectorAbierto" aria-live="polite" hidden>
+          <article class="documentos-lector-hoja" id="lectorHojaIzquierda"></article>
+          <article class="documentos-lector-hoja" id="lectorHojaDerecha"></article>
+        </div>
+      </div>
+      <button type="button" class="documentos-lector-flecha" id="btnPaginaSiguiente" aria-label="Página siguiente" title="Siguiente">›</button>
     </div>
+    <nav class="documentos-lector-miniaturas" id="lectorMiniaturas" aria-label="Ir a una página"></nav>
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
   <script src="supabase-client.js"></script>
   <script src="documentos.js"></script>
 </body>

@@ -96,8 +96,8 @@ trazabilidad (id, fecha, referencia, ckd, responsable, foto, ...)
 
 ## Panel de documentos
 
-1. En Supabase SQL Editor, ejecuta `documentos-schema.sql` para crear las tablas, políticas y el bucket público `documentos-netoncrea`.
+1. En Supabase SQL Editor, ejecuta `documentos-schema.sql` para crear o actualizar las tablas, políticas y el bucket público `documentos-netoncrea`. Vuelve a ejecutar este archivo después de actualizar la aplicación para habilitar el orden, edición y reemplazo de páginas.
 2. Abre `documentos.html` desde la aplicación y crea un libro.
 3. Adjunta archivos PNG, JPG, PDF o TXT, escribe notas dentro de un libro o captura una imagen para guardarla y transcribirla automáticamente al español.
 
-Los archivos se guardan en Supabase Storage y sus datos descriptivos en `documentos_archivos`. Para aplicar los nuevos tipos y retirar el límite de 20 MB configurado por este panel, vuelve a ejecutar `documentos-schema.sql` en SQL Editor. El límite global de carga que imponga tu plan de Supabase Storage seguirá vigente. La transcripción OCR requiere conexión a internet para cargar Tesseract.js y el modelo de español. El bucket es público para permitir la vista previa y apertura de enlaces. Igual que el resto de la aplicación, las políticas de escritura de este panel son públicas y deben restringirse con Supabase Auth antes de exponerlo fuera de una red interna.
+Los archivos se guardan en Supabase Storage y sus datos descriptivos en `documentos_archivos`. Para aplicar los nuevos tipos, retirar el límite de 20 MB configurado por este panel y activar el orden/edición de páginas, vuelve a ejecutar `documentos-schema.sql` en SQL Editor. El límite global de carga que imponga tu plan de Supabase Storage seguirá vigente. La transcripción OCR requiere conexión a internet para cargar Tesseract.js y el modelo de español. El bucket es público para permitir la vista previa y apertura de enlaces. Igual que el resto de la aplicación, las políticas de escritura de este panel son públicas y deben restringirse con Supabase Auth antes de exponerlo fuera de una red interna.

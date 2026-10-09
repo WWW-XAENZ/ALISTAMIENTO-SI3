@@ -552,9 +552,20 @@ const DB = {
       .from('documentos_archivos')
       .select('*')
       .eq('libro_id', libroId)
-      .order('created_at', { ascending: false });
+      .order('orden', { ascending: true })
+      .order('created_at', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      if (!String(error.message || '').toLocaleLowerCase('es').includes('orden')) throw error;
+      const legacy = await supabaseClient
+        .from('documentos_archivos')
+        .select('*')
+        .eq('libro_id', libroId)
+        .order('created_at', { ascending: true });
+
+      if (legacy.error) throw legacy.error;
+      return (legacy.data || []).map((archivo, index) => ({ ...archivo, orden: index + 1 }));
+    }
     return Array.isArray(data) ? data : [];
   },
 
@@ -601,6 +612,20 @@ const DB = {
     const { data, error } = await supabaseClient
       .from('documentos_archivos')
       .insert(archivo)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateArchivoLibro(id, changes) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient
+      .from('documentos_archivos')
+      .update(changes)
+      .eq('id', id)
       .select('*')
       .single();
 
