@@ -93,3 +93,11 @@ registros (id, grupo_id, fecha, turno, referencia, base, fomi, ...)
 
 trazabilidad (id, fecha, referencia, ckd, responsable, foto, ...)
 ```
+
+## Panel de documentos
+
+1. En Supabase SQL Editor, ejecuta `documentos-schema.sql` para crear las tablas, políticas y el bucket público `documentos-netoncrea`.
+2. Abre `documentos.html` desde la aplicación y crea un libro.
+3. Adjunta archivos PNG, JPG o PDF de hasta 20 MB.
+
+Los archivos se guardan en Supabase Storage y sus datos descriptivos en `documentos_archivos`. El bucket es público para permitir la vista previa y apertura de enlaces. Igual que el resto de la aplicación, las políticas de escritura de este panel son públicas y deben restringirse con Supabase Auth antes de exponerlo fuera de una red interna.

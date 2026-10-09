@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Biblioteca de documentos organizados en libros.">
+  <title>Documentos | SI3</title>
+  <link rel="stylesheet" href="Estilo.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="Logo-Web-SI3.png" alt="Logo SI3" class="logo-img" width="48" height="48">
+      <div class="logo-text">
+        <div class="logo-title">DOCUMENTOS</div>
+        <div class="logo-subtitle">Biblioteca de libros</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="hamburger" id="btnMenu" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="menu-overlay" id="menuOverlay">
+    <div class="menu-panel">
+      <button type="button" class="menu-close" id="btnCerrarMenu" aria-label="Cerrar menú">✕</button>
+      <h3 class="menu-title">MENÚ</h3>
+      <ul class="menu-list">
+        <li><a href="index.html" class="menu-link">INICIO</a></li>
+        <li><a href="Alistamiento.html" class="menu-link">ALISTAMIENTO</a></li>
+        <li><a href="Alistamiento.html?seccion=trazabilidad" class="menu-link">TRAZABILIDAD</a></li>
+        <li><a href="NoConformes.html" class="menu-link">NO CONFORMES</a></li>
+        <li><a href="listado.html" class="menu-link">LISTADO</a></li>
+        <li><a href="documentos.html" class="menu-link">DOCUMENTOS</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="documentos-page">
+    <header class="documentos-heading">
+      <div>
+        <p class="documentos-kicker">ARCHIVO SI3</p>
+        <h1>Libros de documentos</h1>
+        <p class="documentos-intro">Organiza imágenes y archivos de consulta por libro.</p>
+      </div>
+      <button type="button" class="btn btn-primary" id="btnCrearLibro">+ Crear libro</button>
+    </header>
+
+    <div class="documentos-status" id="documentosStatus" role="status" aria-live="polite"></div>
+
+    <div class="documentos-layout">
+      <aside class="documentos-sidebar" aria-label="Libros">
+        <div class="documentos-sidebar-heading">
+          <h2>Mis libros</h2>
+          <span id="librosCount">0</span>
+        </div>
+        <label class="documentos-search">
+          <span class="sr-only">Buscar libro</span>
+          <input type="search" id="buscarLibro" placeholder="Buscar libro..." autocomplete="off">
+        </label>
+        <div class="documentos-libros-lista" id="librosLista"></div>
+      </aside>
+
+      <section class="documentos-workspace" aria-live="polite">
+        <div class="documentos-vacio" id="documentosVacio">
+          <span class="documentos-vacio-icon" aria-hidden="true"><span class="documentos-folder-empty"></span></span>
+          <h2>Selecciona un libro</h2>
+          <p>O crea uno para empezar a reunir sus documentos.</p>
+        </div>
+        <div class="documentos-libro-detalle" id="libroDetalle" hidden>
+          <div class="documentos-libro-header">
+            <div>
+              <p class="documentos-kicker">LIBRO</p>
+              <h2 id="libroTitulo"></h2>
+              <p id="libroDescripcion" class="documentos-libro-descripcion"></p>
+            </div>
+            <div class="documentos-libro-acciones">
+              <input type="file" id="inputArchivos" accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf" multiple hidden>
+              <button type="button" class="btn btn-primary" id="btnAgregarArchivos">+ Adjuntar archivos</button>
+            </div>
+          </div>
+          <div class="documentos-archivos-meta"><span id="archivosCount">0 archivos</span><span>PNG, JPG o PDF · Máximo 20 MB por archivo</span></div>
+          <div class="documentos-archivos-grid" id="archivosGrid"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="documentos-dialog" id="libroDialog" aria-labelledby="libroDialogTitulo">
+    <form id="libroForm">
+      <div class="documentos-dialog-header">
+        <div>
+          <p class="documentos-kicker">BIBLIOTECA</p>
+          <h2 id="libroDialogTitulo">Crear libro</h2>
+        </div>
+        <button type="button" class="documentos-dialog-close" id="btnCerrarLibro" aria-label="Cerrar">×</button>
+      </div>
+      <label>Nombre del libro
+        <input type="text" id="nuevoLibroNombre" maxlength="120" required placeholder="Ej. Manuales de operación">
+      </label>
+      <label>Descripción <span class="documentos-opcional">Opcional</span>
+        <textarea id="nuevoLibroDescripcion" maxlength="500" rows="3" placeholder="Describe el contenido de este libro"></textarea>
+      </label>
+      <div class="documentos-dialog-error" id="libroError" role="alert"></div>
+      <div class="documentos-dialog-actions">
+        <button type="button" class="btn btn-outline" id="btnCancelarLibro">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnGuardarLibro">Crear libro</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="documentos.js"></script>
+</body>
+</html>

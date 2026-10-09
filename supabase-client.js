@@ -531,6 +531,113 @@ const DB = {
       console.error('Error actualizando board_foto:', error);
       throw error;
     }
+  },
+
+  async getLibros() {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient
+      .from('documentos_libros')
+      .select('*, documentos_archivos(id)')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
+  async getArchivosLibro(libroId) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient
+      .from('documentos_archivos')
+      .select('*')
+      .eq('libro_id', libroId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
+  async saveLibro(libro) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient
+      .from('documentos_libros')
+      .insert(libro)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async uploadArchivoLibro(path, file) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient.storage
+      .from('documentos-netoncrea')
+      .upload(path, file, { contentType: file.type, upsert: false });
+
+    if (error) throw error;
+    return data.path;
+  },
+
+  getUrlArchivoLibro(path) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+    return supabaseClient.storage.from('documentos-netoncrea').getPublicUrl(path).data.publicUrl;
+  },
+
+  async removeArchivoLibro(path) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+    const { error } = await supabaseClient.storage
+      .from('documentos-netoncrea')
+      .remove([path]);
+    if (error) throw error;
+  },
+
+  async saveArchivoLibro(archivo) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { data, error } = await supabaseClient
+      .from('documentos_archivos')
+      .insert(archivo)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteArchivoLibro(id, path) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    const { error: storageError } = await supabaseClient.storage
+      .from('documentos-netoncrea')
+      .remove([path]);
+    if (storageError) throw storageError;
+
+    const { error } = await supabaseClient
+      .from('documentos_archivos')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteLibro(id, paths) {
+    if (!isSupabaseEnabled()) throw new Error('Supabase no está conectado.');
+
+    if (paths.length) {
+      const { error: storageError } = await supabaseClient.storage
+        .from('documentos-netoncrea')
+        .remove(paths);
+      if (storageError) throw storageError;
+    }
+
+    const { error } = await supabaseClient
+      .from('documentos_libros')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   }
 };
 
